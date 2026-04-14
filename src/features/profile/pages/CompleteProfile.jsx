@@ -37,11 +37,11 @@ export default function CompleteProfile() {
 
     window.cloudinary.openUploadWidget(
       {
-        cloudName: 'deadimyba',
+        cloudName: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME,
         uploadPreset: 'fleeswap_unsigned',
         sources: ['local', 'url', 'camera'],
         resourceType: 'auto',
-        clientAllowedFormats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+        clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp'],
         maxFileSize: 5000000,
       },
       (error, result) => {
