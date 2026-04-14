@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { updateProfile } from '../services/profileService'
 import useAuthStore from '../../auth/store/authStore'
-
-const BIO_MAX = 300
-const LOCATION_MAX = 100
+import { validateBio, validateLocation } from '../../../utils/validators'
+import { BIO_MAX, LOCATION_MAX } from '../../../utils/constants'
 
 export default function CompleteProfile() {
   const navigate = useNavigate()
@@ -60,19 +59,15 @@ export default function CompleteProfile() {
     setError('')
 
     if (!photo && !bio.trim() && !location.trim()) {
-      setError('Completa al menos un campo')
+      setError('Completá al menos un campo')
       return
     }
 
-    if (bio.trim() && bio.trim().length < 3) {
-      setError('La bio debe tener al menos 3 caracteres')
-      return
-    }
+    const bioError = validateBio(bio)
+    if (bioError) { setError(bioError); return }
 
-    if (location.trim() && location.trim().length < 2) {
-      setError('La ubicación debe tener al menos 2 caracteres')
-      return
-    }
+    const locationError = validateLocation(location)
+    if (locationError) { setError(locationError); return }
 
     setLoading(true)
     try {

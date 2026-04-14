@@ -4,6 +4,7 @@ import { register } from '../services/authService'
 import useAuthStore from '../store/authStore'
 import AuthLayout from '../../../shared/components/layout/AuthLayout'
 import FormField, { inputClass } from '../../../shared/components/forms/FormField'
+import PasswordInput from '../../../shared/components/forms/PasswordInput'
 import SubmitButton from '../../../shared/components/forms/SubmitButton'
 import {
   validateEmail,
@@ -61,6 +62,7 @@ export default function Register() {
         fechaNacimiento: form.fechaNacimiento,
         email: form.email,
         password: form.password,
+        confirmPassword: form.confirm,
       })
       setAuth(data.user, data.token)
       navigate('/complete-profile')
@@ -136,24 +138,22 @@ export default function Register() {
         </FormField>
 
         <FormField label="Contraseña" error={errors.password}>
-          <input
-            type="password"
+          <PasswordInput
             name="password"
             value={form.password}
             onChange={handleChange}
             placeholder="••••••••"
-            className={inputClass(errors.password)}
+            error={errors.password}
           />
         </FormField>
 
         <FormField label="Confirmar contraseña" error={errors.confirm}>
-          <input
-            type="password"
+          <PasswordInput
             name="confirm"
             value={form.confirm}
             onChange={handleChange}
             placeholder="••••••••"
-            className={inputClass(errors.confirm)}
+            error={errors.confirm}
           />
         </FormField>
 

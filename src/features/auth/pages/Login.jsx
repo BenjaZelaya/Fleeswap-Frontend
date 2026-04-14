@@ -4,6 +4,7 @@ import { login } from '../services/authService'
 import useAuthStore from '../store/authStore'
 import AuthLayout from '../../../shared/components/layout/AuthLayout'
 import FormField, { inputClass } from '../../../shared/components/forms/FormField'
+import PasswordInput from '../../../shared/components/forms/PasswordInput'
 import SubmitButton from '../../../shared/components/forms/SubmitButton'
 import { validateEmail } from '../../../utils/validators'
 
@@ -78,13 +79,12 @@ export default function Login() {
               ¿Olvidaste tu contraseña?
             </Link>
           </div>
-          <input
-            type="password"
+          <PasswordInput
             name="password"
             value={form.password}
             onChange={handleChange}
             placeholder="••••••••"
-            className={inputClass(errors.password)}
+            error={errors.password}
           />
           {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
         </div>

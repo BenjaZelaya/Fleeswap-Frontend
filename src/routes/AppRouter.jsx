@@ -5,6 +5,8 @@ import Home from '../pages/Home'
 import Login from '../features/auth/pages/Login'
 import Register from '../features/auth/pages/Register'
 import CompleteProfile from '../features/profile/pages/CompleteProfile'
+import PublicProfile from '../features/profile/pages/PublicProfile'
+import EditProfile from '../features/profile/pages/EditProfile'
 
 export default function AppRouter() {
   return (
@@ -13,6 +15,15 @@ export default function AppRouter() {
         {/* Rutas con navbar */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/profile/:id" element={<PublicProfile />} />
+          <Route
+            path="/profile/edit"
+            element={
+              <ProtectedRoute>
+                <EditProfile />
+              </ProtectedRoute>
+            }
+          />
         </Route>
 
         {/* Rutas de auth — sin navbar, con AuthLayout propio */}
