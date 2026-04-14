@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { getMyProfile, updateProfile } from '../services/profileService'
+import { Link, useNavigate } from 'react-router-dom'
+import { getMyProfile, updateProfile, deleteAccount } from '../services/profileService'
 import useAuthStore from '../../auth/store/authStore'
+import { logout as logoutService } from '../../auth/services/authService'
 import { BIO_MAX, LOCATION_MAX } from '../../../utils/constants'
 import { validateBio, validateLocation } from '../../../utils/validators'
+import PasswordInput from '../../../shared/components/forms/PasswordInput'
 
 export default function EditProfile() {
   const navigate = useNavigate()
-  const { updateUser } = useAuthStore()
+  const { updateUser, logout } = useAuthStore()
 
   const [original, setOriginal] = useState({ photo: null, bio: '', location: '' })
   const [photo, setPhoto] = useState(null)
@@ -18,12 +20,17 @@ export default function EditProfile() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
 
+  // Estado modal eliminar cuenta
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deletePassword, setDeletePassword] = useState('')
+  const [deleteError, setDeleteError] = useState('')
+  const [deleting, setDeleting] = useState(false)
+
   const hasChanges =
     photo !== original.photo ||
     bio.trim() !== (original.bio ?? '') ||
     location.trim() !== (original.location ?? '')
 
-  // Cargar datos actuales del perfil
   useEffect(() => {
     async function fetchProfile() {
       try {
@@ -46,7 +53,6 @@ export default function EditProfile() {
     fetchProfile()
   }, [])
 
-  // Cargar script de Cloudinary
   useEffect(() => {
     const script = document.createElement('script')
     script.src = 'https://upload-widget.cloudinary.com/global/all.js'
@@ -109,6 +115,29 @@ export default function EditProfile() {
     }
   }
 
+  async function handleDelete() {
+    if (!deletePassword) {
+      setDeleteError('Ingresá tu contraseña para confirmar')
+      return
+    }
+    setDeleting(true)
+    setDeleteError('')
+    try {
+      await deleteAccount(deletePassword)
+      try { await logoutService() } catch { /* ignorar */ }
+      logout()
+      navigate('/')
+    } catch (err) {
+      if (err.response?.status === 401) {
+        setDeleteError('Contraseña incorrecta')
+      } else {
+        setDeleteError('Ocurrió un error. Intentá de nuevo.')
+      }
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   if (fetching) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -121,7 +150,8 @@ export default function EditProfile() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
+    <div className="max-w-2xl mx-auto px-4 py-8 space-y-4">
+      {/* Sección principal */}
       <div className="bg-white rounded-2xl shadow-sm p-8">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800">Editar perfil</h1>
@@ -143,7 +173,6 @@ export default function EditProfile() {
         )}
 
         <div className="space-y-6">
-          {/* Foto */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-3">
               Foto de perfil
@@ -156,18 +185,10 @@ export default function EditProfile() {
                   className="w-20 h-20 rounded-full object-cover border-2 border-gray-100"
                 />
                 <div className="flex flex-col gap-2">
-                  <button
-                    type="button"
-                    onClick={openUploadWidget}
-                    className="text-sm text-blue-600 hover:underline"
-                  >
+                  <button type="button" onClick={openUploadWidget} className="text-sm text-blue-600 hover:underline">
                     Cambiar foto
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setPhoto(null)}
-                    className="text-sm text-red-500 hover:underline"
-                  >
+                  <button type="button" onClick={() => setPhoto(null)} className="text-sm text-red-500 hover:underline">
                     Eliminar foto
                   </button>
                 </div>
@@ -184,42 +205,28 @@ export default function EditProfile() {
             )}
           </div>
 
-          {/* Bio */}
           <div>
             <div className="flex justify-between items-center mb-2">
-              <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Biografía
-              </label>
+              <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider">Biografía</label>
               <span className="text-xs text-gray-400">{bio.length}/{BIO_MAX}</span>
             </div>
             <textarea
               value={bio}
-              onChange={(e) => {
-                if (e.target.value.length <= BIO_MAX) setBio(e.target.value)
-                setError('')
-                setSuccess(false)
-              }}
+              onChange={(e) => { if (e.target.value.length <= BIO_MAX) setBio(e.target.value); setError(''); setSuccess(false) }}
               placeholder="Contá algo sobre vos..."
               className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-sm outline-none transition focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none h-24"
             />
           </div>
 
-          {/* Ubicación */}
           <div>
             <div className="flex justify-between items-center mb-2">
-              <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Ubicación
-              </label>
+              <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider">Ubicación</label>
               <span className="text-xs text-gray-400">{location.length}/{LOCATION_MAX}</span>
             </div>
             <input
               type="text"
               value={location}
-              onChange={(e) => {
-                if (e.target.value.length <= LOCATION_MAX) setLocation(e.target.value)
-                setError('')
-                setSuccess(false)
-              }}
+              onChange={(e) => { if (e.target.value.length <= LOCATION_MAX) setLocation(e.target.value); setError(''); setSuccess(false) }}
               placeholder="Ciudad, País"
               className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-sm outline-none transition focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
@@ -229,12 +236,77 @@ export default function EditProfile() {
         <button
           onClick={handleSave}
           disabled={loading || !hasChanges}
-          className="mt-8 w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed
-            text-white font-semibold py-3 rounded-lg transition-all active:scale-95"
+          className="mt-8 w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-all active:scale-95"
         >
           {loading ? 'Guardando...' : 'Guardar cambios'}
         </button>
       </div>
+
+      {/* Seguridad */}
+      <div className="bg-white rounded-2xl shadow-sm p-8">
+        <h2 className="text-sm font-semibold text-gray-700 mb-4">Seguridad</h2>
+        <Link
+          to="/change-password"
+          className="flex items-center justify-between text-sm text-gray-600 hover:text-blue-600 transition-colors"
+        >
+          <span>Cambiar contraseña</span>
+          <span className="text-gray-400">→</span>
+        </Link>
+      </div>
+
+      {/* Zona de peligro */}
+      <div className="bg-white rounded-2xl shadow-sm p-8 border border-red-100">
+        <h2 className="text-sm font-semibold text-gray-700 mb-1">Zona de peligro</h2>
+        <p className="text-xs text-gray-400 mb-4">
+          Eliminar tu cuenta es una acción irreversible. Todos tus datos serán desactivados.
+        </p>
+        <button
+          onClick={() => setShowDeleteModal(true)}
+          className="text-sm font-medium text-red-500 hover:text-red-600 transition-colors"
+        >
+          Eliminar mi cuenta
+        </button>
+      </div>
+
+      {/* Modal confirmar eliminación */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
+            <h3 className="text-lg font-bold text-gray-800 mb-1">¿Eliminar tu cuenta?</h3>
+            <p className="text-sm text-gray-500 mb-5">
+              Esta acción no se puede deshacer. Ingresá tu contraseña para confirmar.
+            </p>
+
+            {deleteError && (
+              <p className="text-xs text-red-500 bg-red-50 rounded-lg px-3 py-2 mb-4">{deleteError}</p>
+            )}
+
+            <PasswordInput
+              value={deletePassword}
+              onChange={(e) => { setDeletePassword(e.target.value); setDeleteError('') }}
+              placeholder="Tu contraseña actual"
+              error={deleteError}
+            />
+
+            <div className="flex gap-3 mt-5">
+              <button
+                onClick={() => { setShowDeleteModal(false); setDeletePassword(''); setDeleteError('') }}
+                disabled={deleting}
+                className="flex-1 border border-gray-200 text-gray-600 hover:bg-gray-50 font-medium py-2.5 rounded-lg transition-colors text-sm"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="flex-1 bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg transition-colors text-sm"
+              >
+                {deleting ? 'Eliminando...' : 'Sí, eliminar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -13,3 +13,22 @@ export async function login(email, password) {
 export async function logout() {
   await api.post('/auth/logout')
 }
+
+export async function changePassword(passwordActual, passwordNueva, confirmPassword) {
+  const response = await api.patch('/auth/change-password', {
+    passwordActual,
+    passwordNueva,
+    confirmPassword,
+  })
+  return response.data
+}
+
+export async function forgotPassword(email) {
+  const response = await api.post('/auth/forgot-password', { email })
+  return response.data
+}
+
+export async function resetPassword(token, password, confirmPassword) {
+  const response = await api.post('/auth/reset-password', { token, password, confirmPassword })
+  return response.data
+}

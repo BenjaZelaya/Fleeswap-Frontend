@@ -50,8 +50,15 @@ export default function Login() {
     setErrors({ ...errors, [e.target.name]: '' })
   }
 
+  const successMessage = location.state?.message
+
   return (
     <AuthLayout title="Iniciar sesión" subtitle="Accedé a tu archivo digital de nostalgia">
+      {successMessage && (
+        <p className="text-sm text-green-600 bg-green-50 rounded-lg px-4 py-2 mb-4 text-center">
+          {successMessage}
+        </p>
+      )}
       {errors.general && (
         <p className="text-sm text-red-500 bg-red-50 rounded-lg px-4 py-2 mb-4 text-center">
           {errors.general}

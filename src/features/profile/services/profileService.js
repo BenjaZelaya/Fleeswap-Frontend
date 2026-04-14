@@ -14,3 +14,8 @@ export async function updateProfile(data) {
   const response = await api.patch('/users/me/profile', data)
   return response.data
 }
+
+export async function deleteAccount(password) {
+  const response = await api.delete('/users/me', { data: { password } })
+  return response.data
+}
