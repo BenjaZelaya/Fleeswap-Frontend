@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { updateProfile } from '../../auth/services/authService'
+import { updateProfile } from '../services/profileService'
 import useAuthStore from '../../auth/store/authStore'
 
 const BIO_MAX = 300
