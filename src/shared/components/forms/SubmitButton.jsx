@@ -1,10 +1,16 @@
+import { motion } from 'framer-motion'
+
 export default function SubmitButton({ loading, label, loadingLabel }) {
   return (
-    <button
+    <motion.button
       type="submit"
       disabled={loading}
-      className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed
-        text-white font-semibold py-3 rounded-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+      whileHover={!loading ? { scale: 1.015 } : {}}
+      whileTap={!loading ? { scale: 0.97 } : {}}
+      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+      className="w-full bg-brand hover:bg-brand-light disabled:opacity-50 disabled:cursor-not-allowed
+        text-warm-white font-semibold py-4 rounded-xl transition-colors
+        flex items-center justify-center gap-2 tracking-wide"
     >
       {loading ? (
         <>
@@ -14,9 +20,7 @@ export default function SubmitButton({ loading, label, loadingLabel }) {
           </svg>
           {loadingLabel}
         </>
-      ) : (
-        label
-      )}
-    </button>
+      ) : label}
+    </motion.button>
   )
 }

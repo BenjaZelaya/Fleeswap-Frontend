@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { register } from '../services/authService'
 import useAuthStore from '../store/authStore'
 import AuthLayout from '../../../shared/components/layout/AuthLayout'
@@ -22,6 +22,7 @@ const MAX_BIRTH_DATE = (() => {
 
 export default function Register() {
   const navigate = useNavigate()
+  const location = useLocation()
   const setAuth = useAuthStore((s) => s.setAuth)
 
   const [form, setForm] = useState({
@@ -49,8 +50,7 @@ export default function Register() {
   async function handleSubmit(e) {
     e.preventDefault()
     const errs = validate()
-    const hasErrors = Object.values(errs).some(Boolean)
-    if (hasErrors) return setErrors(errs)
+    if (Object.values(errs).some(Boolean)) return setErrors(errs)
 
     setLoading(true)
     setErrors({})
@@ -64,8 +64,8 @@ export default function Register() {
         password: form.password,
         confirmPassword: form.confirm,
       })
-      setAuth(data.user, data.token)
-      navigate('/complete-profile')
+      setAuth(data.user, data.accessToken)
+      navigate(location.state?.from?.pathname || '/')
     } catch (err) {
       if (err.response?.status === 409) {
         setErrors({ email: 'El email ya está en uso' })
@@ -83,9 +83,12 @@ export default function Register() {
   }
 
   return (
-    <AuthLayout title="Crear cuenta" subtitle="Accedé a tu archivo digital de nostalgia">
+    <AuthLayout title="Crear cuenta" subtitle="Empezá a intercambiar hoy">
       {errors.general && (
-        <p className="text-sm text-red-500 bg-red-50 rounded-lg px-4 py-2 mb-4 text-center">
+        <p className="text-sm text-red-500 bg-red-50 rounded-xl px-4 py-2.5 mb-5 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+          </svg>
           {errors.general}
         </p>
       )}
@@ -157,12 +160,12 @@ export default function Register() {
           />
         </FormField>
 
-        <SubmitButton loading={loading} label="Registrarse →" loadingLabel="Registrando..." />
+        <SubmitButton loading={loading} label="Crear cuenta" loadingLabel="Registrando..." />
       </form>
 
       <p className="text-center text-sm text-gray-400 mt-6">
         ¿Ya tenés una cuenta?{' '}
-        <Link to="/login" className="text-blue-600 font-semibold hover:underline">
+        <Link to="/login" className="text-brand-accent font-semibold hover:text-brand transition-colors">
           Iniciá sesión
         </Link>
       </p>
