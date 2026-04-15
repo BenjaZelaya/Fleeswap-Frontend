@@ -1,6 +1,6 @@
 import api from '../../../services/api'
 
-// 🔹 REGISTER (opcional: lo podés simular también si querés)
+// 🔹 REGISTER (simulado)
 export async function register(email, password) {
   await new Promise((res) => setTimeout(res, 500))
 
@@ -17,7 +17,6 @@ export async function register(email, password) {
 export async function login(email, password) {
   await new Promise((res) => setTimeout(res, 500))
 
-  // 🔥 usuarios simulados (como si vinieran del backend)
   const users = [
     {
       id: "1",
@@ -33,15 +32,12 @@ export async function login(email, password) {
     },
   ]
 
-  // buscar usuario
   const user = users.find((u) => u.email === email)
 
-  // validar credenciales
   if (!user || user.password !== password) {
     throw new Error("EMAIL_NOT_FOUND")
   }
 
-  // devolver como API real
   return {
     user: {
       id: user.id,
@@ -52,9 +48,8 @@ export async function login(email, password) {
   }
 }
 
-// 🔹 UPDATE PROFILE (lo dejás para cuando haya backend)
+// 🔹 UPDATE PROFILE (simulado)
 export async function updateProfile(data) {
   await new Promise((res) => setTimeout(res, 500))
-
   return data
 }
