@@ -1,24 +1,15 @@
-import { create } from 'zustand'
+import { create } from "zustand";
 
 const useAuthStore = create((set) => ({
+  //  ESTADO INICIAL (NO LOGUEADO)
   user: null,
   token: null,
 
-  setAuth: (user, token) => {
-    localStorage.setItem('token', token)
-    set({ user, token })
-  },
+  //  LOGIN (guardar usuario)
+  setAuth: (user, token) => set({ user, token }),
 
-  updateUser: (userData) => {
-    set((state) => ({
-      user: { ...state.user, ...userData },
-    }))
-  },
+  //  LOGOUT (limpiar usuario)
+  logout: () => set({ user: null, token: null }),
+}));
 
-  logout: () => {
-    localStorage.removeItem('token')
-    set({ user: null, token: null })
-  },
-}))
-
-export default useAuthStore
+export default useAuthStore;

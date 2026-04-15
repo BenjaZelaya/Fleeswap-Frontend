@@ -1,13 +1,14 @@
-import { Navigate, useLocation } from 'react-router-dom'
-import useAuthStore from '../features/auth/store/authStore'
+import { Navigate } from "react-router-dom";
+import useAuthStore from "../features/auth/store/authStore";
 
-export default function ProtectedRoute({ children }) {
-  const token = useAuthStore((s) => s.token)
-  const location = useLocation()
+const ProtectedRoute = ({ children }) => {
+  const user = useAuthStore((s) => s.user);
 
-  if (!token) {
-    return <Navigate to="/login" state={{ from: location }} replace />
+  if (!user) {
+    return <Navigate to="/login" />;
   }
 
-  return children
-}
+  return children;
+};
+
+export default ProtectedRoute;

@@ -1,28 +1,52 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Home from './pages/Home'
-import Login from './features/auth/pages/Login'
-import Register from './features/auth/pages/Register'
-import CompleteProfile from './features/profile/pages/CompleteProfile'
-import ProtectedRoute from './components/ProtectedRoute'
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
+import Login from "./features/auth/pages/Login";
+import Register from "./features/auth/pages/Register";
+import Home from "./pages/Home";
+
+import PublicProfilePage from "./features/profile/pages/PublicProfilePage";
+import EditProfilePage from "./features/profile/pages/EditProfilePage";
+
+import ProtectedRoute from "./Components/ProtectedRoute";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
+
+        {/* Redirección inicial */}
+        <Route path="/" element={<Navigate to="/login" />} />
+
+        {/* Auth */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
+        {/* Home */}
+        <Route path="/home" element={<Home />} />
+
+        {/* Perfil protegido */}
         <Route
-          path="/complete-profile"
+          path="/profile/:id"
           element={
             <ProtectedRoute>
-              <CompleteProfile />
+              <PublicProfilePage />
             </ProtectedRoute>
           }
         />
+
+        {/*Editar perfil protegido */}
+        <Route
+          path="/edit-profile"
+          element={
+            <ProtectedRoute>
+              <EditProfilePage />
+            </ProtectedRoute>
+          }
+        />
+
       </Routes>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;
