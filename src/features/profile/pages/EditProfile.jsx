@@ -1,11 +1,26 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { getMyProfile, updateProfile, deleteAccount } from '../services/profileService'
 import useAuthStore from '../../auth/store/authStore'
 import { logout as logoutService } from '../../auth/services/authService'
 import { BIO_MAX, LOCATION_MAX } from '../../../utils/constants'
 import { validateBio, validateLocation } from '../../../utils/validators'
 import PasswordInput from '../../../shared/components/forms/PasswordInput'
+import ConfirmModal from '../../../shared/components/ui/ConfirmModal'
+
+function Section({ title, children, danger }) {
+  return (
+    <div className={`bg-white rounded-2xl border shadow-sm p-6 ${danger ? 'border-red-100' : 'border-slate-100'}`}>
+      {title && (
+        <h2 className={`text-[10px] font-light uppercase tracking-[0.2em] mb-5 ${danger ? 'text-red-400' : 'text-slate-400'}`}>
+          {title}
+        </h2>
+      )}
+      {children}
+    </div>
+  )
+}
 
 export default function EditProfile() {
   const navigate = useNavigate()
@@ -20,7 +35,6 @@ export default function EditProfile() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
 
-  // Estado modal eliminar cuenta
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deletePassword, setDeletePassword] = useState('')
   const [deleteError, setDeleteError] = useState('')
@@ -71,12 +85,15 @@ export default function EditProfile() {
         cloudName: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME,
         uploadPreset: 'fleeswap_unsigned',
         sources: ['local', 'url', 'camera'],
-        resourceType: 'auto',
-        clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp'],
-        maxFileSize: 5000000,
+        resourceType: 'image',
+        allowedFormats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+        maxFileSize: 5242880, // 5MB en bytes
+        folder: 'fleeswap/profiles',
+        tags: ['profile'],
       },
       (err, result) => {
         if (err) {
+          console.error('Cloudinary error:', err)
           setError('Error al subir la foto. Intentá de nuevo.')
         } else if (result?.event === 'success') {
           setPhoto(result.info.secure_url)
@@ -141,7 +158,7 @@ export default function EditProfile() {
   if (fetching) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <svg className="animate-spin h-8 w-8 text-blue-600" viewBox="0 0 24 24" fill="none">
+        <svg className="animate-spin h-8 w-8 text-brand-accent" viewBox="0 0 24 24" fill="none">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
         </svg>
@@ -150,31 +167,49 @@ export default function EditProfile() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8 space-y-4">
-      {/* Sección principal */}
-      <div className="bg-white rounded-2xl shadow-sm p-8">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-xl font-bold text-gray-800">Editar perfil</h1>
-          <button
-            onClick={() => navigate(-1)}
-            className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            ← Volver
-          </button>
-        </div>
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="max-w-2xl mx-auto px-4 py-8 space-y-4"
+    >
+      {/* Encabezado de página */}
+      <div className="flex items-center justify-between py-2">
+        <h1 className="text-xl font-bold text-slate-900 tracking-tight">Editar perfil</h1>
+        <button
+          onClick={() => navigate(-1)}
+          className="text-sm text-gray-400 hover:text-gray-600 transition-colors flex items-center gap-1"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+          Volver
+        </button>
+      </div>
 
+      {/* Sección principal */}
+      <Section>
         {error && (
-          <p className="text-sm text-red-500 bg-red-50 rounded-lg px-4 py-3 mb-6">{error}</p>
+          <p className="text-sm text-red-500 bg-red-50 rounded-xl px-4 py-3 mb-5 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            {error}
+          </p>
         )}
         {success && (
-          <p className="text-sm text-green-600 bg-green-50 rounded-lg px-4 py-3 mb-6">
+          <p className="text-sm text-green-600 bg-green-50 rounded-xl px-4 py-3 mb-5 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
             Perfil actualizado correctamente.
           </p>
         )}
 
         <div className="space-y-6">
+          {/* Foto */}
           <div>
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-3">
+            <label className="block text-[10px] font-light uppercase tracking-[0.2em] text-slate-400 mb-3">
               Foto de perfil
             </label>
             {photo ? (
@@ -182,13 +217,13 @@ export default function EditProfile() {
                 <img
                   src={photo}
                   alt="Foto de perfil"
-                  className="w-20 h-20 rounded-full object-cover border-2 border-gray-100"
+                  className="w-20 h-20 rounded-2xl object-cover border border-gray-100"
                 />
                 <div className="flex flex-col gap-2">
-                  <button type="button" onClick={openUploadWidget} className="text-sm text-blue-600 hover:underline">
+                  <button type="button" onClick={openUploadWidget} className="text-sm font-medium text-brand-accent hover:text-brand transition-colors">
                     Cambiar foto
                   </button>
-                  <button type="button" onClick={() => setPhoto(null)} className="text-sm text-red-500 hover:underline">
+                  <button type="button" onClick={() => setPhoto(null)} className="text-sm font-medium text-red-400 hover:text-red-500 transition-colors">
                     Eliminar foto
                   </button>
                 </div>
@@ -197,38 +232,45 @@ export default function EditProfile() {
               <button
                 type="button"
                 onClick={openUploadWidget}
-                className="w-full border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 hover:bg-blue-50 transition"
+                className="w-full border-2 border-dashed border-gray-200 rounded-xl p-6 text-center hover:border-brand/40 hover:bg-brand/5 transition-all group"
               >
-                <p className="text-sm font-medium text-gray-700">Subir foto</p>
-                <p className="text-xs text-gray-400 mt-1">PNG, JPG o WebP</p>
+                <div className="w-10 h-10 bg-gray-100 group-hover:bg-brand/15 rounded-xl flex items-center justify-center mx-auto mb-2 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 group-hover:text-brand-accent transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <p className="text-sm font-medium text-gray-600 group-hover:text-brand-accent transition-colors">Subir foto</p>
+                <p className="text-xs text-gray-400 mt-0.5">PNG, JPG o WebP · Máx. 5 MB</p>
               </button>
             )}
           </div>
 
+          {/* Bio */}
           <div>
-            <div className="flex justify-between items-center mb-2">
-              <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider">Biografía</label>
-              <span className="text-xs text-gray-400">{bio.length}/{BIO_MAX}</span>
+            <div className="flex justify-between items-center mb-1.5">
+              <label className="block text-[10px] font-light uppercase tracking-[0.2em] text-slate-400">Biografía</label>
+              <span className="text-[10px] font-light text-slate-300">{bio.length}/{BIO_MAX}</span>
             </div>
             <textarea
               value={bio}
               onChange={(e) => { if (e.target.value.length <= BIO_MAX) setBio(e.target.value); setError(''); setSuccess(false) }}
               placeholder="Contá algo sobre vos..."
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-sm outline-none transition focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none h-24"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 placeholder-gray-300 outline-none transition-colors focus:border-brand focus:ring-0 hover:border-gray-400 resize-none h-24"
             />
           </div>
 
+          {/* Ubicación */}
           <div>
-            <div className="flex justify-between items-center mb-2">
-              <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider">Ubicación</label>
-              <span className="text-xs text-gray-400">{location.length}/{LOCATION_MAX}</span>
+            <div className="flex justify-between items-center mb-1.5">
+              <label className="block text-[10px] font-light uppercase tracking-[0.2em] text-slate-400">Ubicación</label>
+              <span className="text-[10px] font-light text-slate-300">{location.length}/{LOCATION_MAX}</span>
             </div>
             <input
               type="text"
               value={location}
               onChange={(e) => { if (e.target.value.length <= LOCATION_MAX) setLocation(e.target.value); setError(''); setSuccess(false) }}
               placeholder="Ciudad, País"
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-sm outline-none transition focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 placeholder-gray-300 outline-none transition-colors focus:border-brand focus:ring-0 hover:border-gray-400"
             />
           </div>
         </div>
@@ -236,77 +278,61 @@ export default function EditProfile() {
         <button
           onClick={handleSave}
           disabled={loading || !hasChanges}
-          className="mt-8 w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-all active:scale-95"
+          className="mt-8 w-full bg-brand hover:bg-brand-light disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-colors"
         >
           {loading ? 'Guardando...' : 'Guardar cambios'}
         </button>
-      </div>
+      </Section>
 
       {/* Seguridad */}
-      <div className="bg-white rounded-2xl shadow-sm p-8">
-        <h2 className="text-sm font-semibold text-gray-700 mb-4">Seguridad</h2>
+      <Section title="Seguridad">
         <Link
           to="/change-password"
-          className="flex items-center justify-between text-sm text-gray-600 hover:text-blue-600 transition-colors"
+          className="flex items-center justify-between text-sm text-gray-700 hover:text-brand-accent transition-colors group"
         >
-          <span>Cambiar contraseña</span>
-          <span className="text-gray-400">→</span>
+          <span className="font-medium">Cambiar contraseña</span>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-300 group-hover:text-brand-accent transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
         </Link>
-      </div>
+      </Section>
 
       {/* Zona de peligro */}
-      <div className="bg-white rounded-2xl shadow-sm p-8 border border-red-100">
-        <h2 className="text-sm font-semibold text-gray-700 mb-1">Zona de peligro</h2>
+      <Section title="Zona de peligro" danger>
         <p className="text-xs text-gray-400 mb-4">
-          Eliminar tu cuenta es una acción irreversible. Todos tus datos serán desactivados.
+          Eliminar tu cuenta es una acción irreversible. Todos tus datos serán desactivados permanentemente.
         </p>
         <button
           onClick={() => setShowDeleteModal(true)}
-          className="text-sm font-medium text-red-500 hover:text-red-600 transition-colors"
+          className="text-sm font-semibold text-red-500 hover:text-red-600 transition-colors"
         >
-          Eliminar mi cuenta
+          Eliminar mi cuenta →
         </button>
-      </div>
+      </Section>
 
       {/* Modal confirmar eliminación */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
-            <h3 className="text-lg font-bold text-gray-800 mb-1">¿Eliminar tu cuenta?</h3>
-            <p className="text-sm text-gray-500 mb-5">
-              Esta acción no se puede deshacer. Ingresá tu contraseña para confirmar.
-            </p>
-
-            {deleteError && (
-              <p className="text-xs text-red-500 bg-red-50 rounded-lg px-3 py-2 mb-4">{deleteError}</p>
-            )}
-
-            <PasswordInput
-              value={deletePassword}
-              onChange={(e) => { setDeletePassword(e.target.value); setDeleteError('') }}
-              placeholder="Tu contraseña actual"
-              error={deleteError}
-            />
-
-            <div className="flex gap-3 mt-5">
-              <button
-                onClick={() => { setShowDeleteModal(false); setDeletePassword(''); setDeleteError('') }}
-                disabled={deleting}
-                className="flex-1 border border-gray-200 text-gray-600 hover:bg-gray-50 font-medium py-2.5 rounded-lg transition-colors text-sm"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleDelete}
-                disabled={deleting}
-                className="flex-1 bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg transition-colors text-sm"
-              >
-                {deleting ? 'Eliminando...' : 'Sí, eliminar'}
-              </button>
-            </div>
-          </div>
+      <ConfirmModal
+        open={showDeleteModal}
+        onClose={() => { setShowDeleteModal(false); setDeletePassword(''); setDeleteError('') }}
+        onConfirm={handleDelete}
+        title="¿Eliminar tu cuenta?"
+        description="Esta acción es irreversible. Todos tus datos serán eliminados permanentemente."
+        confirmLabel="Sí, eliminar"
+        variant="danger"
+        loading={deleting}
+      >
+        <div className="mb-1">
+          {deleteError && (
+            <p className="text-xs text-red-500 bg-red-50 rounded-xl px-3 py-2 mb-3">{deleteError}</p>
+          )}
+          <PasswordInput
+            value={deletePassword}
+            onChange={(e) => { setDeletePassword(e.target.value); setDeleteError('') }}
+            placeholder="Ingresá tu contraseña para confirmar"
+            error={deleteError}
+          />
         </div>
-      )}
-    </div>
+      </ConfirmModal>
+    </motion.div>
   )
 }

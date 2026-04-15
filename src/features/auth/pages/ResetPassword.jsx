@@ -19,9 +19,14 @@ export default function ResetPassword() {
   if (!token) {
     return (
       <AuthLayout title="Link inválido" subtitle="Este link de recuperación no es válido o ya expiró">
-        <div className="text-center">
-          <Link to="/forgot-password" className="text-sm text-blue-600 font-medium hover:underline">
-            Solicitar un nuevo link
+        <div className="text-center space-y-4">
+          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <Link to="/forgot-password" className="block text-sm font-semibold text-brand-accent hover:text-brand transition-colors">
+            Solicitar un nuevo link →
           </Link>
         </div>
       </AuthLayout>
@@ -65,7 +70,10 @@ export default function ResetPassword() {
   return (
     <AuthLayout title="Nueva contraseña" subtitle="Elegí una contraseña segura para tu cuenta">
       {errors.general && (
-        <p className="text-sm text-red-500 bg-red-50 rounded-lg px-4 py-2 mb-4 text-center">
+        <p className="text-sm text-red-500 bg-red-50 rounded-xl px-4 py-2.5 mb-5 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+          </svg>
           {errors.general}
         </p>
       )}

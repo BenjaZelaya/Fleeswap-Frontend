@@ -20,7 +20,7 @@ export default function AppRouter() {
           <Route path="/" element={<Home />} />
           <Route path="/profile/:id" element={<PublicProfile />} />
           <Route
-            path="/profile/edit"
+            path="/edit-profile"
             element={<ProtectedRoute><EditProfile /></ProtectedRoute>}
           />
           <Route

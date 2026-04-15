@@ -15,7 +15,6 @@ export default function CompleteProfile() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // Cargar el script de Cloudinary
   useEffect(() => {
     const script = document.createElement('script')
     script.src = 'https://upload-widget.cloudinary.com/global/all.js'
@@ -24,29 +23,29 @@ export default function CompleteProfile() {
     return () => document.body.removeChild(script)
   }, [])
 
-  // Indicador de progreso
   const fieldsCompleted = (photo ? 1 : 0) + (bio.trim() ? 1 : 0) + (location.trim() ? 1 : 0)
   const progressPercentage = (fieldsCompleted / 3) * 100
 
   function openUploadWidget() {
     if (!window.cloudinary) {
-      setError('El widget de Cloudinary no está disponible. Recarga la página.')
+      setError('El widget de Cloudinary no está disponible. Recargá la página.')
       return
     }
-
     window.cloudinary.openUploadWidget(
       {
         cloudName: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME,
         uploadPreset: 'fleeswap_unsigned',
         sources: ['local', 'url', 'camera'],
-        resourceType: 'auto',
-        clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp'],
-        maxFileSize: 5000000,
+        resourceType: 'image',
+        allowedFormats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+        maxFileSize: 5242880, // 5MB en bytes
+        folder: 'fleeswap/profiles',
+        tags: ['profile'],
       },
-      (error, result) => {
-        if (error) {
-          setError('Error al subir la foto. Intenta de nuevo.')
-          console.error('Upload error:', error)
+      (err, result) => {
+        if (err) {
+          console.error('Cloudinary error:', err)
+          setError('Error al subir la foto. Intentá de nuevo.')
         } else if (result?.event === 'success') {
           setPhoto(result.info.secure_url)
           setError('')
@@ -76,123 +75,133 @@ export default function CompleteProfile() {
         ...(bio.trim() && { bio: bio.trim() }),
         ...(location.trim() && { location: location.trim() }),
       }
-
       const result = await updateProfile(data)
       updateUser(result)
       navigate('/')
-    } catch (err) {
-      setError('Error al actualizar el perfil. Intenta de nuevo.')
-      console.error(err)
+    } catch {
+      setError('Error al actualizar el perfil. Intentá de nuevo.')
     } finally {
       setLoading(false)
     }
   }
 
-  function handleSkip() {
-    navigate('/')
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 py-8">
-      <div className="bg-white w-full max-w-2xl rounded-2xl p-8 shadow-sm">
-        <h1 className="text-center text-2xl font-bold text-blue-600 mb-1">Fleeswap</h1>
-        <h2 className="text-center text-xl font-semibold text-gray-800 mb-4">Completa tu perfil</h2>
-        <p className="text-center text-sm text-gray-500 mb-8">Agrega información adicional a tu cuenta (puedes saltarlo por ahora)</p>
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-10" style={{ backgroundColor: '#F9F7F4' }}>
+      <div className="bg-white w-full max-w-xl rounded-2xl border border-slate-100 shadow-sm p-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <span className="inline-block text-2xl font-bold text-brand tracking-tight mb-1">
+            <span className="font-light">Flee</span><span className="font-extrabold">swap</span>
+          </span>
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Completá tu perfil</h2>
+          <p className="text-sm text-gray-400 mt-1">Podés saltarlo por ahora y hacerlo más tarde</p>
+        </div>
 
+        {/* Barra de progreso */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Progreso</span>
-            <span className="text-xs text-gray-500">{fieldsCompleted} de 3</span>
+            <span className="text-[10px] font-light uppercase tracking-[0.2em] text-slate-400">Progreso</span>
+            <span className="text-[10px] font-light text-brand-accent">{fieldsCompleted} / 3</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-gray-100 rounded-full h-1.5">
             <div
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              className="bg-brand-accent h-1.5 rounded-full transition-all duration-500"
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
         </div>
 
         {error && (
-          <p className="text-sm text-red-500 bg-red-50 rounded-lg px-4 py-3 mb-6 text-center">{error}</p>
+          <p className="text-sm text-red-500 bg-red-50 rounded-xl px-4 py-3 mb-6 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            {error}
+          </p>
         )}
 
-        <form className="space-y-6">
+        <div className="space-y-6">
+          {/* Foto */}
           <div>
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-3">Foto de perfil</label>
+            <label className="block text-[10px] font-light uppercase tracking-[0.2em] text-slate-400 mb-3">
+              Foto de perfil
+            </label>
             {photo ? (
               <div className="relative">
-                <img src={photo} alt="Preview" className="w-full h-48 object-cover rounded-lg border border-gray-200" />
+                <img
+                  src={photo}
+                  alt="Preview"
+                  className="w-full h-48 object-cover rounded-xl border border-gray-100"
+                />
                 <button
                   type="button"
                   onClick={() => setPhoto(null)}
-                  className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-2 text-sm"
+                  className="absolute top-3 right-3 bg-white/90 hover:bg-white text-gray-600 hover:text-red-500 rounded-lg p-1.5 shadow-sm transition-colors"
                 >
-                  ✕
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
                 </button>
               </div>
             ) : (
               <button
                 type="button"
                 onClick={openUploadWidget}
-                className="w-full border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 hover:bg-blue-50 transition"
+                className="w-full border-2 border-dashed border-gray-200 rounded-xl p-8 text-center hover:border-brand/40 hover:bg-brand/5 transition-all group"
               >
-                <div className="text-4xl mb-2">📸</div>
-                <p className="text-sm font-medium text-gray-700">Sube una foto</p>
-                <p className="text-xs text-gray-500 mt-1">PNG, JPG o GIF</p>
+                <div className="w-12 h-12 bg-gray-100 group-hover:bg-brand/15 rounded-xl flex items-center justify-center mx-auto mb-3 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-400 group-hover:text-brand-accent transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <p className="text-sm font-semibold text-gray-600 group-hover:text-brand-accent transition-colors">Subir una foto</p>
+                <p className="text-xs text-gray-400 mt-0.5">PNG, JPG o WebP · Máx. 5 MB</p>
               </button>
             )}
           </div>
 
+          {/* Bio */}
           <div>
-            <div className="flex justify-between items-center mb-2">
-              <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider">Biografía</label>
-              <span className="text-xs text-gray-500">{bio.length}/{BIO_MAX}</span>
+            <div className="flex justify-between items-center mb-1.5">
+              <label className="block text-[10px] font-light uppercase tracking-[0.2em] text-slate-400">Biografía</label>
+              <span className="text-[10px] font-light text-slate-300">{bio.length}/{BIO_MAX}</span>
             </div>
             <textarea
               value={bio}
-              onChange={(e) => {
-                if (e.target.value.length <= BIO_MAX) setBio(e.target.value)
-                setError('')
-              }}
-              placeholder="Cuéntanos sobre ti..."
-              maxLength={BIO_MAX}
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-sm outline-none transition focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none h-24"
+              onChange={(e) => { if (e.target.value.length <= BIO_MAX) setBio(e.target.value); setError('') }}
+              placeholder="Contá algo sobre vos..."
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 placeholder-gray-300 outline-none transition-colors focus:border-brand focus:ring-0 hover:border-gray-400 resize-none h-24"
             />
-            <p className="text-xs text-gray-400 mt-1">Máximo {BIO_MAX} caracteres</p>
           </div>
 
+          {/* Ubicación */}
           <div>
-            <div className="flex justify-between items-center mb-2">
-              <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider">Ubicación</label>
-              <span className="text-xs text-gray-500">{location.length}/{LOCATION_MAX}</span>
+            <div className="flex justify-between items-center mb-1.5">
+              <label className="block text-[10px] font-light uppercase tracking-[0.2em] text-slate-400">Ubicación</label>
+              <span className="text-[10px] font-light text-slate-300">{location.length}/{LOCATION_MAX}</span>
             </div>
             <input
               type="text"
               value={location}
-              onChange={(e) => {
-                if (e.target.value.length <= LOCATION_MAX) setLocation(e.target.value)
-                setError('')
-              }}
+              onChange={(e) => { if (e.target.value.length <= LOCATION_MAX) setLocation(e.target.value); setError('') }}
               placeholder="Ciudad, País"
-              maxLength={LOCATION_MAX}
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-sm outline-none transition focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 placeholder-gray-300 outline-none transition-colors focus:border-brand focus:ring-0 hover:border-gray-400"
             />
-            <p className="text-xs text-gray-400 mt-1">Máximo {LOCATION_MAX} caracteres</p>
           </div>
-        </form>
+        </div>
 
         <div className="mt-8 flex gap-3">
           <button
             onClick={handleSave}
             disabled={loading}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-all active:scale-95"
+            className="flex-1 bg-brand hover:bg-brand-light active:bg-brand-light disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all active:scale-[0.98] shadow-sm shadow-brand/10"
           >
             {loading ? 'Guardando...' : 'Completar perfil'}
           </button>
           <button
-            onClick={handleSkip}
+            onClick={() => navigate('/')}
             disabled={loading}
-            className="flex-1 border border-gray-300 hover:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed text-gray-700 font-semibold py-3 rounded-lg transition-all"
+            className="flex-1 border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-gray-600 font-semibold py-3 rounded-xl transition-all"
           >
             Saltar por ahora
           </button>
