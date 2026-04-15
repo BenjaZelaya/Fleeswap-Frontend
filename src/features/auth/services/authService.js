@@ -1,6 +1,6 @@
 import api from '../../../services/api'
 
-// 🔹 REGISTER (simulado)
+// 🔹 REGISTRO (simulado)
 export async function register(email, password) {
   await new Promise((res) => setTimeout(res, 500))
 
