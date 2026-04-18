@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { register } from '../services/authService'
-import useAuthStore from '../store/authStore'
+import useAuthStore from '../../../store/authStore'
 import AuthLayout from '../../../shared/components/layout/AuthLayout'
 import FormField, { inputClass } from '../../../shared/components/forms/FormField'
 import PasswordInput from '../../../shared/components/forms/PasswordInput'
