@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Home, Plus, User, LogIn } from "lucide-react";
-import useAuthStore from "../../../features/auth/store/authStore";
+import useAuthStore from "../../../store/authStore";
 import { logout as logoutService } from "../../../features/auth/services/authService";
 import ConfirmModal from "../ui/ConfirmModal";
 
@@ -385,7 +385,7 @@ export default function Navbar() {
         className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-slate-100 backdrop-blur-md"
         style={{ backgroundColor: "rgba(249,247,244,0.96)" }}
       >
-        <div className="relative flex items-center h-16 pb-safe">
+        <div className="relative flex h-24 pb-safe items-center">
           <MobileTab
             to="/"
             icon={<Home size={20} strokeWidth={isHome ? 2.5 : 1.5} />}

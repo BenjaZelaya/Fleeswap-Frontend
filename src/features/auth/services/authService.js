@@ -1,5 +1,10 @@
 import api from '../../../services/api'
 
+export async function refreshToken() {
+  const response = await api.post('/auth/refresh')
+  return response.data // { accessToken }
+}
+
 export async function register(data) {
   const response = await api.post('/auth/register', data)
   return response.data

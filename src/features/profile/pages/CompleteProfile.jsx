@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { updateProfile } from '../services/profileService'
-import useAuthStore from '../../auth/store/authStore'
+import useAuthStore from '../../../store/authStore'
+import useCloudinaryWidget from '../../../shared/hooks/useCloudinaryWidget'
 import { validateBio, validateLocation } from '../../../utils/validators'
 import { BIO_MAX, LOCATION_MAX } from '../../../utils/constants'
 
@@ -9,48 +10,21 @@ export default function CompleteProfile() {
   const navigate = useNavigate()
   const { updateUser } = useAuthStore()
 
+  const { openWidget } = useCloudinaryWidget()
+
   const [photo, setPhoto] = useState(null)
   const [bio, setBio] = useState('')
   const [location, setLocation] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  useEffect(() => {
-    const script = document.createElement('script')
-    script.src = 'https://upload-widget.cloudinary.com/global/all.js'
-    script.async = true
-    document.body.appendChild(script)
-    return () => document.body.removeChild(script)
-  }, [])
-
   const fieldsCompleted = (photo ? 1 : 0) + (bio.trim() ? 1 : 0) + (location.trim() ? 1 : 0)
   const progressPercentage = (fieldsCompleted / 3) * 100
 
   function openUploadWidget() {
-    if (!window.cloudinary) {
-      setError('El widget de Cloudinary no está disponible. Recargá la página.')
-      return
-    }
-    window.cloudinary.openUploadWidget(
-      {
-        cloudName: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME,
-        uploadPreset: 'fleeswap_unsigned',
-        sources: ['local', 'url', 'camera'],
-        resourceType: 'image',
-        allowedFormats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-        maxFileSize: 5242880, // 5MB en bytes
-        folder: 'fleeswap/profiles',
-        tags: ['profile'],
-      },
-      (err, result) => {
-        if (err) {
-          console.error('Cloudinary error:', err)
-          setError('Error al subir la foto. Intentá de nuevo.')
-        } else if (result?.event === 'success') {
-          setPhoto(result.info.secure_url)
-          setError('')
-        }
-      }
+    openWidget(
+      (url) => { setPhoto(url); setError('') },
+      () => setError('Error al subir la foto. Intentá de nuevo.')
     )
   }
 

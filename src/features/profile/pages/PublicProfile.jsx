@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { getPublicProfile } from '../services/profileService'
-import useAuthStore from '../../auth/store/authStore'
+import useAuthStore from '../../../store/authStore'
 
 function Spinner() {
   return (

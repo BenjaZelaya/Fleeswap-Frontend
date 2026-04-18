@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
-import useAuthStore from '../features/auth/store/authStore'
+import useAuthStore from '../store/authStore'
 
 const PROFILE_BANNER_KEY = 'fleeswap_profile_banner_dismissed'
 
