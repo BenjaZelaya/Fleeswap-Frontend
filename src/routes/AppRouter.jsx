@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import ScrollToTop from '../shared/components/ScrollToTop'
 import MainLayout from '../shared/components/layout/MainLayout'
 import ProtectedRoute from './ProtectedRoute'
 import Home from '../pages/Home'
@@ -14,6 +15,7 @@ import EditProfile from '../features/profile/pages/EditProfile'
 export default function AppRouter() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         {/* Rutas con navbar */}
         <Route element={<MainLayout />}>
