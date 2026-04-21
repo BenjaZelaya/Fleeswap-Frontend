@@ -36,7 +36,7 @@ export default function ConfirmModal({
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.96, y: 10 }}
                 transition={{ duration: 0.22, ease: [0.21, 0.47, 0.32, 0.98] }}
-                className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-sm bg-white rounded-2xl shadow-xl px-6 py-6 mx-4 outline-none"
+                className="flex-col fixed items-center left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[calc(100%-2rem)] max-w-sm bg-white rounded-2xl shadow-xl px-6 py-6 outline-none"
               >
                 {isDanger && (
                   <div className="w-11 h-11 bg-red-50 rounded-xl flex items-center justify-center mb-4">
