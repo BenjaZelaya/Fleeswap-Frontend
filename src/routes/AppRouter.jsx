@@ -11,6 +11,7 @@ import ChangePassword from '../features/auth/pages/ChangePassword'
 import CompleteProfile from '../features/profile/pages/CompleteProfile'
 import PublicProfile from '../features/profile/pages/PublicProfile'
 import EditProfile from '../features/profile/pages/EditProfile'
+import CrearPublicacion from '../features/publications/pages/CrearPublicacion'
 
 export default function AppRouter() {
   return (
@@ -21,6 +22,10 @@ export default function AppRouter() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/profile/:id" element={<PublicProfile />} />
+          <Route
+            path="/publications/create"
+            element={<ProtectedRoute><CrearPublicacion /></ProtectedRoute>}
+          />
           <Route
             path="/edit-profile"
             element={<ProtectedRoute><EditProfile /></ProtectedRoute>}
