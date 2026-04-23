@@ -216,6 +216,26 @@ export default function Navbar() {
                           </svg>
                           Editar perfil
                         </Link>
+                        <Link
+                          to="/publications/create"
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4 text-slate-400"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={1.75}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M12 4v16m8-8H4"
+                            />
+                          </svg>
+                          Crear publicación
+                        </Link>
                       </div>
 
                       {/* Separador + logout */}
@@ -336,6 +356,26 @@ export default function Navbar() {
                             />
                           </svg>
                           Editar perfil
+                        </Link>
+                        <Link
+                          to="/publications/create"
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4 text-slate-400"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={1.75}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M12 4v16m8-8H4"
+                            />
+                          </svg>
+                          Crear publicación
                         </Link>
                       </div>
                       <div className="border-t border-slate-100 py-1">

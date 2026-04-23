@@ -15,6 +15,13 @@ import {
   LOCATION_MIN,
   LOCATION_MAX,
   AGE_MIN,
+  TITLE_MIN,
+  TITLE_MAX,
+  DESCRIPTION_MIN,
+  DESCRIPTION_MAX,
+  HISTORY_MIN,
+  HISTORY_MAX,
+  PHOTOS_MAX,
 } from './constants'
 
 export function validateEmail(value) {
@@ -76,5 +83,73 @@ export function validateLocation(value) {
   if (!trimmed) return ''
   if (trimmed.length < LOCATION_MIN) return `La ubicación debe tener al menos ${LOCATION_MIN} caracteres`
   if (trimmed.length > LOCATION_MAX) return `La ubicación no puede superar ${LOCATION_MAX} caracteres`
+  return ''
+}
+
+// Publicaciones
+export function validateTitle(value) {
+  const trimmed = value?.trim() ?? ''
+  if (!trimmed) return 'El título es obligatorio'
+  if (trimmed.length < TITLE_MIN) return `Mínimo ${TITLE_MIN} caracteres`
+  if (trimmed.length > TITLE_MAX) return `Máximo ${TITLE_MAX} caracteres`
+  return ''
+}
+
+export function validateDescription(value) {
+  const trimmed = value?.trim() ?? ''
+  if (!trimmed) return 'La descripción es obligatoria'
+  if (trimmed.length < DESCRIPTION_MIN) return `Mínimo ${DESCRIPTION_MIN} caracteres`
+  if (trimmed.length > DESCRIPTION_MAX) return `Máximo ${DESCRIPTION_MAX} caracteres`
+  return ''
+}
+
+export function validateHistory(value) {
+  const trimmed = value?.trim() ?? ''
+  if (!trimmed) return 'La historia del objeto es obligatoria'
+  if (trimmed.length < HISTORY_MIN) return `Mínimo ${HISTORY_MIN} caracteres`
+  if (trimmed.length > HISTORY_MAX) return `Máximo ${HISTORY_MAX} caracteres`
+  return ''
+}
+
+export function validateCategory(value) {
+  if (!value) return 'La categoría es obligatoria'
+  return ''
+}
+
+export function validateCondition(value) {
+  if (!value) return 'El estado del objeto es obligatorio'
+  return ''
+}
+
+export function validatePublicationType(value) {
+  if (!value) return 'El tipo de publicación es obligatorio'
+  return ''
+}
+
+export function validatePhotos(photos) {
+  if (!photos || photos.length === 0) return 'Debes subir al menos 1 foto'
+  if (photos.length > PHOTOS_MAX) return `Máximo ${PHOTOS_MAX} fotos`
+  return ''
+}
+
+export function validatePrice(value, type) {
+  // Precio es opcional si es solo trueque
+  if (type === 'trueque') return ''
+  
+  const trimmed = value?.trim() ?? ''
+  if (!trimmed) return 'El precio es obligatorio para venta'
+  
+  const price = parseFloat(trimmed)
+  if (isNaN(price) || price < 0) return 'El precio debe ser un número positivo'
+  if (price === 0) return 'El precio no puede ser cero'
+  
+  return ''
+}
+
+export function validateLocationPublication(value) {
+  const trimmed = value?.trim() ?? ''
+  if (!trimmed) return '' // Ubicación es opcional
+  if (trimmed.length < LOCATION_MIN) return `Mínimo ${LOCATION_MIN} caracteres`
+  if (trimmed.length > LOCATION_MAX) return `Máximo ${LOCATION_MAX} caracteres`
   return ''
 }
