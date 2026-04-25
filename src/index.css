@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@theme {
+  /* Una sola familia — jerarquía por peso y tracking */
+  --font-sans:  "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-serif: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-mono:  ui-monospace, "Cascadia Code", monospace;
+
+  /* Colores de marca */
+  --color-warm-white: #F9F7F4;
+  --color-dark-warm:  #0F0E0C;
+  --color-brand:        #1b365d;
+  --color-brand-light:  #2a4a7a;
+  --color-brand-accent: #2e6db4;
+}
