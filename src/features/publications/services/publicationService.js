@@ -25,6 +25,19 @@ export async function updatePublication(id, data) {
   return response.data
 }
 
+export async function updatePublicationStatus(id, newStatus) {
+  // Convertir estado en español a inglés para el backend
+  // 'disponible' -> 'available', 'no_disponible' -> 'unavailable'
+  const statusMap = {
+    'disponible': 'available',
+    'no_disponible': 'unavailable'
+  }
+  
+  const backendStatus = statusMap[newStatus] || newStatus
+  const response = await api.patch(`/publications/${id}/status`, { status: backendStatus })
+  return response.data
+}
+
 export async function deletePublication(id) {
   await api.delete(`/publications/${id}`)
 }

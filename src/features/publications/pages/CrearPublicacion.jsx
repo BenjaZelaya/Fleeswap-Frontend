@@ -123,8 +123,8 @@ export default function CrearPublicacion() {
       })
 
       toast.success('Publicación creada exitosamente!')
-      // Redirigir a la publicación creada o a mis publicaciones
-      navigate(`/publication/${response._id}`)
+      // Redirigir a mis publicaciones
+      navigate('/my-publications')
     } catch (err) {
       console.error('Error creating publication:', err)
       const errorMsg =
@@ -177,7 +177,7 @@ export default function CrearPublicacion() {
                     name="title"
                     value={form.title}
                     onChange={handleChange}
-                    placeholder="ej. PlayStation 5 Como Nueva"
+                    placeholder="Reloj Casio A1585 Como Nueva"
                     maxLength="100"
                     className={`w-full px-4 py-2 border-2 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-brand-light ${
                       errors.title
