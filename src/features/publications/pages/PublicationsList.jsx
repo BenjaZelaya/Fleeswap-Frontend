@@ -1,21 +1,24 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 const MOCK_DATA = [
   {
     id: 1,
-    titulo: "Vinilo Queen",
+    titulo: "Vinilo Bocanada",
     descripcion: "Edición original en excelente estado",
     precio: 10000,
+    image: "/bocanada.jpg",
   },
   {
     id: 2,
     titulo: "Camiseta Boca 2000",
     descripcion: "Histórica, talle L",
     precio: 25000,
+    image: "https://picsum.photos/400/300",
   },
 ];
 
-const PublicacionesList = () => {
+export default function PublicationsList() {
   const [publicaciones, setPublicaciones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,24 +34,18 @@ const PublicacionesList = () => {
           `http://localhost:3000/publicaciones?page=${page}`
         );
 
-        if (!res.ok) {
-          throw new Error("Error en la respuesta del servidor");
-        }
+        if (!res.ok) throw new Error("Error servidor");
 
         const data = await res.json();
 
-        // 🔥 soporta distintos formatos de backend
         const publicacionesData =
           data?.data || data?.publicaciones || data;
 
         setPublicaciones(publicacionesData);
-
       } catch (err) {
         console.error(err);
-
-        // 🔥 fallback para que SIEMPRE funcione
         setPublicaciones(MOCK_DATA);
-        setError("Mostrando datos de prueba (backend no disponible)");
+        setError("Mostrando datos de prueba");
       } finally {
         setLoading(false);
       }
@@ -57,66 +54,61 @@ const PublicacionesList = () => {
     fetchPublicaciones();
   }, [page]);
 
-  // 🟡 Loading
   if (loading) return <p>Cargando publicaciones...</p>;
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Publicaciones</h2>
+    <div className="p-4">
+      <h2 className="text-2xl font-bold mb-4">Publicaciones</h2>
 
-      {/* 🔴 Error */}
       {error && (
-        <p style={{ color: "orange", marginBottom: "10px" }}>
-          {error}
-        </p>
+        <p className="text-yellow-600 mb-4">{error}</p>
       )}
 
-      {/* 🟢 Listado */}
       {publicaciones.length === 0 ? (
         <p>No hay publicaciones</p>
       ) : (
-        <div>
+        <div className="grid grid-cols-2 gap-4">
           {publicaciones.map((pub) => (
-            <div
+            <Link
               key={pub._id || pub.id}
-              style={{
-                border: "1px solid #ccc",
-                padding: "10px",
-                marginBottom: "10px",
-                borderRadius: "8px",
-              }}
+              to={`/publications/${pub._id || pub.id}`}
+              className="border rounded-lg p-2 hover:shadow"
             >
-              <h3>{pub.titulo || pub.title}</h3>
-              <p>{pub.descripcion || pub.description}</p>
+              <img
+                src={pub.image || "https://picsum.photos/400/300"}
+                className="w-full h-40 object-cover rounded"
+              />
+
+              <h3 className="font-bold mt-2">
+                {pub.titulo || pub.title}
+              </h3>
+
+              <p className="text-sm text-gray-600">
+                {pub.descripcion || pub.description}
+              </p>
 
               {pub.precio && (
-                <p>💰 Precio: ${pub.precio}</p>
+                <p className="mt-1 font-semibold">
+                  💰 ${pub.precio}
+                </p>
               )}
-            </div>
+            </Link>
           ))}
         </div>
       )}
 
-      {/* 🔵 Paginación */}
-      <div style={{ marginTop: "20px" }}>
-        <button
-          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-        >
-          ⬅ Anterior
+      {/* PAGINACIÓN */}
+      <div className="mt-6 flex gap-4 items-center">
+        <button onClick={() => setPage((p) => Math.max(p - 1, 1))}>
+          ⬅
         </button>
 
-        <span style={{ margin: "0 10px" }}>
-          Página {page}
-        </span>
+        <span>Página {page}</span>
 
-        <button
-          onClick={() => setPage((prev) => prev + 1)}
-        >
-          Siguiente ➡
+        <button onClick={() => setPage((p) => p + 1)}>
+          ➡
         </button>
       </div>
     </div>
   );
-};
-
-export default PublicacionesList;
+}
