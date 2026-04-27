@@ -236,6 +236,26 @@ export default function Navbar() {
                           </svg>
                           Crear publicación
                         </Link>
+                        <Link
+                          to="/my-publications"
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4 text-slate-400"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={1.75}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6z"
+                            />
+                          </svg>
+                          Mis publicaciones
+                        </Link>
                       </div>
 
                       {/* Separador + logout */}
@@ -376,6 +396,26 @@ export default function Navbar() {
                             />
                           </svg>
                           Crear publicación
+                        </Link>
+                        <Link
+                          to="/my-publications"
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4 text-slate-400"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={1.75}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6z"
+                            />
+                          </svg>
+                          Mis publicaciones
                         </Link>
                       </div>
                       <div className="border-t border-slate-100 py-1">
