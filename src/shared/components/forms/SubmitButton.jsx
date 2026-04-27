@@ -1,16 +1,16 @@
 import { motion } from 'framer-motion'
 
-export default function SubmitButton({ loading, label, loadingLabel }) {
+export default function SubmitButton({ loading, label, loadingLabel, disabled, className }) {
   return (
     <motion.button
       type="submit"
-      disabled={loading}
-      whileHover={!loading ? { scale: 1.015 } : {}}
-      whileTap={!loading ? { scale: 0.97 } : {}}
+      disabled={loading || disabled}
+      whileHover={!loading && !disabled ? { scale: 1.015 } : {}}
+      whileTap={!loading && !disabled ? { scale: 0.97 } : {}}
       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-      className="w-full bg-brand hover:bg-brand-light disabled:opacity-50 disabled:cursor-not-allowed
+      className={`${className || 'w-full'} bg-brand hover:bg-brand-light disabled:opacity-50 disabled:cursor-not-allowed
         text-warm-white font-semibold py-4 rounded-xl transition-colors
-        flex items-center justify-center gap-2 tracking-wide"
+        flex items-center justify-center gap-2 tracking-wide`}
     >
       {loading ? (
         <>

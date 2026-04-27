@@ -10,6 +10,11 @@ export async function getPublications(filters = {}) {
   return response.data
 }
 
+export async function getMyPublications() {
+  const response = await api.get('/users/me/publications')
+  return response.data
+}
+
 export async function getPublicationById(id) {
   const response = await api.get(`/publications/${id}`)
   return response.data
