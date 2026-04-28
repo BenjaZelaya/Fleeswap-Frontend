@@ -14,6 +14,7 @@ import EditProfile from '../features/profile/pages/EditProfile'
 import CrearPublicacion from '../features/publications/pages/CrearPublicacion'
 import MisPublicaciones from '../features/publications/pages/MisPublicaciones'
 import EditPublication from '../features/publications/pages/EditPublication'
+import PublicationDetail from '../features/publications/pages/PublicationDetail'
 
 export default function AppRouter() {
   return (
@@ -24,6 +25,7 @@ export default function AppRouter() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/profile/:id" element={<PublicProfile />} />
+          <Route path="/publications/:id" element={<PublicationDetail />} />
           <Route
             path="/publications/create"
             element={<ProtectedRoute><CrearPublicacion /></ProtectedRoute>}

@@ -22,7 +22,7 @@ export default function PublicationCard({ publication, isOwner, onEdit, onDelete
   }
 
   return (
-    <div className="rounded-xl border border-gray-100 overflow-hidden hover:border-brand/20 transition-colors hover:shadow-sm">
+    <Link to={`/publications/${publication._id}`} className="rounded-xl border border-gray-100 overflow-hidden hover:border-brand/20 transition-all hover:shadow-md hover:cursor-pointer block">
       {/* Foto */}
       {publication.photos?.[0] && (
         <img
@@ -35,7 +35,7 @@ export default function PublicationCard({ publication, isOwner, onEdit, onDelete
       {/* Contenido */}
       <div className="p-4 space-y-3">
         {/* Título */}
-        <p className="text-sm font-medium text-gray-800 truncate">{publication.title}</p>
+        <p className="text-sm font-medium text-gray-800 truncate hover:text-brand transition-colors">{publication.title}</p>
 
         {/* Precio */}
         {publication.price && (
@@ -59,15 +59,20 @@ export default function PublicationCard({ publication, isOwner, onEdit, onDelete
 
         {/* Botones (solo si es dueño) */}
         {isOwner && (
-          <div className="flex gap-2 pt-2 border-t border-gray-100">
+          <div className="flex gap-2 pt-2 border-t border-gray-100" onClick={(e) => e.preventDefault()}>
             <Link
               to={`/publications/${publication._id}/edit`}
+              onClick={(e) => e.stopPropagation()}
               className="flex-1 py-2 px-3 text-sm font-medium text-brand bg-brand/5 rounded-lg hover:bg-brand/10 transition-colors text-center"
             >
               Editar
             </Link>
             <button
-              onClick={() => onDelete(publication._id)}
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                onDelete(publication._id)
+              }}
               className="flex-1 py-2 px-3 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
             >
               Eliminar
@@ -75,6 +80,6 @@ export default function PublicationCard({ publication, isOwner, onEdit, onDelete
           </div>
         )}
       </div>
-    </div>
+    </Link>
   )
 }

@@ -298,7 +298,7 @@ export default function EditPublication() {
                   name="title"
                   value={form.title}
                   onChange={handleChange}
-                  placeholder="Ej: PlayStation 5 Como Nueva"
+                  placeholder="Ej: Reloj Casio 1905 Como Nueva"
                   className={`w-full px-4 py-2.5 rounded-lg border transition-colors ${
                     errors.title
                       ? 'border-red-500 bg-red-50 focus:ring-red-500'

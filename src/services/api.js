@@ -34,6 +34,13 @@ api.interceptors.request.use((config) => {
   return config
 })
 
+// ── Singleton de refresh ──────────────────────────────────────────────────
+// Almacena la promesa de refresh en curso. Si múltiples requests reciben 401
+// simultáneamente (race condition con rotación de tokens), todas comparten
+// la misma promesa en lugar de lanzar N refreshes — evita que el backend
+// invalide el token rotado antes de que las demás requests puedan usarlo.
+let refreshPromise = null
+
 // ── Interceptor de RESPONSE ───────────────────────────────────────────────
 api.interceptors.response.use(
   (response) => response,
@@ -50,8 +57,15 @@ api.interceptors.response.use(
       original._retry = true
 
       try {
-        // El refresh token viaja automáticamente en la cookie httpOnly
-        const { data } = await api.post('/auth/refresh')
+        // Si ya hay un refresh en curso, reutilizarlo en lugar de lanzar uno nuevo.
+        // El .finally garantiza que refreshPromise se limpia cuando termina (éxito o error).
+        if (!refreshPromise) {
+          refreshPromise = api.post('/auth/refresh')
+            .then((res) => res.data)
+            .finally(() => { refreshPromise = null })
+        }
+
+        const data = await refreshPromise
 
         // Guardamos el nuevo access token en el store (en memoria)
         useAuthStore.getState().setToken(data.accessToken)
