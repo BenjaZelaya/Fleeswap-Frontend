@@ -6,19 +6,26 @@ export default function ConfirmModal({
   onClose,
   onConfirm,
   title,
+  message,
   description,
   confirmLabel = 'Confirmar',
   cancelLabel = 'Cancelar',
+  confirmText = 'Confirmar',
+  cancelText = 'Cancelar',
   variant = 'default',
   loading = false,
   children,
 }) {
   const isDanger = variant === 'danger'
+  // Permitir tanto 'title' como el antiguo formato de props
+  const modalOpen = open !== undefined ? open : (onConfirm ? true : false)
+  const finalTitle = title
+  const finalMessage = message || description
 
   return (
-    <Dialog.Root open={open} onOpenChange={(v) => { if (!v && !loading) onClose() }}>
+    <Dialog.Root open={modalOpen} onOpenChange={(v) => { if (!v && !loading) onClose?.() }}>
       <AnimatePresence>
-        {open && (
+        {modalOpen && (
           <Dialog.Portal forceMount>
             <Dialog.Overlay asChild>
               <motion.div
@@ -47,24 +54,24 @@ export default function ConfirmModal({
                 )}
 
                 <Dialog.Title className="text-lg font-bold text-slate-900 tracking-tight">
-                  {title}
+                  {finalTitle}
                 </Dialog.Title>
 
-                {description && (
-                  <Dialog.Description className="text-sm text-slate-500 mt-1.5 mb-6 leading-relaxed">
-                    {description}
+                {finalMessage && (
+                  <Dialog.Description className="text-sm text-slate-500 mt-1.5 mb-6 leading-relaxed text-center">
+                    {finalMessage}
                   </Dialog.Description>
                 )}
 
                 {children && <div className="mt-4">{children}</div>}
 
-                <div className="flex gap-3 mt-5">
+                <div className="flex gap-3 mt-5 w-full">
                   <button
                     onClick={onClose}
                     disabled={loading}
                     className="flex-1 border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 font-medium py-2.5 rounded-xl transition-colors text-sm"
                   >
-                    {cancelLabel}
+                    {cancelText || cancelLabel}
                   </button>
                   <button
                     onClick={onConfirm}
@@ -72,10 +79,10 @@ export default function ConfirmModal({
                     className={`flex-1 disabled:opacity-50 text-white font-semibold py-2.5 rounded-xl transition-colors text-sm ${
                       isDanger
                         ? 'bg-red-500 hover:bg-red-600'
-                        : 'bg-brand hover:bg-brand-light'
+                        : 'bg-blue-600 hover:bg-blue-700'
                     }`}
                   >
-                    {loading ? 'Procesando...' : confirmLabel}
+                    {loading ? 'Procesando...' : (confirmText || confirmLabel)}
                   </button>
                 </div>
               </motion.div>
