@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { toast } from 'sonner'
 import useAuthStore from '../store/authStore'
-import PublicacionesList from "../features/publications/pages/PublicacionesList";
+import { getPublications } from '../features/publications/services/publicationService'
+import { PUBLICATION_TYPES, PUBLICATION_CONDITIONS, PUBLICATION_CATEGORIES } from '../utils/constants'
 
 const PROFILE_BANNER_KEY = 'fleeswap_profile_banner_dismissed'
 
@@ -51,81 +51,6 @@ function ProfileBanner({ user, onDismiss }) {
 
 // ─── Datos hardcodeados ────────────────────────────────────────────────────────
 
-const PRODUCTS = [
-  {
-    id: 1,
-    title: 'Cámara Polaroid 600',
-    desc: 'En perfecto estado. Incluye 2 paquetes de film nuevos.',
-    location: 'Palermo, CABA',
-    user: { name: 'Martina R.', initial: 'M' },
-    price: 18000,
-    type: 'both',
-    match: 94,
-    tag: 'Fotografía',
-    photo: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600&q=80&fit=crop&auto=format',
-  },
-  {
-    id: 2,
-    title: 'Vinilo — Pink Floyd The Wall',
-    desc: 'Disco doble con tapa original. Sin rayaduras visibles.',
-    location: 'San Telmo, CABA',
-    user: { name: 'Lucas M.', initial: 'L' },
-    price: null,
-    type: 'swap',
-    match: 87,
-    tag: 'Música',
-    photo: 'https://images.unsplash.com/photo-1461360370896-922624d12aa1?w=600&q=80&fit=crop&auto=format',
-  },
-  {
-    id: 3,
-    title: 'Reloj Casio Vintage A158',
-    desc: 'Dorado, digital, original de los 90s. Con pila nueva.',
-    location: 'Belgrano, CABA',
-    user: { name: 'Sofía K.', initial: 'S' },
-    price: 9500,
-    type: 'both',
-    match: 91,
-    tag: 'Accesorios',
-    photo: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80&fit=crop&auto=format',
-  },
-  {
-    id: 4,
-    title: 'Nike Air Max 90 — Talle 42',
-    desc: 'Poco uso. Caja original incluida. Colorway retro.',
-    location: 'Villa Crespo, CABA',
-    user: { name: 'Tomás V.', initial: 'T' },
-    price: 35000,
-    type: 'buy',
-    match: null,
-    tag: 'Indumentaria',
-    photo: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80&fit=crop&auto=format',
-  },
-  {
-    id: 5,
-    title: 'Colección García Márquez — 6 tomos',
-    desc: 'Edición Sudamericana de los 80s. Estado coleccionable.',
-    location: 'Caballito, CABA',
-    user: { name: 'Paula E.', initial: 'P' },
-    price: null,
-    type: 'swap',
-    match: 79,
-    tag: 'Libros',
-    photo: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&q=80&fit=crop&auto=format',
-  },
-  {
-    id: 6,
-    title: 'Campera de cuero marrón',
-    desc: 'Talle M. Cuero genuino. Estilo vintage años 70.',
-    location: 'Almagro, CABA',
-    user: { name: 'Rodrigo A.', initial: 'R' },
-    price: 42000,
-    type: 'both',
-    match: 83,
-    tag: 'Indumentaria',
-    photo: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&q=80&fit=crop&auto=format',
-  },
-]
-
 const STEPS = [
   {
     n: '01',
@@ -152,13 +77,13 @@ const STEPS = [
 // ─── Sub-componentes ───────────────────────────────────────────────────────────
 
 function TypeBadge({ type }) {
-  if (type === 'swap')
+  if (type === 'trueque')
     return (
       <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-brand-accent bg-brand-accent/10 px-2.5 py-0.5 rounded-full">
         ⇄ Intercambio
       </span>
     )
-  if (type === 'buy')
+  if (type === 'venta')
     return (
       <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full">
         $ Venta
@@ -171,89 +96,93 @@ function TypeBadge({ type }) {
   )
 }
 
-function ProductCard({ product, compact = false }) {
+function getCategoryLabel(category) {
+  const cat = PUBLICATION_CATEGORIES?.find((c) => c.value === category)
+  return cat?.label || category
+}
+
+function PublicationCard({ pub, compact = false }) {
+  const ownerInitial = pub.owner?.nombre?.[0]?.toUpperCase() ?? '?'
+  const ownerName = [pub.owner?.nombre, pub.owner?.apellido].filter(Boolean).join(' ')
+
   return (
-    <motion.div
-      whileHover={{ y: -5, boxShadow: '0 12px 40px -8px rgba(0,0,0,0.12)' }}
-      transition={{ type: 'spring', stiffness: 300, damping: 24 }}
-      className="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm flex flex-col"
-    >
-      {/* Foto */}
-      <div className={`relative bg-slate-100 overflow-hidden ${compact ? 'h-40' : 'h-52'}`}>
-        <img
-          src={product.photo}
-          alt={product.title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          loading="lazy"
-        />
-        {/* Match badge */}
-        {product.match && (
-          <div className="absolute top-2.5 left-2.5 bg-white/90 backdrop-blur-sm text-brand-accent text-[10px] font-semibold px-2.5 py-1 rounded-full shadow-sm">
-            ✦ {product.match}% match
-          </div>
-        )}
-        {/* Tag */}
-        <div className="absolute top-2.5 right-2.5 bg-brand/80 backdrop-blur-sm text-white text-[9px] font-light uppercase tracking-wider px-2 py-0.5 rounded-full">
-          {product.tag}
-        </div>
-      </div>
-
-      {/* Contenido */}
-      <div className="p-4 flex flex-col flex-1 gap-3">
-        <div className="flex-1">
-          <p className="font-semibold text-slate-900 text-sm leading-snug truncate">{product.title}</p>
-          {!compact && (
-            <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{product.desc}</p>
-          )}
-          <div className="flex items-center gap-1.5 mt-2">
-            <div className="w-5 h-5 rounded-full bg-slate-800 flex items-center justify-center text-white text-[9px] font-bold shrink-0">
-              {product.user.initial}
-            </div>
-            <span className="text-[10px] font-light text-slate-400">{product.location}</span>
-          </div>
-        </div>
-
-        {/* Precio + tipo */}
-        <div className="flex items-center justify-between">
-          {product.price ? (
-            <span className="font-bold text-slate-900 text-base">
-              ${product.price.toLocaleString('es-AR')}
-            </span>
+    <Link to={`/publications/${pub._id}`}>
+      <motion.div
+        whileHover={{ y: -5, boxShadow: '0 12px 40px -8px rgba(0,0,0,0.12)' }}
+        transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+        className="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm flex flex-col h-full"
+      >
+        {/* Foto */}
+        <div className="relative bg-slate-100 overflow-hidden aspect-[4/3]">
+          {pub.photos?.[0] ? (
+            <img
+              src={pub.photos[0]}
+              alt={pub.title}
+              className="w-full h-full object-contain transition-transform duration-500 hover:scale-105"
+              loading="lazy"
+            />
           ) : (
-            <span className="text-[11px] font-bold text-brand-accent">Solo intercambio</span>
+            <div className="w-full h-full flex items-center justify-center text-slate-300">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
           )}
-          <TypeBadge type={product.type} />
+          {/* Categoría */}
+          <div className="absolute top-2.5 right-2.5 bg-brand/80 backdrop-blur-sm text-white text-[9px] font-light uppercase tracking-wider px-2 py-0.5 rounded-full">
+            {getCategoryLabel(pub.category)}
+          </div>
         </div>
 
-        {/* Botones de acción */}
-        {!compact && (
-          <div className="flex gap-2 pt-1">
-            {(product.type === 'swap' || product.type === 'both') && (
-              <motion.button
-                whileTap={{ scale: 0.97 }}
-                onClick={() => toast.info('Solicitud de intercambio enviada', {
-                  description: `Le notificamos a ${product.user.name} tu propuesta.`,
-                })}
-                className="flex-1 bg-brand hover:bg-brand-light text-white text-xs font-semibold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5"
-              >
-                <span>⇄</span> Intercambiar
-              </motion.button>
+        {/* Contenido */}
+        <div className="p-4 flex flex-col flex-1 gap-3">
+          <div className="flex-1">
+            <p className="font-semibold text-slate-900 text-sm leading-snug truncate">{pub.title}</p>
+            {!compact && (
+              <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{pub.description}</p>
             )}
-            {(product.type === 'buy' || product.type === 'both') && (
-              <motion.button
-                whileTap={{ scale: 0.97 }}
-                onClick={() => toast.info('Solicitud de compra enviada', {
-                  description: `Le notificamos a ${product.user.name} tu intención de compra.`,
-                })}
-                className="flex-1 bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5"
-              >
-                Comprar
-              </motion.button>
-            )}
+            <div className="flex items-center gap-1.5 mt-2">
+              {pub.owner?.photo ? (
+                <img src={pub.owner.photo} alt={ownerName} className="w-5 h-5 rounded-full object-cover shrink-0" />
+              ) : (
+                <div className="w-5 h-5 rounded-full bg-slate-800 flex items-center justify-center text-white text-[9px] font-bold shrink-0">
+                  {ownerInitial}
+                </div>
+              )}
+              <span className="text-[10px] font-light text-slate-400">{pub.location || pub.owner?.location || ''}</span>
+            </div>
           </div>
-        )}
-      </div>
-    </motion.div>
+
+          {/* Precio + tipo */}
+          <div className="flex items-center justify-between">
+            {pub.price ? (
+              <span className="font-bold text-slate-900 text-base">
+                ${pub.price.toLocaleString('es-AR')}
+              </span>
+            ) : (
+              <span className="text-[11px] font-bold text-brand-accent">Solo intercambio</span>
+            )}
+            <TypeBadge type={pub.type} />
+          </div>
+
+          {/* Botones de acción */}
+          {!compact && (
+            <div className="flex gap-2 pt-1" onClick={(e) => e.preventDefault()}>
+              {(pub.type === 'trueque' || pub.type === 'ambos') && (
+                <span className="flex-1 bg-brand text-white text-xs font-semibold py-2.5 rounded-xl flex items-center justify-center gap-1.5">
+                  ⇄ Intercambiar
+                </span>
+              )}
+              {(pub.type === 'venta' || pub.type === 'ambos') && (
+                <span className="flex-1 bg-amber-500 text-white text-xs font-semibold py-2.5 rounded-xl flex items-center justify-center gap-1.5">
+                  Comprar
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      </motion.div>
+    </Link>
   )
 }
 
@@ -267,6 +196,22 @@ export default function Home() {
   const [bannerDismissed, setBannerDismissed] = useState(
     () => localStorage.getItem(PROFILE_BANNER_KEY) === '1'
   )
+  const [publications, setPublications] = useState([])
+  const [loadingPubs, setLoadingPubs] = useState(true)
+
+  useEffect(() => {
+    async function fetchPubs() {
+      try {
+        const data = await getPublications({ limit: 6 })
+        setPublications(data.publications || [])
+      } catch (err) {
+        console.error('Error cargando publicaciones:', err)
+      } finally {
+        setLoadingPubs(false)
+      }
+    }
+    fetchPubs()
+  }, [])
 
   function handleDismissBanner() {
     localStorage.setItem(PROFILE_BANNER_KEY, '1')
@@ -344,32 +289,36 @@ export default function Home() {
 
           {/* Cards flotantes */}
           <div className="relative h-[480px] hidden lg:block">
-            <motion.div
-              initial={{ opacity: 0, y: 30, rotate: -3 }}
-              animate={{ opacity: 1, y: 0, rotate: -3 }}
-              transition={{ delay: 0.2, duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
-              className="absolute top-0 left-0 w-56 origin-bottom"
-            >
-              <ProductCard product={PRODUCTS[0]} compact />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 30, rotate: 2 }}
-              animate={{ opacity: 1, y: 0, rotate: 2 }}
-              transition={{ delay: 0.35, duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
-              className="absolute top-12 right-4 w-56 origin-bottom"
-            >
-              <ProductCard product={PRODUCTS[2]} compact />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 30, rotate: -1 }}
-              animate={{ opacity: 1, y: 0, rotate: -1 }}
-              transition={{ delay: 0.5, duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
-              className="absolute bottom-0 left-20 w-56 origin-top"
-            >
-              <ProductCard product={PRODUCTS[1]} compact />
-            </motion.div>
+            {publications[0] && (
+              <motion.div
+                initial={{ opacity: 0, y: 30, rotate: -3 }}
+                animate={{ opacity: 1, y: 0, rotate: -3 }}
+                transition={{ delay: 0.2, duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
+                className="absolute top-0 left-0 w-56 origin-bottom"
+              >
+                <PublicationCard pub={publications[0]} compact />
+              </motion.div>
+            )}
+            {publications[1] && (
+              <motion.div
+                initial={{ opacity: 0, y: 30, rotate: 2 }}
+                animate={{ opacity: 1, y: 0, rotate: 2 }}
+                transition={{ delay: 0.35, duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
+                className="absolute top-12 right-4 w-56 origin-bottom"
+              >
+                <PublicationCard pub={publications[1]} compact />
+              </motion.div>
+            )}
+            {publications[2] && (
+              <motion.div
+                initial={{ opacity: 0, y: 30, rotate: -1 }}
+                animate={{ opacity: 1, y: 0, rotate: -1 }}
+                transition={{ delay: 0.5, duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
+                className="absolute bottom-0 left-20 w-56 origin-top"
+              >
+                <PublicationCard pub={publications[2]} compact />
+              </motion.div>
+            )}
           </div>
         </div>
       </section>
@@ -411,7 +360,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Productos recomendados ───────────────────────────────────── */}
+      {/* ── Publicaciones reales ───────────────────────────────────── */}
       <section className="bg-slate-50">
         <div className="max-w-6xl mx-auto px-6 py-20">
           <motion.div
@@ -429,50 +378,53 @@ export default function Home() {
                 Objetos con historia, listos para vos.
               </h2>
             </div>
-            <span className="text-[10px] font-light text-slate-400 hidden sm:block">
-              {PRODUCTS.length} objetos disponibles
-            </span>
+            {!loadingPubs && (
+              <span className="text-[10px] font-light text-slate-400 hidden sm:block">
+                {publications.length} objetos disponibles
+              </span>
+            )}
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {PRODUCTS.map((product, i) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.07 }}
-              >
-                <ProductCard product={product} />
-              </motion.div>
-            ))}
-          </div>
+          {loadingPubs ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="bg-white rounded-2xl border border-slate-100 overflow-hidden animate-pulse">
+                  <div className="aspect-[4/3] bg-slate-200" />
+                  <div className="p-4 space-y-3">
+                    <div className="h-4 bg-slate-200 rounded w-3/4" />
+                    <div className="h-3 bg-slate-100 rounded w-1/2" />
+                    <div className="h-8 bg-slate-100 rounded" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : publications.length === 0 ? (
+            <div className="text-center py-16 text-slate-400">
+              <p className="text-lg font-medium">No hay publicaciones disponibles aún.</p>
+              <p className="text-sm mt-1">Sé el primero en publicar algo.</p>
+              {token && (
+                <Link to="/publications/create" className="inline-block mt-4 bg-brand text-white font-semibold px-5 py-2.5 rounded-xl hover:bg-brand-light transition-colors">
+                  Crear publicación
+                </Link>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {publications.map((pub, i) => (
+                <motion.div
+                  key={pub._id}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: i * 0.07 }}
+                >
+                  <PublicationCard pub={pub} />
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
-      {/* ── Publicaciones reales (H2.6) ───────────────────────────── */}
-<section className="bg-white">
-  <div className="max-w-6xl mx-auto px-6 py-20">
-
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
-      className="mb-10"
-    >
-      <span className="text-[10px] font-light tracking-[0.2em] uppercase text-slate-400">
-        Desde el backend
-      </span>
-      <h2 className="text-3xl font-bold text-slate-900 mt-1.5 tracking-tight">
-        Publicaciones reales
-      </h2>
-    </motion.div>
-
-    {/* 🔥 H2.6 */}
-    <PublicacionesList />
-
-  </div>
-</section>
 
       {/* ── Dos modalidades ─────────────────────────────────────────── */}
       <section className="bg-white">
