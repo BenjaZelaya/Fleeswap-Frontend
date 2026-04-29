@@ -484,16 +484,18 @@ export default function Home() {
           ) : (
             <>
               {/* Track del carrusel */}
+              {/* px-[7.5%]: centra las cards en móvil (85% ancho → 7.5% padding c/lado) */}
+              {/* sm:px-0: en tablet/desktop las cards llenan el ancho, no necesita padding */}
               <div
                 ref={carouselRef}
                 onScroll={updateArrows}
-                className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2"
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2 px-[7.5%] sm:px-0"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', scrollPaddingLeft: '7.5%', scrollPaddingRight: '7.5%' }}
               >
                 {publications.map((pub) => (
                   <div
                     key={pub._id}
-                    className="snap-start shrink-0 w-[85%] sm:w-[45%] lg:w-[31%]"
+                    className="snap-center shrink-0 w-[85%] sm:w-[45%] lg:w-[31%]"
                   >
                     <PublicationCard pub={pub} />
                   </div>

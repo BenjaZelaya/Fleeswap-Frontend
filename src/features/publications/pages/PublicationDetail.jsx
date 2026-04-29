@@ -134,7 +134,7 @@ export default function PublicationDetail() {
       <div className="flex items-center gap-2 text-sm text-gray-500">
         <Link to="/" className="hover:text-brand-accent transition-colors">Inicio</Link>
         <span>/</span>
-        <Link to="/" className="hover:text-brand-accent transition-colors">{getCategoryLabel(publication.category)}</Link>
+        <Link to={`/explore?category=${publication.category}`} className="hover:text-brand-accent transition-colors">{getCategoryLabel(publication.category)}</Link>
         <span>/</span>
         <span className="text-gray-700">{publication.title}</span>
       </div>

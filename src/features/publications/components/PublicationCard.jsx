@@ -24,13 +24,22 @@ export default function PublicationCard({ publication, isOwner, onEdit, onDelete
   return (
     <Link to={`/publications/${publication._id}`} className="rounded-xl border border-gray-100 overflow-hidden hover:border-brand/20 transition-all hover:shadow-md hover:cursor-pointer block">
       {/* Foto */}
-      {publication.photos?.[0] && (
-        <img
-          src={publication.photos[0]}
-          alt={publication.title}
-          className="w-full h-40 object-cover"
-        />
-      )}
+      <div className="relative bg-slate-100 overflow-hidden aspect-[4/3]">
+        {publication.photos?.[0] ? (
+          <img
+            src={publication.photos[0]}
+            alt={publication.title}
+            className="w-full h-full object-contain transition-transform duration-500 hover:scale-105"
+            loading="lazy"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-slate-300">
+            <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+        )}
+      </div>
 
       {/* Contenido */}
       <div className="p-4 space-y-3">
