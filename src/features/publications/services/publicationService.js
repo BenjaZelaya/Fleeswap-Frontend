@@ -39,5 +39,7 @@ export async function updatePublicationStatus(id, newStatus) {
 }
 
 export async function deletePublication(id) {
-  await api.delete(`/publications/${id}`)
+  // El backend requiere { confirmacion: true } en el body del DELETE.
+  // En Axios, el body de un DELETE va en la propiedad 'data' del config.
+  await api.delete(`/publications/${id}`, { data: { confirmacion: true } })
 }
