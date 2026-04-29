@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async'
-import { seoConfig, defaultSeo, organizationSchema } from '../utils/seoConfig'
+import { seoConfig, defaultSeo, organizationSchema } from '../../utils/seoConfig'
 
 /**
  * Hook para manejar SEO en las páginas
@@ -31,7 +31,8 @@ export const Seo = ({
   image,
   url,
   type = 'website',
-  includeSchema = true
+  includeSchema = true,
+  schema
 }) => {
   const seo = useSeo(page, { title, description, keywords, image, url })
 
@@ -65,6 +66,11 @@ export const Seo = ({
           <script type="application/ld+json">
             {JSON.stringify(organizationSchema)}
           </script>
+          {schema && (
+            <script type="application/ld+json">
+              {JSON.stringify(schema)}
+            </script>
+          )}
         </>
       )}
     </Helmet>

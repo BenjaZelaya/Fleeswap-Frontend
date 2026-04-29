@@ -1,55 +1,56 @@
-// SEO Configuration for different pages
 export const seoConfig = {
   home: {
-    title: 'Fleeswap - Plataforma de Intercambio',
-    description: 'Plataforma de intercambio seguro y confiable. Compra, vende e intercambia productos con confianza.',
-    keywords: 'intercambio, marketplace, compra, venta, comercio electrónico'
+    title: 'Fleeswap - Intercambia y compra objetos con historia',
+    description: 'Compra, vende e intercambia objetos con historia en una comunidad simple, directa y segura.',
+    keywords: 'intercambio, marketplace, compra, venta, segunda mano'
+  },
+  explore: {
+    title: 'Explorar publicaciones - Fleeswap',
+    description: 'Explora publicaciones por categoria, estado y modalidad para encontrar objetos con historia.'
   },
   login: {
-    title: 'Iniciar Sesión - Fleeswap',
-    description: 'Inicia sesión en tu cuenta de Fleeswap para acceder a todas las funcionalidades.'
+    title: 'Iniciar sesion - Fleeswap',
+    description: 'Inicia sesion en tu cuenta de Fleeswap para acceder a todas las funcionalidades.'
   },
   register: {
-    title: 'Crear Cuenta - Fleeswap',
-    description: 'Regístrate en Fleeswap y comienza a intercambiar de forma segura.'
+    title: 'Crear cuenta - Fleeswap',
+    description: 'Registrate en Fleeswap y comenza a intercambiar de forma segura.'
   },
   profile: {
-    title: 'Mi Perfil - Fleeswap',
+    title: 'Mi perfil - Fleeswap',
     description: 'Gestiona tu perfil de usuario en Fleeswap.'
   },
   editProfile: {
-    title: 'Editar Perfil - Fleeswap',
-    description: 'Actualiza tu información personal en Fleeswap.'
+    title: 'Editar perfil - Fleeswap',
+    description: 'Actualiza tu informacion personal en Fleeswap.'
   },
   completeProfile: {
-    title: 'Completar Perfil - Fleeswap',
-    description: 'Completa tu perfil para desbloquear todas las características de Fleeswap.'
+    title: 'Completar perfil - Fleeswap',
+    description: 'Completa tu perfil para desbloquear todas las caracteristicas de Fleeswap.'
   },
   forgotPassword: {
-    title: 'Recuperar Contraseña - Fleeswap',
-    description: 'Recupera tu contraseña de Fleeswap de forma segura.'
+    title: 'Recuperar contrasena - Fleeswap',
+    description: 'Recupera tu contrasena de Fleeswap de forma segura.'
   },
   resetPassword: {
-    title: 'Restablecer Contraseña - Fleeswap',
-    description: 'Crea una nueva contraseña para tu cuenta de Fleeswap.'
+    title: 'Restablecer contrasena - Fleeswap',
+    description: 'Crea una nueva contrasena para tu cuenta de Fleeswap.'
   },
   changePassword: {
-    title: 'Cambiar Contraseña - Fleeswap',
-    description: 'Cambia la contraseña de tu cuenta de Fleeswap.'
+    title: 'Cambiar contrasena - Fleeswap',
+    description: 'Cambia la contrasena de tu cuenta de Fleeswap.'
   }
 }
 
-// Default SEO values
 export const defaultSeo = {
   siteUrl: 'https://fleeswap.com',
   siteName: 'Fleeswap',
-  image: process.env.VITE_FAVICON || '',
+  image: 'https://fleeswap.com/og-image.svg',
   locale: 'es_ES'
 }
 
-// Schema Structured Data
 export const getSchema = (type, data = {}) => {
-  const baseSchema = {
+  return {
     '@context': 'https://schema.org',
     '@type': type,
     name: defaultSeo.siteName,
@@ -57,16 +58,14 @@ export const getSchema = (type, data = {}) => {
     image: defaultSeo.image,
     ...data
   }
-  return baseSchema
 }
 
-// Organization Schema
 export const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'Fleeswap',
   url: 'https://fleeswap.com',
-  logo: process.env.VITE_FAVICON || '',
+  logo: 'https://fleeswap.com/favicon.svg',
   description: 'Plataforma de intercambio seguro y confiable',
   sameAs: []
 }

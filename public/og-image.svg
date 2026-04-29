@@ -1,0 +1,18 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#F9F7F4"/>
+  <rect x="72" y="72" width="1056" height="486" rx="36" fill="#1B365D"/>
+  <circle cx="1038" cy="142" r="92" fill="#D18C2E" fill-opacity="0.18"/>
+  <circle cx="164" cy="494" r="120" fill="#7DA2CE" fill-opacity="0.18"/>
+  <path d="M168 184H532" stroke="#7DA2CE" stroke-width="18" stroke-linecap="round"/>
+  <path d="M168 232H430" stroke="#7DA2CE" stroke-width="18" stroke-linecap="round" stroke-opacity="0.7"/>
+  <text x="168" y="338" fill="#F9F7F4" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="88" font-weight="300">Flee</text>
+  <text x="336" y="338" fill="#F9F7F4" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="88" font-weight="800">swap</text>
+  <text x="168" y="420" fill="#DDE7F2" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="34" font-weight="500">Intercambia y compra objetos con historia</text>
+  <text x="168" y="474" fill="#B3C5D9" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="26" font-weight="400">Segunda mano, sin comisiones, directo entre personas.</text>
+  <rect x="780" y="212" width="210" height="210" rx="28" fill="#F9F7F4"/>
+  <path d="M845 317H926" stroke="#1B365D" stroke-width="18" stroke-linecap="round"/>
+  <path d="M886 276V358" stroke="#1B365D" stroke-width="18" stroke-linecap="round"/>
+  <rect x="908" y="260" width="138" height="138" rx="28" fill="#D18C2E"/>
+  <path d="M948 329C961.333 314.333 974.667 314.333 988 329C1001.33 343.667 1014.67 343.667 1028 329" stroke="white" stroke-width="16" stroke-linecap="round"/>
+  <path d="M948 302H1028" stroke="white" stroke-width="16" stroke-linecap="round"/>
+</svg>

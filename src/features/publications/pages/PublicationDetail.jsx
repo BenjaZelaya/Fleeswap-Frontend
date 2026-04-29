@@ -5,16 +5,13 @@ import { toast } from 'sonner'
 import useAuthStore from '../../../store/authStore'
 import { getPublicationById } from '../services/publicationService'
 import { PUBLICATION_TYPES, PUBLICATION_CONDITIONS, PUBLICATION_CATEGORIES } from '../../../utils/constants'
+import Seo from '../../../shared/components/Seo'
+import PageSpinner from '../../../shared/components/ui/PageSpinner'
+import { defaultSeo } from '../../../utils/seoConfig'
+import { logError } from '../../../utils/logger'
 
 function LoadingSpinner() {
-  return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <svg className="animate-spin h-8 w-8 text-brand-accent" viewBox="0 0 24 24" fill="none">
-        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-      </svg>
-    </div>
-  )
+  return <PageSpinner label="Cargando publicación" />
 }
 
 export default function PublicationDetail() {
@@ -36,7 +33,7 @@ export default function PublicationDetail() {
       } catch (err) {
         if (err.response?.status === 404) setNotFound(true)
         else {
-          console.error('Error fetching publication:', err)
+          logError('Error fetching publication:', err)
           toast.error('Error al cargar la publicación')
         }
       } finally {
@@ -95,14 +92,44 @@ export default function PublicationDetail() {
   const ownerInitial = owner.nombre?.[0]?.toUpperCase() ?? '?'
   const isOwner = authUser && String(authUser.id) === String(owner._id)
   const mainPhoto = publication.photos?.[0]
+  const canonicalUrl = `${defaultSeo.siteUrl}/publications/${publication._id}`
+  const image = publication.photos?.[selectedPhotoIndex] || mainPhoto || defaultSeo.image
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: publication.title,
+    description: publication.description,
+    image: publication.photos?.length ? publication.photos : [defaultSeo.image],
+    url: canonicalUrl,
+    itemCondition: getConditionLabel(publication.condition),
+    offers: publication.price
+      ? {
+          '@type': 'Offer',
+          price: publication.price,
+          priceCurrency: 'ARS',
+          availability: publication.status === 'available'
+            ? 'https://schema.org/InStock'
+            : 'https://schema.org/OutOfStock',
+        }
+      : undefined,
+  }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="max-w-6xl mx-auto px-4 py-8 space-y-8"
-    >
+    <>
+      <Seo
+        title={`${publication.title} - Fleeswap`}
+        description={publication.description}
+        image={image}
+        url={canonicalUrl}
+        type="product"
+        schema={schema}
+      />
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="max-w-6xl mx-auto px-4 py-8 space-y-8"
+      >
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-gray-500">
         <Link to="/" className="hover:text-brand-accent transition-colors">Inicio</Link>
@@ -337,6 +364,7 @@ export default function PublicationDetail() {
           </div>
         </div>
       </div>
-    </motion.div>
+      </motion.div>
+    </>
   )
 }

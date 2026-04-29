@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { resetPassword } from '../services/authService'
 import AuthLayout from '../../../shared/components/layout/AuthLayout'
+import Seo from '../../../shared/components/Seo'
 import FormField from '../../../shared/components/forms/FormField'
 import PasswordInput from '../../../shared/components/forms/PasswordInput'
 import SubmitButton from '../../../shared/components/forms/SubmitButton'
@@ -18,15 +19,16 @@ export default function ResetPassword() {
 
   if (!token) {
     return (
-      <AuthLayout title="Link inválido" subtitle="Este link de recuperación no es válido o ya expiró">
-        <div className="text-center space-y-4">
-          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <AuthLayout title="Link invalido" subtitle="Este link de recuperacion no es valido o ya expiro">
+        <Seo page="resetPassword" />
+        <div className="space-y-4 text-center">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+            <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
-          <Link to="/forgot-password" className="block text-sm font-semibold text-brand-accent hover:text-brand transition-colors">
-            Solicitar un nuevo link →
+          <Link to="/forgot-password" className="block text-sm font-semibold text-brand-accent transition-colors hover:text-brand">
+            Solicitar un nuevo link
           </Link>
         </div>
       </AuthLayout>
@@ -50,12 +52,12 @@ export default function ResetPassword() {
 
     try {
       await resetPassword(token, form.password, form.confirm)
-      navigate('/login', { state: { message: 'Contraseña restablecida. Ya podés iniciar sesión.' } })
+      navigate('/login', { state: { message: 'Contrasena restablecida. Ya podes iniciar sesion.' } })
     } catch (err) {
       if (err.response?.status === 400) {
-        setErrors({ general: 'El link expiró o ya fue utilizado. Solicitá uno nuevo.' })
+        setErrors({ general: 'El link expiro o ya fue utilizado. Solicita uno nuevo.' })
       } else {
-        setErrors({ general: 'Ocurrió un error. Intentá de nuevo.' })
+        setErrors({ general: 'Ocurrio un error. Intenta de nuevo.' })
       }
     } finally {
       setLoading(false)
@@ -68,10 +70,11 @@ export default function ResetPassword() {
   }
 
   return (
-    <AuthLayout title="Nueva contraseña" subtitle="Elegí una contraseña segura para tu cuenta">
+    <AuthLayout title="Nueva contrasena" subtitle="Elige una contrasena segura para tu cuenta">
+      <Seo page="resetPassword" />
       {errors.general && (
-        <p className="text-sm text-red-500 bg-red-50 rounded-xl px-4 py-2.5 mb-5 flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+        <p className="mb-5 flex items-center gap-2 rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-500">
+          <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
           </svg>
           {errors.general}
@@ -79,7 +82,7 @@ export default function ResetPassword() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        <FormField label="Nueva contraseña" error={errors.password}>
+        <FormField label="Nueva contrasena" error={errors.password}>
           <PasswordInput
             name="password"
             value={form.password}
@@ -89,7 +92,7 @@ export default function ResetPassword() {
           />
         </FormField>
 
-        <FormField label="Confirmar contraseña" error={errors.confirm}>
+        <FormField label="Confirmar contrasena" error={errors.confirm}>
           <PasswordInput
             name="confirm"
             value={form.confirm}
@@ -99,7 +102,7 @@ export default function ResetPassword() {
           />
         </FormField>
 
-        <SubmitButton loading={loading} label="Restablecer contraseña" loadingLabel="Guardando..." />
+        <SubmitButton loading={loading} label="Restablecer contrasena" loadingLabel="Guardando..." />
       </form>
     </AuthLayout>
   )

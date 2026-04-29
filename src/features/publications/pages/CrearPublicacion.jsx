@@ -23,6 +23,7 @@ import SelectField from '../../../shared/components/SelectField'
 import RadioGroup from '../../../shared/components/RadioGroup'
 import FormField from '../../../shared/components/forms/FormField'
 import SubmitButton from '../../../shared/components/forms/SubmitButton'
+import { logError } from '../../../utils/logger'
 
 export default function CrearPublicacion() {
   const navigate = useNavigate()
@@ -110,7 +111,7 @@ export default function CrearPublicacion() {
 
     setLoading(true)
     try {
-      const response = await createPublication({
+      await createPublication({
         title: form.title.trim(),
         description: form.description.trim(),
         history: form.history.trim(),
@@ -126,7 +127,7 @@ export default function CrearPublicacion() {
       // Redirigir a mis publicaciones
       navigate('/my-publications')
     } catch (err) {
-      console.error('Error creating publication:', err)
+      logError('Error creating publication:', err)
       const errorMsg =
         err.response?.data?.message || 'Error al crear la publicación'
       toast.error(errorMsg)
