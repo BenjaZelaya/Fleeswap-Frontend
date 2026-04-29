@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import useAuthStore from '../store/authStore'
@@ -204,10 +204,29 @@ export default function Home() {
   const [loadingPubs, setLoadingPubs] = useState(true)
   const [searchValue, setSearchValue] = useState('')
 
+  const carouselRef = useRef(null)
+  const [atStart, setAtStart] = useState(true)
+  const [atEnd, setAtEnd] = useState(false)
+
+  const updateArrows = useCallback(() => {
+    const el = carouselRef.current
+    if (!el) return
+    setAtStart(el.scrollLeft <= 0)
+    setAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 1)
+  }, [])
+
+  const scrollPrev = useCallback(() => {
+    carouselRef.current?.scrollBy({ left: -carouselRef.current.clientWidth, behavior: 'smooth' })
+  }, [])
+
+  const scrollNext = useCallback(() => {
+    carouselRef.current?.scrollBy({ left: carouselRef.current.clientWidth, behavior: 'smooth' })
+  }, [])
+
   useEffect(() => {
     async function fetchPubs() {
       try {
-        const data = await getPublications({ limit: 6 })
+        const data = await getPublications({ limit: 12 })
         setPublications(data.publications || data.items || data.data || [])
       } catch (err) {
         logError('Error cargando publicaciones:', err)
@@ -217,6 +236,12 @@ export default function Home() {
     }
     fetchPubs()
   }, [])
+
+  useEffect(() => {
+    if (!loadingPubs && publications.length > 0) {
+      requestAnimationFrame(updateArrows)
+    }
+  }, [loadingPubs, publications.length, updateArrows])
 
   function handleDismissBanner() {
     localStorage.setItem(PROFILE_BANNER_KEY, '1')
@@ -388,9 +413,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Publicaciones reales ───────────────────────────────────── */}
+      {/* ── Publicaciones reales (Carrusel) ───────────────────────────────── */}
       <section className="bg-slate-50">
         <div className="max-w-6xl mx-auto px-6 py-20">
+          {/* Header con flechas de navegación */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -406,25 +432,36 @@ export default function Home() {
                 Objetos con historia, listos para vos.
               </h2>
             </div>
-            <div className="text-right">
-              {!loadingPubs && (
-                <span className="text-[10px] font-light text-slate-400 hidden sm:block">
-                  {publications.length} objetos disponibles
-                </span>
-              )}
-              <Link
-                to="/explore"
-                className="mt-2 inline-flex text-sm font-semibold text-brand-accent hover:text-brand transition-colors"
-              >
-                Ver todo
-              </Link>
-            </div>
+            {!loadingPubs && publications.length > 0 && (
+              <div className="hidden sm:flex items-center gap-2">
+                <button
+                  onClick={scrollPrev}
+                  disabled={atStart}
+                  aria-label="Anterior"
+                  className="w-10 h-10 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={scrollNext}
+                  disabled={atEnd}
+                  aria-label="Siguiente"
+                  className="w-10 h-10 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            )}
           </motion.div>
 
           {loadingPubs ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="bg-white rounded-2xl border border-slate-100 overflow-hidden animate-pulse">
+            <div className="flex gap-5 overflow-hidden">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="shrink-0 w-full sm:w-[45%] lg:w-[31%] bg-white rounded-2xl border border-slate-100 overflow-hidden animate-pulse">
                   <div className="aspect-[4/3] bg-slate-200" />
                   <div className="p-4 space-y-3">
                     <div className="h-4 bg-slate-200 rounded w-3/4" />
@@ -445,19 +482,82 @@ export default function Home() {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {publications.map((pub, i) => (
+            <>
+              {/* Track del carrusel */}
+              <div
+                ref={carouselRef}
+                onScroll={updateArrows}
+                className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
+                {publications.map((pub) => (
+                  <div
+                    key={pub._id}
+                    className="snap-start shrink-0 w-[85%] sm:w-[45%] lg:w-[31%]"
+                  >
+                    <PublicationCard pub={pub} />
+                  </div>
+                ))}
+              </div>
+
+              {/* Controles móvil + CTA a Explore */}
+              <div className="mt-8 flex flex-col items-center gap-6">
+                {/* Flechas visibles solo en móvil */}
+                <div className="flex sm:hidden items-center gap-3">
+                  <button
+                    onClick={scrollPrev}
+                    disabled={atStart}
+                    aria-label="Anterior"
+                    className="w-10 h-10 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={scrollNext}
+                    disabled={atEnd}
+                    aria-label="Siguiente"
+                    className="w-10 h-10 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Separador decorativo */}
+                <div className="flex items-center gap-4 w-full max-w-sm">
+                  <div className="flex-1 h-px bg-slate-200" />
+                  <span className="text-[10px] font-light tracking-[0.18em] uppercase text-slate-400 whitespace-nowrap">
+                    Hay más esperándote
+                  </span>
+                  <div className="flex-1 h-px bg-slate-200" />
+                </div>
+
+                {/* Botón a Explore */}
                 <motion.div
-                  key={pub._id}
-                  initial={{ opacity: 0, y: 24 }}
+                  initial={{ opacity: 0, y: 10 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: i * 0.07 }}
+                  transition={{ duration: 0.4 }}
                 >
-                  <PublicationCard pub={pub} />
+                  <Link
+                    to="/explore"
+                    className="group inline-flex items-center gap-3 bg-white hover:bg-brand border border-slate-200 hover:border-brand text-slate-700 hover:text-white font-semibold px-8 py-3.5 rounded-2xl shadow-sm transition-all duration-300"
+                  >
+                    <span>Ver todos los objetos</span>
+                    <motion.span
+                      animate={{ x: [0, 5, 0] }}
+                      transition={{ repeat: Infinity, duration: 1.6, ease: 'easeInOut' }}
+                      className="inline-block"
+                    >
+                      →
+                    </motion.span>
+                  </Link>
                 </motion.div>
-              ))}
-            </div>
+              </div>
+            </>
           )}
         </div>
       </section>
