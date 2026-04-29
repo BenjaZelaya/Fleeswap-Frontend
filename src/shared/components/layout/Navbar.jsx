@@ -9,7 +9,7 @@ import ConfirmModal from "../ui/ConfirmModal";
 function WordMark({ className = "" }) {
   return (
     <div className="flex items-center">
-      <img className="w-10 h-10" src={import.meta.env.VITE_FAVICON} alt="" />
+      <img className="w-10 h-10" src={import.meta.env.VITE_FAVICON} alt="Fleeswap" />
       <span className={`tracking-tight ${className}`}>
         <span className="font-light">Flee</span>
         <span className="font-extrabold">swap</span>
@@ -22,6 +22,7 @@ function MobileTab({ to, icon, label, active }) {
   return (
     <Link
       to={to}
+      aria-current={active ? "page" : undefined}
       className="flex flex-col items-center justify-center gap-1 flex-1 py-2"
     >
       <motion.div
@@ -39,13 +40,13 @@ function MobileTab({ to, icon, label, active }) {
   );
 }
 
-function Avatar({ initial, photo, size = 8 }) {
+function Avatar({ initial, photo, alt, size = 8 }) {
   const sizeClass = `w-${size} h-${size}`;
   if (photo) {
     return (
       <img
         src={photo}
-        alt="Avatar"
+        alt={alt}
         className={`${sizeClass} rounded-full object-cover border border-slate-200`}
       />
     );
@@ -128,7 +129,7 @@ export default function Navbar() {
                   className="flex items-center gap-2.5 hover:opacity-75 transition-opacity"
                 >
                   <motion.div whileHover={{ scale: 1.06 }}>
-                    <Avatar initial={initial} photo={user?.photo} />
+                    <Avatar initial={initial} photo={user?.photo} alt={displayName} />
                   </motion.div>
                   <span className="text-sm font-medium text-slate-700">
                     {displayName}
@@ -313,7 +314,7 @@ export default function Navbar() {
             {isAuthenticated ? (
               <div className="relative" ref={mobileDropdownRef}>
                 <button onClick={() => setDropdownOpen((v) => !v)}>
-                  <Avatar initial={initial} photo={user?.photo} />
+                  <Avatar initial={initial} photo={user?.photo} alt={displayName} />
                 </button>
 
                 <AnimatePresence>
@@ -475,10 +476,10 @@ export default function Navbar() {
 
           {/* Tab Publicaciones */}
           <MobileTab
-            to="#"
+            to="/explore"
             icon={<Plus size={20} strokeWidth={1.5} />}
             label="Publicaciones"
-            active={false}
+            active={location.pathname.startsWith("/explore")}
           />
 
           {isAuthenticated ? (

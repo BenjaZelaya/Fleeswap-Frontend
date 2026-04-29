@@ -2,6 +2,7 @@ import { useState } from 'react'
 import useCloudinaryWidget from '../hooks/useCloudinaryWidget'
 import { X } from 'lucide-react'
 import { PHOTOS_MAX } from '../../utils/constants'
+import { logError } from '../../utils/logger'
 
 export default function ImageUpload({ images = [], onAddImage, onRemoveImage, error, disabled = false }) {
   const { openWidget, scriptReady } = useCloudinaryWidget()
@@ -17,7 +18,7 @@ export default function ImageUpload({ images = [], onAddImage, onRemoveImage, er
         setUploading(false)
       },
       (err) => {
-        console.error('Upload error:', err)
+        logError('Upload error:', err)
         setUploading(false)
       }
     )

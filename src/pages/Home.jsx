@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import useAuthStore from '../store/authStore'
 import { getPublications } from '../features/publications/services/publicationService'
 import { PUBLICATION_TYPES, PUBLICATION_CONDITIONS, PUBLICATION_CATEGORIES } from '../utils/constants'
+import SearchBar from '../shared/components/SearchBar'
+import Seo from '../shared/components/Seo'
+import { logError } from '../utils/logger'
 
 const PROFILE_BANNER_KEY = 'fleeswap_profile_banner_dismissed'
 
@@ -123,7 +126,7 @@ function PublicationCard({ pub, compact = false }) {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-slate-300">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
@@ -169,14 +172,14 @@ function PublicationCard({ pub, compact = false }) {
           {!compact && (
             <div className="flex gap-2 pt-1" onClick={(e) => e.preventDefault()}>
               {(pub.type === 'trueque' || pub.type === 'ambos') && (
-                <span className="flex-1 bg-brand text-white text-xs font-semibold py-2.5 rounded-xl flex items-center justify-center gap-1.5">
+                <button type="button" className="flex-1 bg-brand text-white text-xs font-semibold py-2.5 rounded-xl flex items-center justify-center gap-1.5">
                   ⇄ Intercambiar
-                </span>
+                </button>
               )}
               {(pub.type === 'venta' || pub.type === 'ambos') && (
-                <span className="flex-1 bg-amber-500 text-white text-xs font-semibold py-2.5 rounded-xl flex items-center justify-center gap-1.5">
+                <button type="button" className="flex-1 bg-amber-500 text-white text-xs font-semibold py-2.5 rounded-xl flex items-center justify-center gap-1.5">
                   Comprar
-                </span>
+                </button>
               )}
             </div>
           )}
@@ -192,20 +195,22 @@ const fadeUp = { hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0 } }
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.1 } } }
 
 export default function Home() {
+  const navigate = useNavigate()
   const { token, user } = useAuthStore()
   const [bannerDismissed, setBannerDismissed] = useState(
     () => localStorage.getItem(PROFILE_BANNER_KEY) === '1'
   )
   const [publications, setPublications] = useState([])
   const [loadingPubs, setLoadingPubs] = useState(true)
+  const [searchValue, setSearchValue] = useState('')
 
   useEffect(() => {
     async function fetchPubs() {
       try {
         const data = await getPublications({ limit: 6 })
-        setPublications(data.publications || [])
+        setPublications(data.publications || data.items || data.data || [])
       } catch (err) {
-        console.error('Error cargando publicaciones:', err)
+        logError('Error cargando publicaciones:', err)
       } finally {
         setLoadingPubs(false)
       }
@@ -218,8 +223,20 @@ export default function Home() {
     setBannerDismissed(true)
   }
 
+  function handleSearchSubmit(event) {
+    event.preventDefault()
+    const params = new URLSearchParams()
+
+    if (searchValue.trim()) {
+      params.set('search', searchValue.trim())
+    }
+
+    navigate(`/explore${params.toString() ? `?${params.toString()}` : ''}`)
+  }
+
   return (
     <div>
+      <Seo page="home" />
       {/* ── Banner perfil incompleto ─────────────────────────────────── */}
       <AnimatePresence>
         {token && user && !bannerDismissed && (
@@ -284,6 +301,17 @@ export default function Home() {
                   </Link>
                 </>
               )}
+            </motion.div>
+
+            <motion.div variants={fadeUp} transition={{ duration: 0.45 }}>
+              <SearchBar
+                value={searchValue}
+                onChange={setSearchValue}
+                onSubmit={handleSearchSubmit}
+                placeholder="Buscar electrónica, libros, ropa y más"
+                buttonLabel="Explorar"
+                className="max-w-2xl"
+              />
             </motion.div>
           </motion.div>
 
@@ -378,11 +406,19 @@ export default function Home() {
                 Objetos con historia, listos para vos.
               </h2>
             </div>
-            {!loadingPubs && (
-              <span className="text-[10px] font-light text-slate-400 hidden sm:block">
-                {publications.length} objetos disponibles
-              </span>
-            )}
+            <div className="text-right">
+              {!loadingPubs && (
+                <span className="text-[10px] font-light text-slate-400 hidden sm:block">
+                  {publications.length} objetos disponibles
+                </span>
+              )}
+              <Link
+                to="/explore"
+                className="mt-2 inline-flex text-sm font-semibold text-brand-accent hover:text-brand transition-colors"
+              >
+                Ver todo
+              </Link>
+            </div>
           </motion.div>
 
           {loadingPubs ? (
@@ -423,6 +459,54 @@ export default function Home() {
               ))}
             </div>
           )}
+        </div>
+      </section>
+
+      <section className="bg-white">
+        <div className="max-w-6xl mx-auto px-6 py-20">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-10"
+          >
+            <div>
+              <span className="text-[10px] font-light tracking-[0.2em] uppercase text-slate-400">
+                Por categoría
+              </span>
+              <h2 className="text-3xl font-bold text-slate-900 mt-1.5 tracking-tight">
+                Entrá por donde ya sabés qué querés mirar.
+              </h2>
+            </div>
+            <p className="max-w-md text-sm text-slate-500">
+              Cada acceso directo abre la exploración con filtros listos para compartir y retomar.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
+            {PUBLICATION_CATEGORIES.map((category, index) => (
+              <motion.div
+                key={category.value}
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.35, delay: index * 0.04 }}
+              >
+                <Link
+                  to={`/explore?category=${category.value}`}
+                  className="flex min-h-28 flex-col justify-between rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:-translate-y-1 hover:border-brand/30 hover:bg-white hover:shadow-sm"
+                >
+                  <span className="text-[10px] font-light uppercase tracking-[0.18em] text-slate-400">
+                    Explorar
+                  </span>
+                  <span className="text-base font-semibold text-slate-900 leading-snug">
+                    {category.label}
+                  </span>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -473,10 +557,10 @@ export default function Home() {
               </ul>
               {!token && (
                 <Link
-                  to="/register"
+                  to="/explore?type=trueque"
                   className="inline-block bg-brand hover:bg-brand-light text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-colors"
                 >
-                  Explorar para intercambiar
+                  Explorar trueques
                 </Link>
               )}
             </motion.div>
@@ -509,7 +593,7 @@ export default function Home() {
               </ul>
               {!token && (
                 <Link
-                  to="/register"
+                  to="/explore?type=venta"
                   className="inline-block bg-amber-500 hover:bg-amber-600 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-colors"
                 >
                   Ver objetos en venta

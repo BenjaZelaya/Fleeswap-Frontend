@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { register } from '../services/authService'
 import useAuthStore from '../../../store/authStore'
 import AuthLayout from '../../../shared/components/layout/AuthLayout'
+import Seo from '../../../shared/components/Seo'
 import FormField, { inputClass } from '../../../shared/components/forms/FormField'
 import PasswordInput from '../../../shared/components/forms/PasswordInput'
 import SubmitButton from '../../../shared/components/forms/SubmitButton'
@@ -19,6 +20,10 @@ const MAX_BIRTH_DATE = (() => {
   d.setFullYear(d.getFullYear() - 18)
   return d.toISOString().split('T')[0]
 })()
+
+function getSafeRedirectPath(pathname) {
+  return typeof pathname === 'string' && pathname.startsWith('/') ? pathname : '/'
+}
 
 export default function Register() {
   const navigate = useNavigate()
@@ -65,12 +70,12 @@ export default function Register() {
         confirmPassword: form.confirm,
       })
       setAuth(data.user, data.accessToken)
-      navigate(location.state?.from?.pathname || '/')
+      navigate(getSafeRedirectPath(location.state?.from?.pathname))
     } catch (err) {
       if (err.response?.status === 409) {
-        setErrors({ email: 'El email ya está en uso' })
+        setErrors({ email: 'El email ya esta en uso' })
       } else {
-        setErrors({ general: 'Ocurrió un error, intentá de nuevo' })
+        setErrors({ general: 'Ocurrio un error, intenta de nuevo' })
       }
     } finally {
       setLoading(false)
@@ -83,10 +88,12 @@ export default function Register() {
   }
 
   return (
-    <AuthLayout title="Crear cuenta" subtitle="Empezá a intercambiar hoy">
+    <AuthLayout title="Crear cuenta" subtitle="Empeza a intercambiar hoy">
+      <Seo page="register" />
+
       {errors.general && (
-        <p className="text-sm text-red-500 bg-red-50 rounded-xl px-4 py-2.5 mb-5 flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+        <p className="mb-5 flex items-center gap-2 rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-500">
+          <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
           </svg>
           {errors.general}
@@ -112,7 +119,7 @@ export default function Register() {
               name="apellido"
               value={form.apellido}
               onChange={handleChange}
-              placeholder="Pérez"
+              placeholder="Perez"
               className={inputClass(errors.apellido)}
             />
           </FormField>
@@ -140,7 +147,7 @@ export default function Register() {
           />
         </FormField>
 
-        <FormField label="Contraseña" error={errors.password}>
+        <FormField label="Contrasena" error={errors.password}>
           <PasswordInput
             name="password"
             value={form.password}
@@ -150,7 +157,7 @@ export default function Register() {
           />
         </FormField>
 
-        <FormField label="Confirmar contraseña" error={errors.confirm}>
+        <FormField label="Confirmar contrasena" error={errors.confirm}>
           <PasswordInput
             name="confirm"
             value={form.confirm}
@@ -163,10 +170,10 @@ export default function Register() {
         <SubmitButton loading={loading} label="Crear cuenta" loadingLabel="Registrando..." />
       </form>
 
-      <p className="text-center text-sm text-gray-400 mt-6">
-        ¿Ya tenés una cuenta?{' '}
-        <Link to="/login" className="text-brand-accent font-semibold hover:text-brand transition-colors">
-          Iniciá sesión
+      <p className="mt-6 text-center text-sm text-gray-400">
+        Ya tenes una cuenta?{' '}
+        <Link to="/login" className="font-semibold text-brand-accent transition-colors hover:text-brand">
+          Inicia sesion
         </Link>
       </p>
     </AuthLayout>

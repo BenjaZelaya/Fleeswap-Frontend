@@ -1,28 +1,49 @@
+import { cloneElement, isValidElement, useId } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-export default function FormField({ label, error, children }) {
+export default function FormField({ label, error, children, htmlFor, required = false }) {
+  const generatedId = useId()
+  const childId = isValidElement(children) ? children.props.id || children.props.name : undefined
+  const fieldId = htmlFor || childId || generatedId
+  const errorId = `${fieldId}-error`
+  const describedBy = isValidElement(children) ? children.props['aria-describedby'] : undefined
+  const child = isValidElement(children)
+    ? cloneElement(children, {
+        id: children.props.id || fieldId,
+        'aria-invalid': error ? 'true' : undefined,
+        'aria-describedby': error
+          ? [describedBy, errorId].filter(Boolean).join(' ')
+          : describedBy,
+      })
+    : children
+
   return (
     <div className="space-y-0">
-      <label className="block text-[10px] font-light uppercase tracking-[0.2em] text-slate-400 mb-2">
+      <label
+        htmlFor={fieldId}
+        className="block text-xs font-light uppercase tracking-[0.2em] text-slate-500 mb-2"
+      >
         {label}
+        {required && <span className="ml-1 text-brand-accent">*</span>}
       </label>
       <motion.div
         animate={error ? { x: [0, -6, 6, -4, 4, 0] } : { x: 0 }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
       >
-        {children}
+        {child}
       </motion.div>
       <AnimatePresence mode="wait">
         {error && (
           <motion.p
             key={error}
+            id={errorId}
             initial={{ opacity: 0, y: -6, height: 0 }}
             animate={{ opacity: 1, y: 0, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
             className="text-[11px] font-medium text-red-500 pt-1.5 flex items-center gap-1.5 overflow-hidden"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="h-3 w-3 shrink-0" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
             {error}

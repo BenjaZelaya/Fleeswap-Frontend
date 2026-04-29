@@ -25,6 +25,7 @@ import RadioGroup from '../../../shared/components/RadioGroup'
 import PhotoManager from '../components/PhotoManager'
 import SubmitButton from '../../../shared/components/forms/SubmitButton'
 import { toast } from 'sonner'
+import { logError, logInfo } from '../../../utils/logger'
 
 export default function EditPublication() {
   const { id } = useParams()
@@ -79,7 +80,7 @@ export default function EditPublication() {
       })
     } catch (err) {
       const message = err.response?.data?.message || 'Error al cargar publicación'
-      console.error('Error al cargar publicación:', err)
+      logError('Error al cargar publicación:', err)
       toast.error(message)
       navigate('/my-publications')
     } finally {
@@ -232,9 +233,8 @@ export default function EditPublication() {
         }
       }
       
-      console.log('Datos a enviar:', dataToSend)
-      const response = await updatePublication(id, dataToSend)
-      console.log('Respuesta del servidor:', response)
+      logInfo('Datos a enviar:', dataToSend)
+      await updatePublication(id, dataToSend)
       
       toast.success('¡Publicación editada exitosamente!')
       setTimeout(() => {
@@ -242,7 +242,7 @@ export default function EditPublication() {
       }, 500)
     } catch (err) {
       const errorMsg = err.response?.data?.message || err.message || 'Error al actualizar publicación'
-      console.error('Error al actualizar:', {
+      logError('Error al actualizar:', {
         status: err.response?.status,
         message: errorMsg,
         data: err.response?.data
