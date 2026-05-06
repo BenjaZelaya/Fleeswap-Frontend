@@ -1,5 +1,6 @@
-import { useId, useState } from 'react'
+import { useId, useState, useEffect, useRef } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { toast } from 'sonner'
 import { login } from '../services/authService'
 import useAuthStore from '../../../store/authStore'
 import AuthLayout from '../../../shared/components/layout/AuthLayout'
@@ -22,6 +23,18 @@ export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' })
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
+
+  // ── Mostrar toast si llegamos redirigidos desde una página protegida ────
+  // Se usa un ref (no state) para que el guard sobreviva al doble-montaje
+  // de React StrictMode en desarrollo sin disparar el toast dos veces.
+  const toastShown = useRef(false)
+  useEffect(() => {
+    if (location.state?.toast && !toastShown.current) {
+      toastShown.current = true
+      toast.info(location.state.toast)
+      window.history.replaceState({}, '')
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   function validate() {
     const errs = {}
