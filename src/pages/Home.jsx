@@ -2,12 +2,14 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion'
+
 import useAuthStore from '../store/authStore'
 import { getPublications } from '../features/publications/services/publicationService'
 import { PUBLICATION_TYPES, PUBLICATION_CONDITIONS, PUBLICATION_CATEGORIES } from '../utils/constants'
 import SearchBar from '../shared/components/SearchBar'
 import Seo from '../shared/components/Seo'
 import { logError } from '../utils/logger'
+import ModalIntercambio from '../features/solicitudes/components/ModalIntercambio'
 
 const PROFILE_BANNER_KEY = 'fleeswap_profile_banner_dismissed'
 
@@ -105,7 +107,7 @@ function getCategoryLabel(category) {
   return cat?.label || category
 }
 
-function PublicationCard({ pub, compact = false }) {
+function PublicationCard({ pub, compact = false, onIntercambiar }) {
   const ownerInitial = pub.owner?.nombre?.[0]?.toUpperCase() ?? '?'
   const ownerName = [pub.owner?.nombre, pub.owner?.apellido].filter(Boolean).join(' ')
 
@@ -158,27 +160,40 @@ function PublicationCard({ pub, compact = false }) {
           </div>
 
           {/* Precio + tipo */}
-          <div className="flex items-center justify-between">
-            {pub.price ? (
+          <div className="flex items-center justify-between gap-2">
+            {(pub.type === 'venta' || pub.type === 'ambos') && pub.price ? (
               <span className="font-bold text-slate-900 text-base">
                 ${pub.price.toLocaleString('es-AR')}
               </span>
-            ) : (
-              <span className="text-[11px] font-bold text-brand-accent">Solo intercambio</span>
-            )}
+            ) : null}
             <TypeBadge type={pub.type} />
           </div>
 
           {/* Botones de acción */}
           {!compact && (
-            <div className="flex gap-2 pt-1" onClick={(e) => e.preventDefault()}>
+            <div
+              className="flex gap-2 pt-1"
+              onClick={(e) => e.preventDefault()}
+            >
               {(pub.type === 'trueque' || pub.type === 'ambos') && (
-                <button type="button" className="flex-1 bg-brand text-white text-xs font-semibold py-2.5 rounded-xl flex items-center justify-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    onIntercambiar?.(pub)
+                  }}
+                  className="flex-1 bg-brand text-white text-xs font-semibold py-2.5 rounded-xl flex items-center justify-center gap-1.5 hover:bg-brand-light transition-colors cursor-pointer"
+                >
                   ⇄ Intercambiar
                 </button>
               )}
               {(pub.type === 'venta' || pub.type === 'ambos') && (
-                <button type="button" className="flex-1 bg-amber-500 text-white text-xs font-semibold py-2.5 rounded-xl flex items-center justify-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation() }}
+                  className="flex-1 bg-amber-500 text-white text-xs font-semibold py-2.5 rounded-xl flex items-center justify-center gap-1.5 hover:bg-amber-600 transition-colors cursor-wait"
+                >
                   Comprar
                 </button>
               )}
@@ -204,6 +219,20 @@ export default function Home() {
   const [publications, setPublications] = useState([])
   const [loadingPubs, setLoadingPubs] = useState(true)
   const [searchValue, setSearchValue] = useState('')
+
+  // ── Modal de intercambio desde el carrusel ─────────────────────────────
+  const [modalPub, setModalPub] = useState(null)
+
+  function handleIntercambiar(pub) {
+    if (!token) {
+      navigate('/login',
+        {
+          state: { toast: 'Iniciá sesión para enviar una propuesta de intercambio' }
+        })
+      return
+    }
+    setModalPub(pub)
+  }
 
   const carouselRef = useRef(null)
   const [atStart, setAtStart] = useState(true)
@@ -485,20 +514,20 @@ export default function Home() {
           ) : (
             <>
               {/* Track del carrusel */}
-              {/* px-[7.5%]: centra las cards en móvil (85% ancho → 7.5% padding c/lado) */}
-              {/* sm:px-0: en tablet/desktop las cards llenan el ancho, no necesita padding */}
+              {/* Móvil: 1 card a pantalla completa, sin peeking */}
+              {/* Desktop: 3 cards exactas, centradas, sin peeking lateral */}
               <div
                 ref={carouselRef}
                 onScroll={updateArrows}
-                className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2 px-[7.5%] sm:px-0"
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', scrollPaddingLeft: '7.5%', scrollPaddingRight: '7.5%' }}
+                className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
               >
                 {publications.map((pub) => (
                   <div
                     key={pub._id}
-                    className="snap-center shrink-0 w-[85%] sm:w-[45%] lg:w-[31%]"
+                    className="snap-center shrink-0 w-full sm:w-[calc(50%-10px)] lg:w-[calc(33.333%-14px)]"
                   >
-                    <PublicationCard pub={pub} />
+                    <PublicationCard pub={pub} onIntercambiar={handleIntercambiar} />
                   </div>
                 ))}
               </div>
@@ -735,6 +764,13 @@ export default function Home() {
           </motion.div>
         </section>
       )}
+
+      {/* ── Modal de intercambio disparado desde el carrusel ── */}
+      <ModalIntercambio
+        isOpen={!!modalPub}
+        onClose={() => setModalPub(null)}
+        publicacionDestino={modalPub}
+      />
     </div>
   )
 }
