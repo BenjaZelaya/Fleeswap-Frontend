@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
+// eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion'
 import { getPublicProfile } from '../services/profileService'
 import useAuthStore from '../../../store/authStore'
