@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
+// eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion'
 import SearchBar from '../shared/components/SearchBar'
 import FilterPanel from '../shared/components/FilterPanel'
@@ -235,8 +236,8 @@ export default function Explore() {
             page={results.page}
             totalPages={results.totalPages}
             onPageChange={(page) => updateFilters({ page })}
-            emptyTitle="No hay resultados para esta búsqueda"
-            emptyDescription="Probá cambiando categoría, condición, tipo o el texto que ingresaste."
+            emptyTitle="No encontramos publicaciones"
+            emptyDescription="Probá cambiando los filtros o revisá de nuevo más tarde."
           />
         </div>
       </section>
