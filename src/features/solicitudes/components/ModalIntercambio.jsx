@@ -91,9 +91,9 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino }
     setIsSubmitting(true)
     try {
       await enviarSolicitud({
-        publicacionDestinoId: publicacionDestino._id,
-        publicacionOfertaId: selectedId,
-        monto: montoNum,
+        requestedPublicationId: publicacionDestino._id,
+        offeredPublicationId:   selectedId,
+        complementaryAmount:    montoNum,
       })
       toast.success('¡Propuesta enviada! El dueño recibirá una notificación por correo.')
       onClose()
