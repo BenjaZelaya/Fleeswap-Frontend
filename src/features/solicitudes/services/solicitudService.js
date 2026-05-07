@@ -32,9 +32,30 @@ export async function enviarSolicitud({ publicacionDestinoId, publicacionOfertaI
  * Reutiliza el endpoint ya existente en publicationService; lo re-exportamos
  * aquí para mantener la cohesión del módulo de solicitudes.
  *
- * @returns {Promise<Array>} - Array de publicaciones propias del usuario.
+ * Array de publicaciones propias del usuario.
  */
 export async function getMisPublicaciones() {
   const response = await api.get('/users/me/publications')
+  return response.data
+}
+
+/**
+ * Obtiene todas las solicitudes de intercambio recibidas por el usuario autenticado.
+ * El backend filtra por el receptor usando el JWT del header.
+ *
+ * Lista de solicitudes recibidas, ordenadas por fecha desc.
+ */
+export async function getSolicitudesRecibidas() {
+  const response = await api.get('/solicitudes/recibidas')
+  return response.data
+}
+
+/**
+ * Obtiene todas las solicitudes de intercambio enviadas por el usuario autenticado.
+ *
+ * Lista de solicitudes enviadas, ordenadas por fecha desc.
+ */
+export async function getSolicitudesEnviadas() {
+  const response = await api.get('/solicitudes/enviadas')
   return response.data
 }
