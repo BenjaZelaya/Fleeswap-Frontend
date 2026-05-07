@@ -1,10 +1,14 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Select from 'react-select'
 import { updateProfile } from '../services/profileService'
 import useAuthStore from '../../../store/authStore'
 import useCloudinaryWidget from '../../../shared/hooks/useCloudinaryWidget'
-import { validateBio, validateLocation } from '../../../utils/validators'
-import { BIO_MAX, LOCATION_MAX } from '../../../utils/constants'
+import { validateBio } from '../../../utils/validators'
+import { BIO_MAX } from '../../../utils/constants'
+import { LOCALIDADES_TUCUMAN } from '../../../helpers/localidadesTucuman'
+
+const localOptions = LOCALIDADES_TUCUMAN.map((loc) => ({ value: loc, label: loc }))
 
 export default function CompleteProfile() {
   const navigate = useNavigate()
@@ -38,9 +42,6 @@ export default function CompleteProfile() {
 
     const bioError = validateBio(bio)
     if (bioError) { setError(bioError); return }
-
-    const locationError = validateLocation(location)
-    if (locationError) { setError(locationError); return }
 
     setLoading(true)
     try {
@@ -150,16 +151,39 @@ export default function CompleteProfile() {
 
           {/* Ubicación */}
           <div>
-            <div className="flex justify-between items-center mb-1.5">
-              <label className="block text-[10px] font-light uppercase tracking-[0.2em] text-slate-400">Ubicación</label>
-              <span className="text-[10px] font-light text-slate-300">{location.length}/{LOCATION_MAX}</span>
-            </div>
-            <input
-              type="text"
-              value={location}
-              onChange={(e) => { if (e.target.value.length <= LOCATION_MAX) setLocation(e.target.value); setError('') }}
-              placeholder="Ciudad, País"
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 placeholder-gray-300 outline-none transition-colors focus:border-brand focus:ring-0 hover:border-gray-400"
+            <label className="block text-[10px] font-light uppercase tracking-[0.2em] text-slate-400 mb-1.5">
+              Ubicación
+            </label>
+            <Select
+              options={localOptions}
+              value={location ? { value: location, label: location } : null}
+              onChange={(opt) => { setLocation(opt ? opt.value : ''); setError('') }}
+              placeholder="Buscar localidad..."
+              isClearable
+              isSearchable
+              noOptionsMessage={() => 'Sin resultados'}
+              classNamePrefix="rs"
+              styles={{
+                control: (base, state) => ({
+                  ...base,
+                  borderRadius: '0.5rem',
+                  borderColor: state.isFocused ? 'var(--color-brand, #1e3a5f)' : '#d1d5db',
+                  boxShadow: 'none',
+                  fontSize: '0.875rem',
+                  '&:hover': { borderColor: '#9ca3af' },
+                }),
+                option: (base, state) => ({
+                  ...base,
+                  fontSize: '0.875rem',
+                  backgroundColor: state.isSelected
+                    ? 'var(--color-brand, #1e3a5f)'
+                    : state.isFocused
+                      ? '#f1f5f9'
+                      : 'white',
+                  color: state.isSelected ? 'white' : '#1e293b',
+                }),
+                menuList: (base) => ({ ...base, maxHeight: '220px' }),
+              }}
             />
           </div>
         </div>
