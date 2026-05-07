@@ -1,38 +1,30 @@
 /**
- * Servicio de Solicitudes de Intercambio
+ * Servicio de Intercambios (Exchanges)
  *
- * Encapsula todas las llamadas HTTP relacionadas con la entidad "solicitud".
- * Consume la instancia central de Axios (api.js) que ya gestiona:
- *   - Adjuntar el Bearer token en cada request.
- *   - Refrescar el access token automáticamente ante un 401.
+ * Todos los endpoints apuntan a exchanges
+ * El token JWT se adjunta automáticamente por el interceptor de api.js.
  */
 
 import api from '../../../services/api'
 
 /**
- * Envía una nueva solicitud de intercambio al backend.
+ * Envía una nueva solicitud de intercambio.
  *
- * ID de la publicación que interesa al emisor.
- * ID de la publicación propia que ofrece el emisor.
- * Compensación económica opcional (≥ 0).
+ * requestedPublicationId - ID de la publicación que quiero obtener.
+ * offeredPublicationId   - ID de mi publicación que ofrezco.
+ * complementaryAmount    - Monto complementario en ARS (≥ 0, default 0).
  */
-export async function enviarSolicitud({ publicacionDestinoId, publicacionOfertaId, monto = 0 }) {
-  const response = await api.post('/solicitudes', {
-    publicacionDestinoId,
-    publicacionOfertaId,
-    monto,
+export async function enviarSolicitud({ requestedPublicationId, offeredPublicationId, complementaryAmount = 0 }) {
+  const response = await api.post('/exchanges', {
+    requestedPublicationId,
+    offeredPublicationId,
+    complementaryAmount,
   })
   return response.data
 }
 
 /**
- * Obtiene la lista de publicaciones activas del usuario autenticado
- * para alimentar el selector dentro del modal.
- *
- * Reutiliza el endpoint ya existente en publicationService; lo re-exportamos
- * aquí para mantener la cohesión del módulo de solicitudes.
- *
- * Array de publicaciones propias del usuario.
+ * Obtiene las publicaciones del usuario autenticado para el selector del modal.
  */
 export async function getMisPublicaciones() {
   const response = await api.get('/users/me/publications')
@@ -40,22 +32,21 @@ export async function getMisPublicaciones() {
 }
 
 /**
- * Obtiene todas las solicitudes de intercambio recibidas por el usuario autenticado.
- * El backend filtra por el receptor usando el JWT del header.
+ * Obtiene las solicitudes de intercambio RECIBIDAS por el usuario autenticado.
  *
- * Lista de solicitudes recibidas, ordenadas por fecha desc.
+ * Filtros opcionales: { status, page, limit }
  */
-export async function getSolicitudesRecibidas() {
-  const response = await api.get('/solicitudes/recibidas')
+export async function getSolicitudesRecibidas(params = {}) {
+  const response = await api.get('/exchanges/received', { params })
   return response.data
 }
 
 /**
- * Obtiene todas las solicitudes de intercambio enviadas por el usuario autenticado.
+ * Obtiene las solicitudes de intercambio ENVIADAS por el usuario autenticado.
  *
- * Lista de solicitudes enviadas, ordenadas por fecha desc.
+ * Filtros opcionales: { status, page, limit }
  */
-export async function getSolicitudesEnviadas() {
-  const response = await api.get('/solicitudes/enviadas')
+export async function getSolicitudesEnviadas(params = {}) {
+  const response = await api.get('/exchanges/sent', { params })
   return response.data
 }
