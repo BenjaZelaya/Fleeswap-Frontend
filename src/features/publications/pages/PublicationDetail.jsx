@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link, useNavigate, useLocation } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
+// eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import useAuthStore from '../../../store/authStore'
@@ -10,6 +11,7 @@ import Seo from '../../../shared/components/Seo'
 import PageSpinner from '../../../shared/components/ui/PageSpinner'
 import { defaultSeo } from '../../../utils/seoConfig'
 import { logError } from '../../../utils/logger'
+import ModalIntercambio from '../../solicitudes/components/ModalIntercambio'
 
 function LoadingSpinner() {
   return <PageSpinner label="Cargando publicación" />
@@ -17,16 +19,38 @@ function LoadingSpinner() {
 
 export default function PublicationDetail() {
   const { id } = useParams()
-  const { user: authUser } = useAuthStore()
   const navigate = useNavigate()
-  const location = useLocation()
+  const { user: authUser, token } = useAuthStore()
 
   const [publication, setPublication] = useState(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0)
-  const [showReportModal, setShowReportModal] = useState(false)
-  const [alreadyReported, setAlreadyReported] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  // ── Guards de autenticación ────────────────────────────────────────────
+  function handleIntercambiar() {
+    if (!token) {
+      navigate('/login',
+        {
+          state: { toast: 'Iniciá sesión para enviar una propuesta de intercambio' }
+        })
+      return
+    }
+    setIsModalOpen(true)
+  }
+
+  function handleComprar() {
+    if (!token) {
+      navigate('/login',
+        {
+          state: { toast: 'Iniciá sesión para realizar una compra' }
+        })
+      return
+    }
+    // TODO: lógica de compra
+    toast.info('La función de compra estará disponible próximamente.')
+  }
 
   useEffect(() => {
     async function fetchPublication() {
@@ -111,13 +135,13 @@ export default function PublicationDetail() {
     itemCondition: getConditionLabel(publication.condition),
     offers: publication.price
       ? {
-          '@type': 'Offer',
-          price: publication.price,
-          priceCurrency: 'ARS',
-          availability: publication.status === 'available'
-            ? 'https://schema.org/InStock'
-            : 'https://schema.org/OutOfStock',
-        }
+        '@type': 'Offer',
+        price: publication.price,
+        priceCurrency: 'ARS',
+        availability: publication.status === 'available'
+          ? 'https://schema.org/InStock'
+          : 'https://schema.org/OutOfStock',
+      }
       : undefined,
   }
 
@@ -137,6 +161,7 @@ export default function PublicationDetail() {
         transition={{ duration: 0.4 }}
         className="max-w-6xl mx-auto px-4 py-8 space-y-8"
       >
+        {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-gray-500">
           <Link to="/" className="hover:text-brand-accent transition-colors">Inicio</Link>
           <span>/</span>
@@ -145,8 +170,12 @@ export default function PublicationDetail() {
           <span className="text-gray-700">{publication.title}</span>
         </div>
 
+        {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+          {/* Left: Galería de fotos */}
           <div className="lg:col-span-2 space-y-4">
+            {/* Foto principal */}
             <div className="bg-gray-100 rounded-2xl overflow-hidden aspect-[4/3]">
               {mainPhoto ? (
                 <img
@@ -163,17 +192,17 @@ export default function PublicationDetail() {
               )}
             </div>
 
+            {/* Thumbnails */}
             {publication.photos && publication.photos.length > 1 && (
               <div className="flex gap-3 overflow-x-auto pb-2">
                 {publication.photos.map((photo, idx) => (
                   <button
                     key={idx}
                     onClick={() => setSelectedPhotoIndex(idx)}
-                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
-                      selectedPhotoIndex === idx
-                        ? 'border-brand'
-                        : 'border-gray-200 hover:border-brand/50'
-                    }`}
+                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedPhotoIndex === idx
+                      ? 'border-brand'
+                      : 'border-gray-200 hover:border-brand/50'
+                      }`}
                   >
                     <img src={photo} alt={`Foto ${idx + 1}`} className="w-full h-full object-cover" />
                   </button>
@@ -181,24 +210,29 @@ export default function PublicationDetail() {
               </div>
             )}
 
+            {/* Detalles Técnicos */}
             <div className="mt-12 pt-8 border-t border-gray-200">
               <h2 className="text-xl font-bold text-gray-900 mb-6">Detalles Técnicos</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                {/* Categoría */}
                 <div>
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Categoría</p>
                   <p className="text-gray-900 font-semibold mt-1">{getCategoryLabel(publication.category)}</p>
                 </div>
 
+                {/* Estado */}
                 <div>
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Estado</p>
                   <p className="text-gray-900 font-semibold mt-1">{getConditionLabel(publication.condition)}</p>
                 </div>
 
+                {/* Tipo */}
                 <div>
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Tipo</p>
                   <p className="text-gray-900 font-semibold mt-1">{getTypeLabel(publication.type)}</p>
                 </div>
 
+                {/* Publicado */}
                 <div>
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Publicado</p>
                   <p className="text-gray-900 font-semibold mt-1">{formatDate(publication.createdAt)}</p>
@@ -207,17 +241,19 @@ export default function PublicationDetail() {
             </div>
           </div>
 
+          {/* Right: Info y acciones */}
           <div className="space-y-6">
+            {/* Status Badge */}
             <div>
-              <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-                publication.status === 'available'
-                  ? 'bg-green-100 text-green-800'
-                  : 'bg-gray-100 text-gray-800'
-              }`}>
+              <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${publication.status === 'available'
+                ? 'bg-green-100 text-green-800'
+                : 'bg-gray-100 text-gray-800'
+                }`}>
                 {publication.status === 'available' ? 'ACTIVO' : 'NO DISPONIBLE'}
               </span>
             </div>
 
+            {/* Título y Precio */}
             <div>
               <h1 className="text-2xl font-bold text-gray-900 mb-3">{publication.title}</h1>
               {publication.price ? (
@@ -227,11 +263,13 @@ export default function PublicationDetail() {
               )}
             </div>
 
+            {/* Descripción */}
             <div>
               <h3 className="font-bold text-gray-900 mb-2">Descripción</h3>
               <p className="text-gray-600 text-sm leading-relaxed">{publication.description}</p>
             </div>
 
+            {/* Historia del Objeto */}
             {publication.history && (
               <div>
                 <h3 className="font-bold text-gray-900 mb-2">Historia del Objeto</h3>
@@ -239,6 +277,7 @@ export default function PublicationDetail() {
               </div>
             )}
 
+            {/* Ubicación */}
             {publication.location && (
               <div className="flex items-start gap-2 pt-4 border-t border-gray-200">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -249,68 +288,61 @@ export default function PublicationDetail() {
               </div>
             )}
 
+            {/* Botones de Acción */}
             {!isOwner && (
               <div className="space-y-3 pt-4">
-                <button
-                  disabled
-                  title="Próximamente"
-                  className="w-full py-3 bg-brand text-white font-semibold rounded-lg hover:bg-brand-light transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                  Comprar ahora
-                </button>
+                {/* Botón Comprar */}
+                {(publication.type === 'venta' || publication.type === 'ambos') && (
+                  <button
+                    onClick={handleComprar}
+                    className="w-full py-3 bg-brand text-white font-semibold rounded-lg hover:bg-brand-light transition-colors flex items-center justify-center gap-2"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    Comprar ahora
+                  </button>
+                )}
 
-                <button
-                  disabled
-                  title="Próximamente"
-                  className="w-full py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                  </svg>
-                  Me interesa (intercambio)
-                </button>
+                {/* Botón Intercambio — H3.1 */}
+                {(publication.type === 'trueque' || publication.type === 'ambos') && (
+                  <button
+                    id="btn-enviar-solicitud"
+                    onClick={handleIntercambiar}
+                    className="w-full py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                    Me interesa (intercambio)
+                  </button>
+                )}
 
-                <div className="pt-3 border-t border-gray-100">
-                  {alreadyReported ? (
-                    <p className="text-xs text-gray-400 flex items-center justify-center gap-1.5 py-1.5">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-green-500 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      Ya reportaste esta publicación
-                    </p>
-                  ) : (
-                    <button
-                      onClick={() => authUser
-                        ? setShowReportModal(true)
-                        : navigate('/login', { state: { from: location } })}
-                      className="w-full py-2 text-sm text-gray-500 hover:text-red-500 active:text-red-500 transition-colors flex items-center justify-center gap-1.5"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6H10.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
-                      </svg>
-                      Reportar publicación
-                    </button>
-                  )}
-                </div>
+                {/* Si es solo intercambio, no hay precio */}
+                {publication.type === 'trueque' && (
+                  <p className="text-xs text-center text-gray-400">
+                    Esta publicación es solo para intercambio — sin precio de venta.
+                  </p>
+                )}
               </div>
             )}
 
             {isOwner && (
               <div className="pt-4 bg-blue-50 rounded-lg p-4 text-center">
                 <p className="text-sm text-blue-700 font-medium">Esta es tu publicación</p>
+                <p className="text-xs text-blue-500 mt-1">No podés enviar una solicitud sobre tu propio artículo.</p>
               </div>
             )}
           </div>
         </div>
 
+        {/* Sección del Vendedor */}
         <div className="pt-8 border-t border-gray-200">
           <h2 className="text-xl font-bold text-gray-900 mb-6">Información del Vendedor</h2>
 
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <div className="flex flex-col sm:flex-row gap-5 items-center sm:items-start">
+              {/* Avatar */}
               <div className="shrink-0">
                 {owner.photo ? (
                   <img
@@ -325,6 +357,7 @@ export default function PublicationDetail() {
                 )}
               </div>
 
+              {/* Info */}
               <div className="flex-1 text-center sm:text-left space-y-2">
                 <div>
                   <Link
@@ -358,6 +391,7 @@ export default function PublicationDetail() {
                 )}
               </div>
 
+              {/* Botón Perfil */}
               <div className="flex-shrink-0 w-full sm:w-auto">
                 <Link
                   to={`/profile/${owner._id}`}
@@ -374,13 +408,14 @@ export default function PublicationDetail() {
         </div>
       </motion.div>
 
-      <ReportModal
-        open={showReportModal}
-        publicationId={id}
-        onClose={() => setShowReportModal(false)}
-        onSuccess={() => setShowReportModal(false)}
-        onAlreadyReported={() => { setAlreadyReported(true); setShowReportModal(false) }}
-      />
+      {/* ── Modal: Solicitud de Intercambio ── */}
+      {publication && (
+        <ModalIntercambio
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          publicacionDestino={publication}
+        />
+      )}
     </>
   )
 }

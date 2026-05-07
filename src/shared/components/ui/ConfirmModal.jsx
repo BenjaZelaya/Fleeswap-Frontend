@@ -1,4 +1,5 @@
 import * as Dialog from '@radix-ui/react-dialog'
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion'
 
 export default function ConfirmModal({
@@ -78,12 +79,11 @@ export default function ConfirmModal({
                   </button>
                   <button
                     onClick={onConfirm}
-                    disabled={loading || confirmDisabled}
-                    className={`flex-1 disabled:opacity-50 text-white font-semibold py-2.5 rounded-xl transition-colors text-sm ${
-                      isDanger
+                    disabled={loading}
+                    className={`flex-1 disabled:opacity-50 text-white font-semibold py-2.5 rounded-xl transition-colors text-sm ${isDanger
                         ? 'bg-red-500 hover:bg-red-600'
                         : 'bg-blue-600 hover:bg-blue-700'
-                    }`}
+                      }`}
                   >
                     {loading ? 'Procesando...' : (confirmText || confirmLabel)}
                   </button>

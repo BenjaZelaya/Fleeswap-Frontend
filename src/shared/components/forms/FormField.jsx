@@ -1,4 +1,5 @@
 import { cloneElement, isValidElement, useId } from 'react'
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion'
 
 export default function FormField({ label, error, children, htmlFor, required = false }) {
@@ -9,12 +10,12 @@ export default function FormField({ label, error, children, htmlFor, required = 
   const describedBy = isValidElement(children) ? children.props['aria-describedby'] : undefined
   const child = isValidElement(children)
     ? cloneElement(children, {
-        id: children.props.id || fieldId,
-        'aria-invalid': error ? 'true' : undefined,
-        'aria-describedby': error
-          ? [describedBy, errorId].filter(Boolean).join(' ')
-          : describedBy,
-      })
+      id: children.props.id || fieldId,
+      'aria-invalid': error ? 'true' : undefined,
+      'aria-describedby': error
+        ? [describedBy, errorId].filter(Boolean).join(' ')
+        : describedBy,
+    })
     : children
 
   return (
@@ -58,4 +59,5 @@ export const inputClass = (error) =>
   `w-full px-4 py-3.5 rounded-t-lg border-0 border-b-2 text-sm font-medium text-slate-900 placeholder-slate-300 outline-none transition-all duration-200 ` +
   (error
     ? 'bg-red-50/40 border-red-400'
-    : 'bg-slate-100/60 border-slate-200 focus:bg-white focus:border-slate-900')
+    : 'bg-slate-100/60 border-slate-200 focus:bg-white focus:border-slate-900'
+  );

@@ -10,11 +10,10 @@ export default function SelectField({ label, name, value, onChange, options = []
         name={name}
         value={value}
         onChange={onChange}
-        className={`w-full px-4 py-2 border-2 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-brand-light ${
-          error
+        className={`w-full px-4 py-2 border-2 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-brand-light ${error
             ? 'border-red-500 bg-red-50 focus:ring-red-300'
             : 'border-brand-light bg-white focus:border-brand focus:ring-brand-light/50'
-        }`}
+          }`}
       >
         <option value="">{placeholder}</option>
         {options.map((opt) => (

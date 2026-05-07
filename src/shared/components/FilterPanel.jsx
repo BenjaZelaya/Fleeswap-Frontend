@@ -110,11 +110,10 @@ export default function FilterPanel({
                   onClick={() => onChange('type', option.value)}
                   aria-pressed={active}
                   aria-describedby="filter-type-label"
-                  className={`rounded-xl border px-3 py-3 text-xs font-semibold transition ${
-                    active
+                  className={`rounded-xl border px-3 py-3 text-xs font-semibold transition ${active
                       ? 'border-brand bg-brand text-white'
                       : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300'
-                  }`}
+                    }`}
                 >
                   {option.label}
                 </button>
