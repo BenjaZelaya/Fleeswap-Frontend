@@ -1,9 +1,9 @@
-export default function SelectField({ label, name, value, onChange, options = [], error, required = false }) {
+export default function SelectField({ label, name, value, onChange, options = [], error, required = false, placeholder = 'Seleccioná una opción' }) {
   return (
     <div className="space-y-2">
       <label htmlFor={name} className="block text-sm font-semibold text-dark-warm">
         {label}
-        {required && <span className="text-brand">*</span>}
+        {required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
       <select
         id={name}
@@ -15,7 +15,7 @@ export default function SelectField({ label, name, value, onChange, options = []
             : 'border-brand-light bg-white focus:border-brand focus:ring-brand-light/50'
           }`}
       >
-        <option value="">-- Selecciona una opción --</option>
+        <option value="">{placeholder}</option>
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
             {opt.label}
