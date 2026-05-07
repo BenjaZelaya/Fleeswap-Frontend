@@ -19,6 +19,9 @@ const CrearPublicacion = lazy(() => import('../features/publications/pages/Crear
 const MisPublicaciones = lazy(() => import('../features/publications/pages/MisPublicaciones'))
 const EditPublication = lazy(() => import('../features/publications/pages/EditPublication'))
 const PublicationDetail = lazy(() => import('../features/publications/pages/PublicationDetail'))
+const SolicitudesRecibidas = lazy(() => import('../features/solicitudes/pages/SolicitudesRecibidas'))
+const SolicitudesEnviadas  = lazy(() => import('../features/solicitudes/pages/SolicitudesEnviadas'))
+const NotFound = lazy(() => import('../pages/NotFound'))
 
 export default function AppRouter() {
   return (
@@ -51,6 +54,16 @@ export default function AppRouter() {
               path="/change-password"
               element={<ProtectedRoute><ChangePassword /></ProtectedRoute>}
             />
+            <Route
+              path="/solicitudes-recibidas"
+              element={<ProtectedRoute><SolicitudesRecibidas /></ProtectedRoute>}
+            />
+            <Route
+              path="/solicitudes-enviadas"
+              element={<ProtectedRoute><SolicitudesEnviadas /></ProtectedRoute>}
+            />
+            {/* Catch-all: rutas no definidas */}
+            <Route path="*" element={<NotFound />} />
           </Route>
 
           <Route path="/login" element={<Login />} />
