@@ -278,11 +278,48 @@ export default function EditPublication() {
 
         {/* Formulario */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* SECCIÓN 1: INFORMACIÓN BÁSICA */}
+          {/* SECCIÓN 1: FOTOS */}
           <div className="bg-white rounded-2xl p-6 border border-slate-100">
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <span className="flex items-center justify-center w-8 h-8 rounded-full bg-brand/10 text-brand text-sm font-bold">
                 1
+              </span>
+              Fotos
+            </h2>
+
+            <PhotoManager
+              photos={form.photos}
+              onAddPhoto={handleAddPhoto}
+              onRemovePhoto={handleRemovePhoto}
+              error={errors.photos}
+              maxPhotos={5}
+            />
+          </div>
+
+          {/* SECCIÓN 2: TIPO */}
+          <div className="bg-white rounded-2xl p-6 border border-slate-100">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-brand/10 text-brand text-sm font-bold">
+                2
+              </span>
+              Tipo de Publicación
+            </h2>
+
+            <RadioGroup
+              label=""
+              name="type"
+              value={form.type}
+              onChange={handleChange}
+              options={PUBLICATION_TYPES}
+              error={errors.type}
+            />
+          </div>
+
+          {/* SECCIÓN 3: INFORMACIÓN BÁSICA */}
+          <div className="bg-white rounded-2xl p-6 border border-slate-100">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-brand/10 text-brand text-sm font-bold">
+                3
               </span>
               Información Básica
             </h2>
@@ -373,11 +410,11 @@ export default function EditPublication() {
             </div>
           </div>
 
-          {/* SECCIÓN 2: DESCRIPCIÓN */}
+          {/* SECCIÓN 4: DESCRIPCIÓN */}
           <div className="bg-white rounded-2xl p-6 border border-slate-100">
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <span className="flex items-center justify-center w-8 h-8 rounded-full bg-brand/10 text-brand text-sm font-bold">
-                2
+                4
               </span>
               Descripción
             </h2>
@@ -425,43 +462,6 @@ export default function EditPublication() {
                 {errors.history && <p className="text-xs text-red-500 mt-1">{errors.history}</p>}
               </div>
             </div>
-          </div>
-
-          {/* SECCIÓN 3: TIPO */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-100">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-brand/10 text-brand text-sm font-bold">
-                3
-              </span>
-              Tipo de Publicación
-            </h2>
-
-            <RadioGroup
-              label=""
-              name="type"
-              value={form.type}
-              onChange={handleChange}
-              options={PUBLICATION_TYPES}
-              error={errors.type}
-            />
-          </div>
-
-          {/* SECCIÓN 4: FOTOS */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-100">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-brand/10 text-brand text-sm font-bold">
-                4
-              </span>
-              Fotos
-            </h2>
-
-            <PhotoManager
-              photos={form.photos}
-              onAddPhoto={handleAddPhoto}
-              onRemovePhoto={handleRemovePhoto}
-              error={errors.photos}
-              maxPhotos={5}
-            />
           </div>
 
           {/* Botones de acción */}

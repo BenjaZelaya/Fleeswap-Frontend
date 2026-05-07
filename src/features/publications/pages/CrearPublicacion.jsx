@@ -160,6 +160,42 @@ export default function CrearPublicacion() {
           )}
 
           <div className="space-y-8">
+            {/* Sección: Fotos */}
+            <div className="border-b pb-8">
+              <h2 className="text-xl font-bold text-dark-warm mb-6">
+                Fotos del Objeto
+              </h2>
+
+              <ImageUpload
+                images={form.photos}
+                onAddImage={handleAddPhoto}
+                onRemoveImage={handleRemovePhoto}
+                error={errors.photos}
+                disabled={loading}
+              />
+
+              <p className="text-sm text-gray-600 mt-4">
+                Las fotos son muy importantes. Asegúrate de que se vea bien el objeto desde diferentes ángulos.
+              </p>
+            </div>
+
+            {/* Sección: Tipo de Publicación */}
+            <div className="border-b pb-8">
+              <h2 className="text-xl font-bold text-dark-warm mb-6">
+                ¿Qué deseas hacer?
+              </h2>
+
+              <RadioGroup
+                label="Tipo de Publicación"
+                name="type"
+                value={form.type}
+                onChange={handleChange}
+                options={PUBLICATION_TYPES}
+                error={errors.type}
+                required
+              />
+            </div>
+
             {/* Sección: Información Básica */}
             <div className="border-b pb-8">
               <h2 className="text-xl font-bold text-dark-warm mb-6">
@@ -257,7 +293,7 @@ export default function CrearPublicacion() {
             </div>
 
             {/* Sección: Descripción */}
-            <div className="border-b pb-8">
+            <div className="pb-8">
               <h2 className="text-xl font-bold text-dark-warm mb-6">
                 Descripción del Objeto
               </h2>
@@ -303,42 +339,6 @@ export default function CrearPublicacion() {
                   />
                 </FormField>
               </div>
-            </div>
-
-            {/* Sección: Tipo de Publicación */}
-            <div className="border-b pb-8">
-              <h2 className="text-xl font-bold text-dark-warm mb-6">
-                ¿Qué deseas hacer?
-              </h2>
-
-              <RadioGroup
-                label="Tipo de Publicación"
-                name="type"
-                value={form.type}
-                onChange={handleChange}
-                options={PUBLICATION_TYPES}
-                error={errors.type}
-                required
-              />
-            </div>
-
-            {/* Sección: Fotos */}
-            <div className="pb-8">
-              <h2 className="text-xl font-bold text-dark-warm mb-6">
-                Fotos del Objeto
-              </h2>
-
-              <ImageUpload
-                images={form.photos}
-                onAddImage={handleAddPhoto}
-                onRemoveImage={handleRemovePhoto}
-                error={errors.photos}
-                disabled={loading}
-              />
-
-              <p className="text-sm text-gray-600 mt-4">
-                💡 Las fotos son muy importantes. Asegúrate de que se vea bien el objeto desde diferentes ángulos.
-              </p>
             </div>
 
             {/* Botones */}

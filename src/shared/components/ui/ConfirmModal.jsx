@@ -1,5 +1,4 @@
 import * as Dialog from '@radix-ui/react-dialog'
-// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion'
 
 export default function ConfirmModal({
@@ -15,9 +14,6 @@ export default function ConfirmModal({
   cancelText = 'Cancelar',
   variant = 'default',
   loading = false,
-  confirmDisabled = false,
-  size = 'sm',
-  descriptionAlign = 'center',
   children,
 }) {
   const isDanger = variant === 'danger'
@@ -47,7 +43,7 @@ export default function ConfirmModal({
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.96, y: 10 }}
                 transition={{ duration: 0.22, ease: [0.21, 0.47, 0.32, 0.98] }}
-                className={`flex-col fixed items-center left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[calc(100%-2rem)] ${size === 'md' ? 'max-w-md' : 'max-w-sm'} bg-white rounded-2xl shadow-xl px-6 py-6 outline-none`}
+                className="flex-col fixed items-center left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[calc(100%-2rem)] max-w-sm bg-white rounded-2xl shadow-xl px-6 py-6 outline-none"
               >
                 {isDanger && (
                   <div className="w-11 h-11 bg-red-50 rounded-xl flex items-center justify-center mb-4">
@@ -62,7 +58,7 @@ export default function ConfirmModal({
                 </Dialog.Title>
 
                 {finalMessage && (
-                  <Dialog.Description className={`text-sm text-slate-500 mt-1.5 mb-4 leading-relaxed ${descriptionAlign === 'left' ? 'text-left' : 'text-center'}`}>
+                  <Dialog.Description className="text-sm text-slate-500 mt-1.5 mb-6 leading-relaxed text-center">
                     {finalMessage}
                   </Dialog.Description>
                 )}
@@ -80,10 +76,11 @@ export default function ConfirmModal({
                   <button
                     onClick={onConfirm}
                     disabled={loading}
-                    className={`flex-1 disabled:opacity-50 text-white font-semibold py-2.5 rounded-xl transition-colors text-sm ${isDanger
+                    className={`flex-1 disabled:opacity-50 text-white font-semibold py-2.5 rounded-xl transition-colors text-sm ${
+                      isDanger
                         ? 'bg-red-500 hover:bg-red-600'
                         : 'bg-blue-600 hover:bg-blue-700'
-                      }`}
+                    }`}
                   >
                     {loading ? 'Procesando...' : (confirmText || confirmLabel)}
                   </button>
