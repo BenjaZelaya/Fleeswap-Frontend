@@ -256,7 +256,7 @@ export default function PublicationDetail() {
               {publication.price ? (
                 <p className="text-3xl font-bold text-brand">${publication.price.toLocaleString('es-AR')}</p>
               ) : (
-                <p className="text-lg font-semibold text-brand-accent">Solo intercambio</p>
+                <p className="text-lg font-semibold text-brand-accent">{getTypeLabel(publication.type)}</p>
               )}
             </div>
 
