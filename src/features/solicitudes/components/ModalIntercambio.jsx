@@ -49,9 +49,11 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino }
       setLoadingPubs(true)
       try {
         const data = await getMisPublicaciones()
-        // Solo publicaciones con estado 'available' / 'activo'
+        // Solo publicaciones disponibles y que admiten intercambio (trueque o ambos)
         const activas = (data.publications ?? data).filter(
-          (p) => p.status === 'available' || p.status === 'activo'
+          (p) =>
+            (p.status === 'available' || p.status === 'activo') &&
+            (p.type === 'trueque' || p.type === 'ambos')
         )
         setMisPublicaciones(activas)
       } catch {
