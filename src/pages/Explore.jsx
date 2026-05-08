@@ -52,9 +52,11 @@ function buildSearchParams(filters) {
 
 function normalizeResponse(data, fallbackPage) {
   const publications = data?.publications || data?.items || data?.data || []
-  const total = data?.total || data?.count || publications.length
-  const totalPages = data?.totalPages || Math.max(1, Math.ceil(total / (data?.limit || DEFAULT_FILTERS.limit)))
-  const page = data?.page || data?.currentPage || fallbackPage
+  const pagination = data?.pagination || {}
+  
+  const total = pagination.total ?? data?.total ?? data?.count ?? publications.length
+  const page = pagination.page ?? data?.page ?? data?.currentPage ?? fallbackPage
+  const totalPages = pagination.totalPages ?? data?.totalPages ?? Math.max(1, Math.ceil(total / (pagination.limit || data?.limit || DEFAULT_FILTERS.limit)))
 
   return {
     publications,
