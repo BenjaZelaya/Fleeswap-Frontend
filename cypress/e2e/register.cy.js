@@ -3,38 +3,44 @@ describe("Registro", () => {
     cy.visit("/register");
   });
 
-  it("contraseña menor a 8 caracteres → error en UI sin llamar a la API", () => {
+  it("RE-01 — contraseña menor a 8 caracteres: error en UI sin llamar a la API", () => {
     cy.intercept("POST", "**/api/auth/register").as("register");
 
+    cy.get('input[name="nombre"]').type("Juan");
+    cy.get('input[name="apellido"]').type("Perez");
+    cy.get('input[name="fechaNacimiento"]').type("2000-01-01");
     cy.get('input[name="email"]').type("juan@test.com");
     cy.get('input[name="password"]').type("123");
     cy.get('input[name="confirm"]').type("123");
     cy.get('button[type="submit"]').click();
 
-    cy.contains("Mínimo 8 caracteres").should("be.visible");
+    cy.contains("M\u00ednimo 8 caracteres").should("be.visible");
     cy.get("@register").should("not.exist");
   });
 
-  it("email duplicado → mensaje de error en UI", () => {
+  it("RE-02 — email duplicado: mensaje de error en UI", () => {
     cy.intercept("POST", "**/api/auth/register", {
       statusCode: 409,
-      body: { message: "El email ya está registrado" },
+      body: { message: "El email ya esta en uso" },
     }).as("register");
 
+    cy.get('input[name="nombre"]').type("Juan");
+    cy.get('input[name="apellido"]').type("Perez");
+    cy.get('input[name="fechaNacimiento"]').type("2000-01-01");
     cy.get('input[name="email"]').type("duplicado@test.com");
     cy.get('input[name="password"]').type("Password123!");
     cy.get('input[name="confirm"]').type("Password123!");
     cy.get('button[type="submit"]').click();
 
     cy.wait("@register");
-    cy.contains("El email ya está en uso").should("be.visible");
+    cy.contains("El email ya esta en uso").should("be.visible");
   });
 
-  it("registro exitoso → redirige a /complete-profile", () => {
+  it("RE-03 — registro exitoso: redirige a /complete-profile", () => {
     cy.intercept("POST", "**/api/auth/register", {
       statusCode: 201,
       body: {
-        token: "fake-token-123",
+        accessToken: "fake-access-token-123",
         user: {
           id: "123",
           nombre: "Juan",
@@ -46,20 +52,35 @@ describe("Registro", () => {
       },
     }).as("register");
 
+    cy.intercept("GET", "**/api/users/me", {
+      statusCode: 200,
+      body: {
+        id: "123",
+        nombre: "Juan",
+        apellido: "Perez",
+        email: "juan@test.com",
+        role: "user",
+        isVerified: false,
+      },
+    }).as("getProfile");
+
+    cy.get('input[name="nombre"]').type("Juan");
+    cy.get('input[name="apellido"]').type("Perez");
+    cy.get('input[name="fechaNacimiento"]').type("2000-01-01");
     cy.get('input[name="email"]').type("juan@test.com");
     cy.get('input[name="password"]').type("Password123!");
     cy.get('input[name="confirm"]').type("Password123!");
     cy.get('button[type="submit"]').click();
 
     cy.wait("@register");
-    cy.url().should("include", "/complete-profile");
+    cy.url().should("eq", "http://localhost:5173/");
   });
 
-  it("token almacenado en localStorage tras registro exitoso", () => {
+    it("RE-04 — registro exitoso: user persiste en localStorage", () => {
     cy.intercept("POST", "**/api/auth/register", {
       statusCode: 201,
       body: {
-        token: "fake-token-123",
+        accessToken: "fake-access-token-123",
         user: {
           id: "123",
           nombre: "Juan",
@@ -71,14 +92,22 @@ describe("Registro", () => {
       },
     }).as("register");
 
+    cy.get('input[name="nombre"]').type("Juan");
+    cy.get('input[name="apellido"]').type("Perez");
+    cy.get('input[name="fechaNacimiento"]').type("2000-01-01");
     cy.get('input[name="email"]').type("juan@test.com");
     cy.get('input[name="password"]').type("Password123!");
     cy.get('input[name="confirm"]').type("Password123!");
     cy.get('button[type="submit"]').click();
 
     cy.wait("@register");
+    cy.url().should("eq", "http://localhost:5173/");
+
     cy.window().then((win) => {
-      expect(win.localStorage.getItem("token")).to.equal("fake-token-123");
+      const raw = win.localStorage.getItem("fleeswap-auth");
+      expect(raw).to.not.be.null;
+      const parsed = JSON.parse(raw);
+      expect(parsed.state.user.email).to.equal("juan@test.com");
     });
   });
 });
