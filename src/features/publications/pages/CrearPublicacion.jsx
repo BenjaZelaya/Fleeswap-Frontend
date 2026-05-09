@@ -1,29 +1,64 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
+import Select from 'react-select'
+// eslint-disable-next-line no-unused-vars
+import { motion } from 'framer-motion'
 import {
   validateTitle,
-  validateDescription,
   validateHistory,
   validateCategory,
   validateCondition,
   validatePublicationType,
   validatePhotos,
   validatePrice,
-  validateLocationPublication,
 } from '../../../utils/validators'
 import {
   PUBLICATION_CATEGORIES,
   PUBLICATION_CONDITIONS,
   PUBLICATION_TYPES,
 } from '../../../utils/constants'
+import { LOCALIDADES_TUCUMAN } from '../../../helpers/localidadesTucuman'
 import { createPublication } from '../services/publicationService'
 import ImageUpload from '../../../shared/components/ImageUpload'
-import SelectField from '../../../shared/components/SelectField'
-import RadioGroup from '../../../shared/components/RadioGroup'
-import FormField from '../../../shared/components/forms/FormField'
-import SubmitButton from '../../../shared/components/forms/SubmitButton'
 import { logError } from '../../../utils/logger'
+
+const LOC_OPTIONS = LOCALIDADES_TUCUMAN.map((l) => ({ value: l, label: l }))
+
+const SELECT_STYLES = {
+  control: (base, state) => ({
+    ...base,
+    borderRadius: '0.5rem',
+    borderColor: state.isFocused ? 'var(--color-brand, #1e3a5f)' : '#d1d5db',
+    boxShadow: 'none',
+    fontSize: '0.875rem',
+    '&:hover': { borderColor: '#9ca3af' },
+  }),
+  option: (base, state) => ({
+    ...base,
+    fontSize: '0.875rem',
+    backgroundColor: state.isSelected
+      ? 'var(--color-brand, #1e3a5f)'
+      : state.isFocused
+        ? '#f1f5f9'
+        : 'white',
+    color: state.isSelected ? 'white' : '#1e293b',
+  }),
+  menuList: (base) => ({ ...base, maxHeight: '220px' }),
+}
+
+function Section({ title, children }) {
+  return (
+    <div className="bg-white rounded-2xl border shadow-sm p-6 border-slate-100 mb-6">
+      {title && (
+        <h2 className="text-[10px] font-light uppercase tracking-[0.2em] mb-5 text-slate-400">
+          {title}
+        </h2>
+      )}
+      {children}
+    </div>
+  )
+}
 
 export default function CrearPublicacion() {
   const navigate = useNavigate()
@@ -33,7 +68,7 @@ export default function CrearPublicacion() {
     price: '',
     category: '',
     condition: '',
-    location: '',
+    location: null,
     description: '',
     history: '',
     type: 'venta',
@@ -43,69 +78,62 @@ export default function CrearPublicacion() {
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
 
+  useEffect(() => {
+    if (form.type === 'trueque') {
+      setForm((prev) => ({ ...prev, price: '' }))
+      setErrors((prev) => ({ ...prev, price: '' }))
+    }
+  }, [form.type])
+
   const handleChange = (e) => {
     const { name, value } = e.target
-    setForm({ ...form, [name]: value })
-    // Limpiar error del campo cuando empieza a escribir
-    if (errors[name]) {
-      setErrors({ ...errors, [name]: '' })
-    }
+    setForm((prev) => ({ ...prev, [name]: value }))
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }))
   }
 
   const handleAddPhoto = (url) => {
-    setForm({ ...form, photos: [...form.photos, url] })
-    if (errors.photos) {
-      setErrors({ ...errors, photos: '' })
-    }
+    setForm((prev) => ({ ...prev, photos: [...prev.photos, url] }))
+    if (errors.photos) setErrors((prev) => ({ ...prev, photos: '' }))
   }
-
-  const handleRemovePhoto = (index) => {
-    setForm({
-      ...form,
-      photos: form.photos.filter((_, i) => i !== index),
-    })
-  }
+  const handleRemovePhoto = (index) =>
+    setForm((prev) => ({ ...prev, photos: prev.photos.filter((_, i) => i !== index) }))
 
   const validateForm = () => {
-    const newErrors = {}
-
+    const e = {}
     const titleErr = validateTitle(form.title)
-    if (titleErr) newErrors.title = titleErr
+    if (titleErr) e.title = titleErr
 
-    const priceErr = validatePrice(form.price, form.type)
-    if (priceErr) newErrors.price = priceErr
+    if (form.type !== 'trueque') {
+      const priceErr = validatePrice(form.price, form.type)
+      if (priceErr) e.price = priceErr
+    }
 
-    const categoryErr = validateCategory(form.category)
-    if (categoryErr) newErrors.category = categoryErr
+    const catErr = validateCategory(form.category)
+    if (catErr) e.category = catErr
 
-    const conditionErr = validateCondition(form.condition)
-    if (conditionErr) newErrors.condition = conditionErr
+    const condErr = validateCondition(form.condition)
+    if (condErr) e.condition = condErr
 
-    const locationErr = validateLocationPublication(form.location)
-    if (locationErr) newErrors.location = locationErr
+    if (!form.location) e.location = 'Seleccioná una localidad'
 
-    const descErr = validateDescription(form.description)
-    if (descErr) newErrors.description = descErr
-
-    const historyErr = validateHistory(form.history)
-    if (historyErr) newErrors.history = historyErr
+    const histErr = validateHistory(form.history)
+    if (histErr) e.history = histErr
 
     const typeErr = validatePublicationType(form.type)
-    if (typeErr) newErrors.type = typeErr
+    if (typeErr) e.type = typeErr
 
     const photosErr = validatePhotos(form.photos)
-    if (photosErr) newErrors.photos = photosErr
+    if (photosErr) e.photos = photosErr
 
-    return newErrors
+    return e
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-
     const newErrors = validateForm()
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
-      toast.error('Completa todos los campos requeridos')
+      toast.error('Completá todos los campos requeridos')
       return
     }
 
@@ -113,253 +141,289 @@ export default function CrearPublicacion() {
     try {
       await createPublication({
         title: form.title.trim(),
-        description: form.description.trim(),
+        description: form.description.trim() || 'Sin descripción',
         history: form.history.trim(),
         category: form.category,
         condition: form.condition,
         type: form.type,
         photos: form.photos,
-        ...(form.price && { price: parseFloat(form.price) }),
-        ...(form.location && { location: form.location.trim() }),
+        location: form.location?.value ?? '',
+        ...(form.type !== 'trueque' && form.price && { price: parseFloat(form.price) }),
       })
-
-      toast.success('Publicación creada exitosamente!')
-      // Redirigir a mis publicaciones
+      toast.success('¡Publicación creada exitosamente!')
       navigate('/my-publications')
     } catch (err) {
       logError('Error creating publication:', err)
-      const errorMsg =
-        err.response?.data?.message || 'Error al crear la publicación'
-      toast.error(errorMsg)
-      setErrors({ general: errorMsg })
+      const msg = err.response?.data?.message || 'Error al crear la publicación'
+      toast.error(msg)
+      setErrors({ general: msg })
     } finally {
       setLoading(false)
     }
   }
 
+  const inputClass = (field) =>
+    `w-full px-4 py-3 rounded-lg border bg-white text-sm text-gray-900 placeholder-gray-300 outline-none transition-colors focus:ring-0 ${errors[field]
+      ? 'border-red-400 focus:border-red-500'
+      : 'border-gray-300 focus:border-brand hover:border-gray-400'
+    }`
+
   return (
-    <div className="min-h-screen bg-warm-white py-8 px-4">
-      <div className="container mx-auto max-w-4xl">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-dark-warm mb-2">
-            Crear Publicación
-          </h1>
-          <p className="text-gray-600">
-            Comparte un objeto que desees vender o intercambiar
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="max-w-2xl mx-auto px-4 py-8 space-y-4"
+    >
+      {/* Encabezado de página */}
+      <div className="flex items-center justify-between py-2 mb-2">
+        <h1 className="text-xl font-bold text-slate-900 tracking-tight">Crear publicación</h1>
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="text-sm text-gray-400 hover:text-gray-600 transition-colors flex items-center gap-1"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+          Volver
+        </button>
+      </div>
+
+      {errors.general && (
+        <p className="text-sm text-red-500 bg-red-50 rounded-xl px-4 py-3 mb-5 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+          </svg>
+          {errors.general}
+        </p>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+
+        {/* ── Sección 1: Fotos ── */}
+        <Section title="Foto del Producto">
+          <ImageUpload
+            images={form.photos}
+            onAddImage={handleAddPhoto}
+            onRemoveImage={handleRemovePhoto}
+            error={errors.photos}
+            disabled={loading}
+          />
+          {errors.photos && <p className="text-[11px] text-red-500 mt-2">{errors.photos}</p>}
+          <p className="text-[11px] text-gray-400 mt-3">
+            💡 Las fotos son muy importantes. Mostrá el objeto desde distintos ángulos.
           </p>
-        </div>
+        </Section>
 
-        {/* Formulario */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
-          {/* Error general */}
-          {errors.general && (
-            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded">
-              {errors.general}
-            </div>
-          )}
-
-          <div className="space-y-8">
-            {/* Sección: Información Básica */}
-            <div className="border-b pb-8">
-              <h2 className="text-xl font-bold text-dark-warm mb-6">
-                Información Básica
-              </h2>
-
-              {/* Fila 1: Título y Precio */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  label="Título"
-                  error={errors.title}
-                  required
-                >
-                  <input
-                    type="text"
-                    name="title"
-                    value={form.title}
-                    onChange={handleChange}
-                    placeholder="Reloj Casio A1585 Como Nueva"
-                    maxLength="100"
-                    className={`w-full px-4 py-2 border-2 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-brand-light ${
-                      errors.title
-                        ? 'border-red-500 bg-red-50 focus:ring-red-300'
-                        : 'border-brand-light bg-white focus:border-brand focus:ring-brand-light/50'
+        {/* ── Sección 2: ¿Qué querés hacer? ── */}
+        <Section title="Modalidad">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {PUBLICATION_TYPES.map((typeOption) => {
+              const isSelected = form.type === typeOption.value
+              return (
+                <button
+                  key={typeOption.value}
+                  type="button"
+                  onClick={() => handleChange({ target: { name: 'type', value: typeOption.value } })}
+                  className={`relative p-4 rounded-xl border text-left transition-all ${isSelected
+                    ? 'border-brand bg-brand/5 ring-1 ring-brand'
+                    : 'border-slate-200 bg-white hover:border-brand/30 hover:bg-slate-50'
                     }`}
-                  />
-                </FormField>
-
-                <FormField
-                  label="Precio"
-                  error={errors.price}
-                  required={form.type !== 'trueque'}
                 >
-                  <input
-                    type="number"
-                    name="price"
-                    value={form.price}
-                    onChange={handleChange}
-                    placeholder="ej. 15000"
-                    min="0"
-                    step="100"
-                    className={`w-full px-4 py-2 border-2 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-brand-light ${
-                      errors.price
-                        ? 'border-red-500 bg-red-50 focus:ring-red-300'
-                        : 'border-brand-light bg-white focus:border-brand focus:ring-brand-light/50'
-                    }`}
-                  />
-                </FormField>
-              </div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className={`text-sm font-semibold ${isSelected ? 'text-brand' : 'text-slate-700'}`}>
+                      {typeOption.label}
+                    </span>
+                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${isSelected ? 'border-brand bg-brand' : 'border-slate-300'
+                      }`}>
+                      {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    {typeOption.value === 'trueque' && 'Objeto por objeto'}
+                    {typeOption.value === 'venta' && 'Precio fijo'}
+                    {typeOption.value === 'ambos' && 'Dinero o trueque'}
+                  </p>
+                </button>
+              )
+            })}
+          </div>
+          {errors.type && <p className="text-[11px] text-red-500 mt-2">{errors.type}</p>}
+        </Section>
 
-              {/* Fila 2: Categoría y Estado */}
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <SelectField
-                  label="Categoría"
-                  name="category"
-                  value={form.category}
-                  onChange={handleChange}
-                  options={PUBLICATION_CATEGORIES}
-                  error={errors.category}
-                  required
-                />
-
-                <SelectField
-                  label="Estado del Objeto"
-                  name="condition"
-                  value={form.condition}
-                  onChange={handleChange}
-                  options={PUBLICATION_CONDITIONS}
-                  error={errors.condition}
-                  required
-                />
-              </div>
-
-              {/* Fila 3: Ubicación */}
-              <div className="mt-6 grid grid-cols-1 gap-6">
-                <FormField
-                  label="Ubicación"
-                  error={errors.location}
-                >
-                  <input
-                    type="text"
-                    name="location"
-                    value={form.location}
-                    onChange={handleChange}
-                    placeholder="ej. Buenos Aires, CABA"
-                    maxLength="100"
-                    className={`w-full px-4 py-2 border-2 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-brand-light ${
-                      errors.location
-                        ? 'border-red-500 bg-red-50 focus:ring-red-300'
-                        : 'border-brand-light bg-white focus:border-brand focus:ring-brand-light/50'
-                    }`}
-                  />
-                </FormField>
-              </div>
-            </div>
-
-            {/* Sección: Descripción */}
-            <div className="border-b pb-8">
-              <h2 className="text-xl font-bold text-dark-warm mb-6">
-                Descripción del Objeto
-              </h2>
-
-              <FormField
-                label="Descripción"
-                error={errors.description}
-                required
-              >
-                <textarea
-                  name="description"
-                  value={form.description}
-                  onChange={handleChange}
-                  placeholder="Describe el objeto: características, funcionalidad, detalles importantes..."
-                  maxLength="1000"
-                  rows="4"
-                  className={`w-full px-4 py-2 border-2 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-brand-light resize-none ${
-                    errors.description
-                      ? 'border-red-500 bg-red-50 focus:ring-red-300'
-                      : 'border-brand-light bg-white focus:border-brand focus:ring-brand-light/50'
-                  }`}
-                />
-              </FormField>
-
-              <div className="mt-6">
-                <FormField
-                  label="Historia del Objeto"
-                  error={errors.history}
-                  required
-                >
-                  <textarea
-                    name="history"
-                    value={form.history}
-                    onChange={handleChange}
-                    placeholder="¿De dónde viene? ¿Cuánto tiempo lo has tenido? ¿Por qué lo vendes?"
-                    maxLength="2000"
-                    rows="4"
-                    className={`w-full px-4 py-2 border-2 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-brand-light resize-none ${
-                      errors.history
-                        ? 'border-red-500 bg-red-50 focus:ring-red-300'
-                        : 'border-brand-light bg-white focus:border-brand focus:ring-brand-light/50'
-                    }`}
-                  />
-                </FormField>
-              </div>
-            </div>
-
-            {/* Sección: Tipo de Publicación */}
-            <div className="border-b pb-8">
-              <h2 className="text-xl font-bold text-dark-warm mb-6">
-                ¿Qué deseas hacer?
-              </h2>
-
-              <RadioGroup
-                label="Tipo de Publicación"
-                name="type"
-                value={form.type}
+        {/* ── Sección 3: Información básica ── */}
+        <Section title="Información Básica">
+          <div className="space-y-5">
+            {/* Título */}
+            <div>
+              <label className="block text-[10px] font-light uppercase tracking-[0.2em] text-slate-400 mb-1.5">
+                Título <span className="text-brand-accent">*</span>
+              </label>
+              <input
+                type="text"
+                name="title"
+                value={form.title}
                 onChange={handleChange}
-                options={PUBLICATION_TYPES}
-                error={errors.type}
-                required
+                placeholder="Ej: Reloj Casio A1585 Como Nuevo"
+                maxLength="100"
+                className={inputClass('title')}
               />
+              {errors.title && <p className="text-[11px] text-red-500 mt-1">{errors.title}</p>}
             </div>
 
-            {/* Sección: Fotos */}
-            <div className="pb-8">
-              <h2 className="text-xl font-bold text-dark-warm mb-6">
-                Fotos del Objeto
-              </h2>
-
-              <ImageUpload
-                images={form.photos}
-                onAddImage={handleAddPhoto}
-                onRemoveImage={handleRemovePhoto}
-                error={errors.photos}
-                disabled={loading}
-              />
-
-              <p className="text-sm text-gray-600 mt-4">
-                💡 Las fotos son muy importantes. Asegúrate de que se vea bien el objeto desde diferentes ángulos.
-              </p>
+            {/* Precio — deshabilitado si es trueque */}
+            <div>
+              <label className="block text-[10px] font-light uppercase tracking-[0.2em] text-slate-400 mb-1.5">
+                Precio {form.type !== 'trueque' && <span className="text-brand-accent">*</span>}
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-gray-400">$</span>
+                <input
+                  type="number"
+                  name="price"
+                  value={form.price}
+                  onChange={handleChange}
+                  placeholder={form.type === 'trueque' ? 'No aplica (solo trueque)' : 'Ej: 15000'}
+                  min="0"
+                  step="100"
+                  disabled={form.type === 'trueque'}
+                  className={`pl-7 ${inputClass('price')} ${form.type === 'trueque' ? 'opacity-50 cursor-not-allowed bg-slate-50' : ''}`}
+                />
+              </div>
+              {form.type === 'trueque' && (
+                <p className="text-[11px] text-amber-600 mt-1">El precio no aplica para publicaciones de solo trueque.</p>
+              )}
+              {errors.price && <p className="text-[11px] text-red-500 mt-1">{errors.price}</p>}
             </div>
 
-            {/* Botones */}
-            <div className="flex gap-4 justify-between">
-              <button
-                type="button"
-                onClick={() => navigate(-1)}
-                className="px-6 py-2 rounded-lg border-2 border-brand-light text-brand-light font-semibold hover:bg-brand-light/10 transition"
-              >
-                Cancelar
-              </button>
+            {/* Categoría y Condición */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[10px] font-light uppercase tracking-[0.2em] text-slate-400 mb-1.5">
+                  Categoría <span className="text-brand-accent">*</span>
+                </label>
+                <Select
+                  options={PUBLICATION_CATEGORIES}
+                  value={PUBLICATION_CATEGORIES.find(c => c.value === form.category) || null}
+                  onChange={(opt) => {
+                    setForm((prev) => ({ ...prev, category: opt ? opt.value : '' }))
+                    if (errors.category) setErrors((prev) => ({ ...prev, category: '' }))
+                  }}
+                  placeholder="— Seleccioná —"
+                  isClearable
+                  isSearchable={false}
+                  styles={SELECT_STYLES}
+                  classNamePrefix="rs"
+                />
+                {errors.category && <p className="text-[11px] text-red-500 mt-1">{errors.category}</p>}
+              </div>
 
-              <SubmitButton
-                label="Crear Publicación"
-                loading={loading}
-                loadingLabel="Creando..."
+              <div>
+                <label className="block text-[10px] font-light uppercase tracking-[0.2em] text-slate-400 mb-1.5">
+                  Estado del Objeto <span className="text-brand-accent">*</span>
+                </label>
+                <Select
+                  options={PUBLICATION_CONDITIONS}
+                  value={PUBLICATION_CONDITIONS.find(c => c.value === form.condition) || null}
+                  onChange={(opt) => {
+                    setForm((prev) => ({ ...prev, condition: opt ? opt.value : '' }))
+                    if (errors.condition) setErrors((prev) => ({ ...prev, condition: '' }))
+                  }}
+                  placeholder="— Seleccioná —"
+                  isClearable
+                  isSearchable={false}
+                  styles={SELECT_STYLES}
+                  classNamePrefix="rs"
+                />
+                {errors.condition && <p className="text-[11px] text-red-500 mt-1">{errors.condition}</p>}
+              </div>
+            </div>
+
+            {/* Ubicación */}
+            <div>
+              <label className="block text-[10px] font-light uppercase tracking-[0.2em] text-slate-400 mb-1.5">
+                Ubicación <span className="text-brand-accent">*</span>
+              </label>
+              <Select
+                options={LOC_OPTIONS}
+                value={form.location}
+                onChange={(opt) => {
+                  setForm((prev) => ({ ...prev, location: opt }))
+                  if (errors.location) setErrors((prev) => ({ ...prev, location: '' }))
+                }}
+                placeholder="Buscar localidad..."
+                isClearable
+                isSearchable
+                noOptionsMessage={() => 'Sin resultados'}
+                classNamePrefix="rs"
+                styles={SELECT_STYLES}
               />
+              {errors.location && <p className="text-[11px] text-red-500 mt-1">{errors.location}</p>}
             </div>
           </div>
-        </form>
-      </div>
-    </div>
+        </Section>
+
+        {/* ── Sección 4: Descripción ── */}
+        <Section title="Detalles">
+          <div className="space-y-5">
+            {/* Descripción — OPCIONAL */}
+            <div>
+              <label className="block text-[10px] font-light uppercase tracking-[0.2em] text-slate-400 mb-1.5">
+                Descripción
+              </label>
+              <textarea
+                name="description"
+                value={form.description}
+                onChange={handleChange}
+                placeholder="Características, funcionalidad, detalles importantes... (opcional)"
+                maxLength="1000"
+                rows="3"
+                className={`${inputClass('description')} resize-none`}
+              />
+              {errors.description && <p className="text-[11px] text-red-500 mt-1">{errors.description}</p>}
+            </div>
+
+            {/* Historia — OBLIGATORIA */}
+            <div>
+              <label className="block text-[10px] font-light uppercase tracking-[0.2em] text-slate-400 mb-1.5">
+                Historia del Objeto <span className="text-brand-accent">*</span>
+              </label>
+              <textarea
+                name="history"
+                value={form.history}
+                onChange={handleChange}
+                placeholder="¿De dónde viene? ¿Cuánto tiempo lo tuviste? ¿Por qué lo vendés o intercambiás?"
+                maxLength="2000"
+                rows="4"
+                className={`${inputClass('history')} resize-none`}
+              />
+              {errors.history && <p className="text-[11px] text-red-500 mt-1">{errors.history}</p>}
+            </div>
+          </div>
+        </Section>
+
+        {/* Botones */}
+        <div className="pt-4 pb-12">
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-brand text-white font-semibold py-3.5 px-4 rounded-xl hover:bg-brand-light transition-all active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <>
+                <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                </svg>
+                Creando...
+              </>
+            ) : (
+              'Crear Publicación'
+            )}
+          </button>
+        </div>
+      </form>
+    </motion.div >
   )
 }
