@@ -31,24 +31,23 @@ const LOC_OPTIONS = LOCALIDADES_TUCUMAN.map((l) => ({ value: l, label: l }))
 const SELECT_STYLES = {
   control: (base, state) => ({
     ...base,
-    border: '1px solid',
-    borderColor: state.isFocused ? 'var(--color-brand)' : '#d1d5db',
     borderRadius: '0.5rem',
+    borderColor: state.isFocused ? 'var(--color-brand, #1e3a5f)' : '#d1d5db',
     boxShadow: 'none',
-    padding: '0.15rem 0.25rem',
     fontSize: '0.875rem',
-    cursor: 'pointer',
-    backgroundColor: '#fff',
-    '&:hover': {
-      borderColor: state.isFocused ? 'var(--color-brand)' : '#9ca3af',
-    }
+    '&:hover': { borderColor: '#9ca3af' },
   }),
   option: (base, state) => ({
     ...base,
     fontSize: '0.875rem',
-    backgroundColor: state.isSelected ? 'var(--color-brand)' : state.isFocused ? '#f1f5f9' : '#fff',
-    color: state.isSelected ? '#fff' : '#1e293b',
+    backgroundColor: state.isSelected
+      ? 'var(--color-brand, #1e3a5f)'
+      : state.isFocused
+        ? '#f1f5f9'
+        : 'white',
+    color: state.isSelected ? 'white' : '#1e293b',
   }),
+  menuList: (base) => ({ ...base, maxHeight: '220px' }),
 }
 
 function Section({ title, children }) {
@@ -273,7 +272,7 @@ export default function EditPublication() {
       className="max-w-2xl mx-auto px-4 py-8 space-y-4"
     >
       {/* Encabezado de página */}
-      <div className="flex items-center justify-between py-2 mb-2 border-b-2 border-brand/10 pb-4">
+      <div className="flex items-center justify-between py-2 mb-2 pb-4">
         <h1 className="text-xl font-bold text-slate-900 tracking-tight">Editar publicación</h1>
         <button
           type="button"
@@ -308,6 +307,9 @@ export default function EditPublication() {
             disabled={submitting}
           />
           {errors.photos && <p className="text-[11px] text-red-500 mt-2">{errors.photos}</p>}
+          <p className="text-[11px] text-gray-400 mt-3">
+            💡 Las fotos son muy importantes. Mostrá el objeto desde distintos ángulos.
+          </p>
         </Section>
 
         {/* ── Sección 2: ¿Qué querés hacer? ── */}
@@ -321,8 +323,8 @@ export default function EditPublication() {
                   type="button"
                   onClick={() => handleChange({ target: { name: 'type', value: typeOption.value } })}
                   className={`relative p-4 rounded-xl border text-left transition-all ${isSelected
-                      ? 'border-brand bg-brand/5 ring-1 ring-brand'
-                      : 'border-slate-200 bg-white hover:border-brand/30 hover:bg-slate-50'
+                    ? 'border-brand bg-brand/5 ring-1 ring-brand'
+                    : 'border-slate-200 bg-white hover:border-brand/30 hover:bg-slate-50'
                     }`}
                 >
                   <div className="flex items-center justify-between mb-1">
@@ -335,9 +337,9 @@ export default function EditPublication() {
                     </div>
                   </div>
                   <p className="text-[11px] text-slate-500 mt-1">
-                    {typeOption.value === 'trueque' && 'Intercambiá por otros objetos.'}
-                    {typeOption.value === 'venta' && 'Vendé tu objeto a un precio fijo.'}
-                    {typeOption.value === 'ambos' && 'Aceptá tanto dinero como trueques.'}
+                    {typeOption.value === 'trueque' && 'Objeto por objeto'}
+                    {typeOption.value === 'venta' && 'Precio fijo'}
+                    {typeOption.value === 'ambos' && 'Dinero o trueque'}
                   </p>
                 </button>
               )
