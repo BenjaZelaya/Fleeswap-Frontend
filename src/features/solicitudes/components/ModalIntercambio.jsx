@@ -6,7 +6,7 @@
  *
  */
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
@@ -24,9 +24,10 @@ const MODAL_VARIANTS = {
   exit: { opacity: 0, scale: 0.92, y: 16, transition: { duration: 0.18 } },
 }
 
-export default function ModalIntercambio({ isOpen, onClose, publicacionDestino }) {
+export default function ModalIntercambio({ isOpen, onClose, publicacionDestino, publicacionesDestino }) {
   // ── Estado ─────────────────────────────────────────────────────────────
   const [misPublicaciones, setMisPublicaciones] = useState([])
+  const [selectedDestinoId, setSelectedDestinoId] = useState('')
   const [selectedId, setSelectedId] = useState('')
   const [monto, setMonto] = useState('')
   const [loadingPubs, setLoadingPubs] = useState(false)
@@ -36,11 +37,25 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino }
   // Publicación propia seleccionada para previsualización
   const selectedPub = misPublicaciones.find((p) => p._id === selectedId) || null
 
+  // Filtrar publicaciones destino si se abre desde el perfil
+  const pubsDestinoFiltradas = useMemo(() => {
+    if (!publicacionesDestino) return []
+    return publicacionesDestino.filter(
+      (p) =>
+        (p.status === 'available' || p.status === 'activo') &&
+        ['trueque', 'ambos', 'venta y trueque'].includes(p.type?.toLowerCase())
+    )
+  }, [publicacionesDestino])
+
+  // Publicación destino activa (fija o seleccionada)
+  const activeDestinoPub = publicacionDestino || pubsDestinoFiltradas.find((p) => p._id === selectedDestinoId) || null
+
   // ── Cargar publicaciones del usuario al abrir el modal ─────────────────
   useEffect(() => {
     if (!isOpen) return
 
     // Reset del formulario cada vez que se abre
+    setSelectedDestinoId('')
     setSelectedId('')
     setMonto('')
     setMontoError('')
@@ -80,8 +95,13 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino }
   async function handleSubmit(e) {
     e.preventDefault()
 
-    // Guardia: producto seleccionado
+    // Guardia: producto seleccionado origen
     if (!selectedId) return
+
+    // Guardia: producto destino seleccionado (si viene de perfil)
+    if (!publicacionDestino && !selectedDestinoId) return
+
+    const destinoIdFinal = publicacionDestino ? publicacionDestino._id : selectedDestinoId
 
     // Guardia: monto negativo
     const montoNum = monto === '' ? 0 : Number(monto)
@@ -93,7 +113,7 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino }
     setIsSubmitting(true)
     try {
       await enviarSolicitud({
-        requestedPublicationId: publicacionDestino._id,
+        requestedPublicationId: destinoIdFinal,
         offeredPublicationId:   selectedId,
         complementaryAmount:    montoNum,
       })
@@ -146,7 +166,9 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino }
               <div>
                 <h2 className="text-lg font-bold text-gray-900">Proponer Intercambio</h2>
                 <p className="text-xs text-gray-500 mt-0.5 truncate max-w-xs">
-                  Por: <span className="font-semibold text-gray-700">{publicacionDestino?.title}</span>
+                  {publicacionesDestino ? 'Elegí el objeto que querés y lo que vas a ofrecer' : (
+                    <>Por: <span className="font-semibold text-gray-700">{publicacionDestino?.title}</span></>
+                  )}
                 </p>
               </div>
               <button
@@ -163,29 +185,70 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino }
             {/* ── Cuerpo del formulario ── */}
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
 
-              {/* Producto destino (solo referencia visual) */}
-              {publicacionDestino && (
-                <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-3 border border-gray-100">
-                  {publicacionDestino.photos?.[0] ? (
-                    <img
-                      src={publicacionDestino.photos[0]}
-                      alt={publicacionDestino.title}
-                      className="w-14 h-14 rounded-lg object-cover shrink-0"
-                    />
-                  ) : (
-                    <div className="w-14 h-14 rounded-lg bg-gray-200 shrink-0 flex items-center justify-center text-gray-400">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+              {/* Selector Destino (Si viene del perfil) */}
+              {publicacionesDestino && (
+                <div>
+                  <label htmlFor="selector-destino" className="block text-sm font-semibold text-gray-700 mb-1.5">
+                    ¿Qué querés obtener? <span className="text-red-500">*</span>
+                  </label>
+                  {pubsDestinoFiltradas.length === 0 ? (
+                    <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                      Este usuario no tiene artículos disponibles para trueque.
                     </div>
+                  ) : (
+                    <select
+                      id="selector-destino"
+                      value={selectedDestinoId}
+                      onChange={(e) => setSelectedDestinoId(e.target.value)}
+                      required
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
+                    >
+                      <option value="" disabled>— Seleccioná un artículo —</option>
+                      {pubsDestinoFiltradas.map((pub) => (
+                        <option key={pub._id} value={pub._id}>{pub.title}</option>
+                      ))}
+                    </select>
                   )}
-                  <div className="min-w-0">
-                    <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Querés obtener</p>
-                    <p className="text-sm font-bold text-gray-900 truncate">{publicacionDestino.title}</p>
-                  </div>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-brand ml-auto shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                  </svg>
                 </div>
               )}
+
+              {/* Previsualización del producto destino */}
+              <AnimatePresence>
+                {activeDestinoPub && (
+                  <motion.div
+                    key="destino-preview"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.22 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-3 border border-gray-100">
+                      {activeDestinoPub.photos?.[0] ? (
+                        <img
+                          src={activeDestinoPub.photos[0]}
+                          alt={activeDestinoPub.title}
+                          className="w-14 h-14 rounded-lg object-cover shrink-0"
+                        />
+                      ) : (
+                        <div className="w-14 h-14 rounded-lg bg-gray-200 shrink-0 flex items-center justify-center text-gray-400">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Querés obtener</p>
+                        <p className="text-sm font-bold text-gray-900 truncate">{activeDestinoPub.title}</p>
+                      </div>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-brand ml-auto shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                      </svg>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Selector de publicación propia */}
               <div>
@@ -306,7 +369,7 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino }
                 </button>
                 <button
                   type="submit"
-                  disabled={!selectedId || isSubmitting || !!montoError}
+                  disabled={!selectedId || (!publicacionDestino && !selectedDestinoId) || isSubmitting || !!montoError || (publicacionesDestino && pubsDestinoFiltradas.length === 0)}
                   className="flex-1 py-2.5 rounded-lg bg-brand text-white text-sm font-semibold hover:bg-brand-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
