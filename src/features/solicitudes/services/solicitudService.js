@@ -73,3 +73,11 @@ export async function confirmarIntercambio(id) {
   const response = await api.patch(`/exchanges/${id}/confirm`)
   return response.data
 }
+
+/**
+ * Cancela un intercambio en curso (H3.5).
+ */
+export async function cancelarIntercambio(id) {
+  const response = await api.patch(`/exchanges/${id}/cancel`)
+  return response.data
+}
