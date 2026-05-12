@@ -43,8 +43,3 @@ export async function deletePublication(id) {
   // En Axios, el body de un DELETE va en la propiedad 'data' del config.
   await api.delete(`/publications/${id}`, { data: { confirmacion: true } })
 }
-
-export async function reportPublication(id, { reason, details }) {
-  const response = await api.post(`/publications/${id}/report`, { reason, details })
-  return response.data
-}
