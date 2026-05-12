@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion'
 import { getPublicProfile } from '../services/profileService'
@@ -17,7 +17,8 @@ import { defaultSeo } from '../../../utils/seoConfig'
 // ─── Página ──────────────────────────────────────────────────────────────────
 export default function PublicProfile() {
   const { id } = useParams()
-  const { user: authUser } = useAuthStore()
+  const navigate = useNavigate()
+  const { user: authUser, token } = useAuthStore()
 
   const [profile, setProfile] = useState(null)
   const [publications, setPublications] = useState([])
@@ -28,6 +29,16 @@ export default function PublicProfile() {
   const [showIntercambio, setShowIntercambio] = useState(false)
 
   const isOwnProfile = authUser && profile && String(authUser._id || authUser.id) === String(profile._id || profile.id)
+
+  function handleIntercambio() {
+    if (!token) {
+      navigate('/login', {
+        state: { toast: 'Iniciá sesión para enviar una propuesta de intercambio' }
+      })
+      return
+    }
+    setShowIntercambio(true)
+  }
 
   useEffect(() => {
     let active = true
@@ -166,7 +177,7 @@ export default function PublicProfile() {
                   </Link>
                 ) : (
                   <button
-                    onClick={() => setShowIntercambio(true)}
+                    onClick={handleIntercambio}
                     className="inline-flex items-center gap-1.5 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-brand-light active:scale-[0.98]"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
