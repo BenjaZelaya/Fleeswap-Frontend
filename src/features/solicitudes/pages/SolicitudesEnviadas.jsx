@@ -14,6 +14,7 @@ export default function SolicitudesEnviadas() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [filtro, setFiltro] = useState('all')
+  const [refreshCount, setRefreshCount] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -31,7 +32,7 @@ export default function SolicitudesEnviadas() {
     }
     load()
     return () => { cancelled = true }
-  }, [])
+  }, [refreshCount])
 
   const filtradas = filtro === 'all' ? solicitudes : solicitudes.filter((s) => s.status === filtro)
 
@@ -78,7 +79,7 @@ export default function SolicitudesEnviadas() {
       ) : (
         <AnimatePresence mode="popLayout">
           <motion.div key={filtro} variants={listVariants} initial="hidden" animate="show" className="space-y-4">
-            {filtradas.map((s) => <SolicitudEnviadaCard key={s._id ?? s.id} solicitud={s} />)}
+            {filtradas.map((s) => <SolicitudEnviadaCard key={s._id ?? s.id} solicitud={s} onUpdateSuccess={() => setRefreshCount(c => c + 1)} />)}
           </motion.div>
         </AnimatePresence>
       )}
