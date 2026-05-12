@@ -158,7 +158,13 @@ export default function Explore() {
   }
 
   return (
-    <div className="bg-slate-50">
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -15 }}
+      transition={{ duration: 0.3 }}
+      className="bg-slate-50"
+    >
       <Seo
         page="explore"
         url={`${defaultSeo.siteUrl}/explore${searchParams.toString() ? `?${searchParams.toString()}` : ''}`}
@@ -243,6 +249,6 @@ export default function Explore() {
           />
         </div>
       </section>
-    </div>
+    </motion.div>
   )
 }
