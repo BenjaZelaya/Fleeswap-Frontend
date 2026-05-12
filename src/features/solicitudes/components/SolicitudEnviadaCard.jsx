@@ -1,15 +1,41 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 // eslint-disable-next-line no-unused-vars
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import { toast } from 'sonner'
+import { confirmarIntercambio } from '../services/solicitudService'
 import { BADGE, BADGE_LABEL, CARD_ACCENT, cardVariants } from '../utils/constants'
 import ProductMini from './ProductMini'
 
-export default function SolicitudEnviadaCard({ solicitud }) {
-  const { owner, offeredPublication, requestedPublication, status, complementaryAmount, createdAt } = solicitud
+export default function SolicitudEnviadaCard({ solicitud, onUpdateSuccess }) {
+  const { owner, offeredPublication, requestedPublication, status, complementaryAmount, createdAt, confirmedByRequester, confirmedByOwner } = solicitud
+  const [isConfirming, setIsConfirming] = useState(false)
   const initial = owner?.nombre?.[0]?.toUpperCase() ?? '?'
   const name = [owner?.nombre, owner?.apellido].filter(Boolean).join(' ') || 'Usuario'
   const fecha = createdAt ? new Date(createdAt).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' }) : ''
   const accent = CARD_ACCENT[status] ?? 'border-l-4 border-l-slate-200'
+
+  const handleConfirmar = async () => {
+    const confirmacion = window.confirm(
+      '¿Estás seguro de que ya recibiste el artículo y quieres dar por finalizado el trueque?'
+    )
+    if (!confirmacion) return
+
+    setIsConfirming(true)
+    try {
+      const respuesta = await confirmarIntercambio(solicitud._id || solicitud.id)
+      if (respuesta.status === 'completed') {
+        toast.success('¡Excelente! El intercambio se ha completado.')
+      } else {
+        toast.info('Confirmación registrada. Esperando a la otra parte.')
+      }
+      if (onUpdateSuccess) onUpdateSuccess()
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Error al confirmar el intercambio.')
+    } finally {
+      setIsConfirming(false)
+    }
+  }
 
   return (
     <motion.div layout variants={cardVariants}
@@ -29,9 +55,11 @@ export default function SolicitudEnviadaCard({ solicitud }) {
         </Link>
         <div className="flex items-center gap-2 shrink-0 ml-2">
           {fecha && <span className="hidden sm:block text-[10px] font-light text-slate-400">{fecha}</span>}
-          <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${BADGE[status] ?? 'bg-slate-100 text-slate-500'}`}>
-            {BADGE_LABEL[status] ?? status}
-          </span>
+          {status !== 'active' && status !== 'completed' && (
+            <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${BADGE[status] ?? 'bg-slate-100 text-slate-500'}`}>
+              {BADGE_LABEL[status] ?? status}
+            </span>
+          )}
         </div>
       </div>
 
@@ -59,6 +87,86 @@ export default function SolicitudEnviadaCard({ solicitud }) {
             </Link>
           )}
         </div>
+      </div>
+
+      <div className="px-5 py-4 border-t border-slate-50 bg-slate-50/20 flex justify-end items-center min-h-[72px]">
+        <AnimatePresence mode="wait">
+          {status === 'active' ? (
+            <motion.div
+              key="active-actions"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="w-full flex flex-col sm:flex-row items-center justify-between gap-3"
+            >
+              <div className="flex items-center gap-2 text-blue-600 bg-blue-50 px-3 py-2 rounded-xl border border-blue-100">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+                <span className="text-xs font-bold uppercase tracking-tight">Intercambio en curso</span>
+              </div>
+
+              <AnimatePresence mode="wait">
+                {!confirmedByRequester ? (
+                  <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                    {confirmedByOwner && (
+                      <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-100 animate-bounce">
+                        ¡La otra parte ya confirmó!
+                      </span>
+                    )}
+                    <motion.button
+                      key="btn-confirmar"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      onClick={handleConfirmar}
+                      disabled={isConfirming}
+                      className="w-full sm:w-auto flex items-center justify-center gap-2 bg-brand text-white font-bold py-2.5 px-6 rounded-xl hover:bg-brand-light transition-all text-sm shadow-md active:scale-95 disabled:opacity-50"
+                    >
+                      {isConfirming ? (
+                        <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                        </svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                      Confirmar Entrega
+                    </motion.button>
+                  </div>
+                ) : (
+                  <motion.div
+                    key="msg-espera"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex items-center gap-2 text-amber-600 bg-amber-50 px-4 py-2.5 rounded-xl border border-amber-100 shadow-sm"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 animate-spin-slow" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-xs font-semibold">Esperando confirmación de la otra parte...</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          ) : status === 'completed' ? (
+            <motion.div
+              key="badge-completed"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="w-full"
+            >
+              <div className="w-full flex items-center justify-center gap-2 text-[13px] font-bold uppercase tracking-wider px-4 py-3 rounded-xl bg-purple-100 text-purple-800 border border-purple-200">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                ¡Intercambio Completado Exitosamente!
+              </div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
       </div>
     </motion.div>
   )
