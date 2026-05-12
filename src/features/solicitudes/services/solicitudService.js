@@ -66,3 +66,10 @@ export async function rechazarSolicitud(id) {
   const response = await api.patch(`/exchanges/${id}/reject`)
   return response.data
 }
+/**
+ * Confirma la realización de un intercambio.
+ */
+export async function confirmarIntercambio(id) {
+  const response = await api.patch(`/exchanges/${id}/confirm`)
+  return response.data
+}
