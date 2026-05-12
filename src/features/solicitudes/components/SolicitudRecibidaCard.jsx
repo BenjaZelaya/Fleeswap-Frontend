@@ -2,19 +2,18 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion'
-import { createPortal } from 'react-dom'
 import { toast } from 'sonner'
 import { aceptarSolicitud, rechazarSolicitud, confirmarIntercambio, cancelarIntercambio } from '../services/solicitudService'
 import { BADGE, BADGE_LABEL, CARD_ACCENT, cardVariants } from '../utils/constants'
 import ProductMini from './ProductMini'
+import ConfirmModal from '../../../shared/components/ui/ConfirmModal'
 
 export default function SolicitudRecibidaCard({ solicitud, onUpdateSuccess }) {
   const { requester, offeredPublication, requestedPublication, status, complementaryAmount, createdAt, confirmedByOwner, confirmedByRequester } = solicitud
   const [isUpdating, setIsUpdating] = useState(false)
   const [isConfirming, setIsConfirming] = useState(false)
   const [isCanceling, setIsCanceling] = useState(false)
-  const [confirmData, setConfirmData] = useState(null)
-  const [lastAction, setLastAction] = useState('accepted')
+  const [modalConfig, setModalConfig] = useState(null)
   const initial = requester?.nombre?.[0]?.toUpperCase() ?? '?'
   const name = [requester?.nombre, requester?.apellido].filter(Boolean).join(' ') || 'Usuario'
   const fecha = createdAt ? new Date(createdAt).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' }) : ''
@@ -39,50 +38,69 @@ export default function SolicitudRecibidaCard({ solicitud, onUpdateSuccess }) {
     }
   }
 
-  const handleConfirmar = async () => {
-    const confirmacion = window.confirm(
-      '¿Estás seguro de que ya recibiste el artículo y quieres dar por finalizado el trueque?'
-    )
-    if (!confirmacion) return
-
-    setIsConfirming(true)
-    try {
-      const respuesta = await confirmarIntercambio(solicitud._id || solicitud.id)
-      if (respuesta.status === 'completed') {
-        toast.success('¡Excelente! El intercambio se ha completado.')
-      } else {
-        toast.info('Confirmación registrada. Esperando a la otra parte.')
+  const handleConfirmar = () => {
+    setModalConfig({
+      title: '¿Confirmar entrega?',
+      message: '¿Estás seguro de que ya recibiste el artículo y quieres dar por finalizado el trueque?',
+      confirmText: 'Sí, confirmar',
+      variant: 'default',
+      onConfirm: async () => {
+        setIsConfirming(true)
+        setModalConfig(null)
+        try {
+          const respuesta = await confirmarIntercambio(solicitud._id || solicitud.id)
+          if (respuesta.status === 'completed') {
+            toast.success('¡Excelente! El intercambio se ha completado.')
+          } else {
+            toast.info('Confirmación registrada. Esperando a la otra parte.')
+          }
+          if (onUpdateSuccess) onUpdateSuccess()
+        } catch (error) {
+          toast.error(error.response?.data?.message || 'Error al confirmar el intercambio.')
+        } finally {
+          setIsConfirming(false)
+        }
       }
-      if (onUpdateSuccess) onUpdateSuccess()
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Error al confirmar el intercambio.')
-    } finally {
-      setIsConfirming(false)
-    }
+    })
   }
 
-  const handleCancelar = async () => {
-    const confirmar = window.confirm(
-      '¿Estás seguro de que deseas cancelar este intercambio? Los artículos volverán a estar disponibles para otros usuarios.'
-    )
-    if (!confirmar) return
-
-    setIsCanceling(true)
-    try {
-      await cancelarIntercambio(solicitud._id || solicitud.id)
-      toast.success('El intercambio ha sido cancelado exitosamente.')
-      if (onUpdateSuccess) onUpdateSuccess()
-    } catch (error) {
-      const errorMsg = error.response?.data?.message || 'Hubo un error al intentar cancelar.'
-      toast.error(errorMsg)
-    } finally {
-      setIsCanceling(false)
-    }
+  const handleCancelar = () => {
+    setModalConfig({
+      title: '¿Cancelar intercambio?',
+      message: '¿Estás seguro de que deseas cancelar este intercambio? Los artículos volverán a estar disponibles para otros usuarios.',
+      confirmText: 'Sí, cancelar',
+      variant: 'danger',
+      onConfirm: async () => {
+        setIsCanceling(true)
+        setModalConfig(null)
+        try {
+          await cancelarIntercambio(solicitud._id || solicitud.id)
+          toast.success('El intercambio ha sido cancelado exitosamente.')
+          if (onUpdateSuccess) onUpdateSuccess()
+        } catch (error) {
+          const errorMsg = error.response?.data?.message || 'Hubo un error al intentar cancelar.'
+          toast.error(errorMsg)
+        } finally {
+          setIsCanceling(false)
+        }
+      }
+    })
   }
 
   const handleDecision = (decision) => {
-    setLastAction(decision)
-    setConfirmData({ type: decision })
+    const isAccept = decision === 'accepted'
+    setModalConfig({
+      title: isAccept ? '¿Aceptar propuesta?' : '¿Rechazar propuesta?',
+      message: isAccept 
+        ? `Estás a punto de aceptar el intercambio con ${name}. Las demás ofertas por tu artículo serán rechazadas automáticamente.`
+        : `Esta acción no se puede deshacer. La propuesta de ${name} será descartada.`,
+      confirmText: isAccept ? 'Sí, aceptar' : 'Sí, rechazar',
+      variant: isAccept ? 'default' : 'danger',
+      onConfirm: () => {
+        setModalConfig(null)
+        executeDecision(decision)
+      }
+    })
   }
 
   return (
@@ -294,68 +312,16 @@ export default function SolicitudRecibidaCard({ solicitud, onUpdateSuccess }) {
         </AnimatePresence>
       </div>
 
-      {createPortal(
-        <AnimatePresence>
-          {confirmData && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-9999 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4"
-            >
-              <motion.div
-                initial={{ scale: 0.95, y: 20 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.95, y: 20 }}
-                className="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-sm overflow-hidden"
-              >
-                <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${lastAction === 'accepted' ? 'bg-emerald-100 text-emerald-500' : 'bg-red-100 text-red-500'
-                  }`}>
-                  {lastAction === 'accepted' ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  )}
-                </div>
-                <h3 className="text-xl font-bold text-center text-slate-900 mb-2">
-                  {lastAction === 'accepted' ? '¿Aceptar propuesta?' : '¿Rechazar propuesta?'}
-                </h3>
-                <p className="text-sm text-center text-slate-500 mb-6">
-                  {lastAction === 'accepted'
-                    ? `Estás a punto de aceptar el intercambio con ${name}. Las demás ofertas por tu artículo serán rechazadas automáticamente.`
-                    : `Esta acción no se puede deshacer. La propuesta de ${name} será descartada.`
-                  }
-                </p>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setConfirmData(null)}
-                    className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors"
-                  >
-                    Volver
-                  </button>
-                  <button
-                    onClick={() => {
-                      setConfirmData(null)
-                      executeDecision(lastAction)
-                    }}
-                    className={`flex-1 py-3 font-bold rounded-xl transition-all text-white shadow-lg ${lastAction === 'accepted'
-                        ? 'bg-emerald-500 hover:bg-emerald-600 shadow-[0_4px_14px_0_rgba(16,185,129,0.39)]'
-                        : 'bg-red-500 hover:bg-red-600 shadow-[0_4px_14px_0_rgba(239,68,68,0.39)]'
-                      }`}
-                  >
-                    Sí, {lastAction === 'accepted' ? 'aceptar' : 'rechazar'}
-                  </button>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>,
-        document.body
-      )}
+      <ConfirmModal
+        open={!!modalConfig}
+        onClose={() => setModalConfig(null)}
+        onConfirm={modalConfig?.onConfirm}
+        title={modalConfig?.title}
+        message={modalConfig?.message}
+        confirmText={modalConfig?.confirmText}
+        variant={modalConfig?.variant}
+        loading={isUpdating || isConfirming || isCanceling}
+      />
     </motion.div>
   )
 }

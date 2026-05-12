@@ -6,55 +6,65 @@ import { toast } from 'sonner'
 import { confirmarIntercambio, cancelarIntercambio } from '../services/solicitudService'
 import { BADGE, BADGE_LABEL, CARD_ACCENT, cardVariants } from '../utils/constants'
 import ProductMini from './ProductMini'
+import ConfirmModal from '../../../shared/components/ui/ConfirmModal'
 
 export default function SolicitudEnviadaCard({ solicitud, onUpdateSuccess }) {
   const { owner, offeredPublication, requestedPublication, status, complementaryAmount, createdAt, confirmedByRequester, confirmedByOwner } = solicitud
   const [isConfirming, setIsConfirming] = useState(false)
   const [isCanceling, setIsCanceling] = useState(false)
+  const [modalConfig, setModalConfig] = useState(null)
   const initial = owner?.nombre?.[0]?.toUpperCase() ?? '?'
   const name = [owner?.nombre, owner?.apellido].filter(Boolean).join(' ') || 'Usuario'
   const fecha = createdAt ? new Date(createdAt).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' }) : ''
   const accent = CARD_ACCENT[status] ?? 'border-l-4 border-l-slate-200'
 
-  const handleConfirmar = async () => {
-    const confirmacion = window.confirm(
-      '¿Estás seguro de que ya recibiste el artículo y quieres dar por finalizado el trueque?'
-    )
-    if (!confirmacion) return
-
-    setIsConfirming(true)
-    try {
-      const respuesta = await confirmarIntercambio(solicitud._id || solicitud.id)
-      if (respuesta.status === 'completed') {
-        toast.success('¡Excelente! El intercambio se ha completado.')
-      } else {
-        toast.info('Confirmación registrada. Esperando a la otra parte.')
+  const handleConfirmar = () => {
+    setModalConfig({
+      title: '¿Confirmar entrega?',
+      message: '¿Estás seguro de que ya recibiste el artículo y quieres dar por finalizado el trueque?',
+      confirmText: 'Sí, confirmar',
+      variant: 'default',
+      onConfirm: async () => {
+        setIsConfirming(true)
+        setModalConfig(null)
+        try {
+          const respuesta = await confirmarIntercambio(solicitud._id || solicitud.id)
+          if (respuesta.status === 'completed') {
+            toast.success('¡Excelente! El intercambio se ha completado.')
+          } else {
+            toast.info('Confirmación registrada. Esperando a la otra parte.')
+          }
+          if (onUpdateSuccess) onUpdateSuccess()
+        } catch (error) {
+          toast.error(error.response?.data?.message || 'Error al confirmar el intercambio.')
+        } finally {
+          setIsConfirming(false)
+        }
       }
-      if (onUpdateSuccess) onUpdateSuccess()
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Error al confirmar el intercambio.')
-    } finally {
-      setIsConfirming(false)
-    }
+    })
   }
 
-  const handleCancelar = async () => {
-    const confirmar = window.confirm(
-      '¿Estás seguro de que deseas cancelar este intercambio? Los artículos volverán a estar disponibles para otros usuarios.'
-    )
-    if (!confirmar) return
-
-    setIsCanceling(true)
-    try {
-      await cancelarIntercambio(solicitud._id || solicitud.id)
-      toast.success('El intercambio ha sido cancelado exitosamente.')
-      if (onUpdateSuccess) onUpdateSuccess()
-    } catch (error) {
-      const errorMsg = error.response?.data?.message || 'Hubo un error al intentar cancelar.'
-      toast.error(errorMsg)
-    } finally {
-      setIsCanceling(false)
-    }
+  const handleCancelar = () => {
+    setModalConfig({
+      title: '¿Cancelar intercambio?',
+      message: '¿Estás seguro de que deseas cancelar este intercambio? Los artículos volverán a estar disponibles para otros usuarios.',
+      confirmText: 'Sí, cancelar',
+      variant: 'danger',
+      onConfirm: async () => {
+        setIsCanceling(true)
+        setModalConfig(null)
+        try {
+          await cancelarIntercambio(solicitud._id || solicitud.id)
+          toast.success('El intercambio ha sido cancelado exitosamente.')
+          if (onUpdateSuccess) onUpdateSuccess()
+        } catch (error) {
+          const errorMsg = error.response?.data?.message || 'Hubo un error al intentar cancelar.'
+          toast.error(errorMsg)
+        } finally {
+          setIsCanceling(false)
+        }
+      }
+    })
   }
 
   return (
@@ -223,6 +233,16 @@ export default function SolicitudEnviadaCard({ solicitud, onUpdateSuccess }) {
           ) : null}
         </AnimatePresence>
       </div>
+      <ConfirmModal
+        open={!!modalConfig}
+        onClose={() => setModalConfig(null)}
+        onConfirm={modalConfig?.onConfirm}
+        title={modalConfig?.title}
+        message={modalConfig?.message}
+        confirmText={modalConfig?.confirmText}
+        variant={modalConfig?.variant}
+        loading={isConfirming || isCanceling}
+      />
     </motion.div>
   )
 }
