@@ -7,42 +7,27 @@ import useAuthStore from '../../../store/authStore'
 import { getPublications } from '../../publications/services/publicationService'
 import PublicationGrid from '../../../shared/components/PublicationGrid'
 import ModalIntercambio from '../../solicitudes/components/ModalIntercambio'
+import EstadisticasPerfil from '../components/EstadisticasPerfil'
 import Seo from '../../../shared/components/Seo'
 import PageSpinner from '../../../shared/components/ui/PageSpinner'
 import { defaultSeo } from '../../../utils/seoConfig'
 
-// ─── Sub-componentes ────────────────────────────────────────────────────────
 
-function StatCard({ value, label, badge }) {
-  return (
-    <div className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl bg-slate-50 border border-slate-100 min-w-[80px]">
-      <span className="text-xl font-bold text-slate-900">{value}</span>
-      <span className="text-[10px] font-light text-slate-500 whitespace-nowrap">{label}</span>
-      {badge && (
-        <span className="text-[9px] font-semibold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-full mt-0.5">
-          Próximamente
-        </span>
-      )}
-    </div>
-  )
-}
 
 // ─── Página ──────────────────────────────────────────────────────────────────
-
-
 export default function PublicProfile() {
   const { id } = useParams()
   const { user: authUser } = useAuthStore()
 
-  const [profile, setProfile]         = useState(null)
+  const [profile, setProfile] = useState(null)
   const [publications, setPublications] = useState([])
-  const [loading, setLoading]         = useState(true)
-  const [notFound, setNotFound]       = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
 
   // Modales
   const [showIntercambio, setShowIntercambio] = useState(false)
 
-  const isOwnProfile = authUser && profile && String(authUser.id) === String(profile._id)
+  const isOwnProfile = authUser && profile && String(authUser._id || authUser.id) === String(profile._id || profile.id)
 
   useEffect(() => {
     let active = true
@@ -50,16 +35,25 @@ export default function PublicProfile() {
       setLoading(true)
       setNotFound(false)
       try {
-        const [profileData, publicationsData] = await Promise.all([
-          getPublicProfile(id),
-          getPublications({ userId: id, status: 'available', limit: 12 }),
-        ])
+        const profileData = await getPublicProfile(id)
         if (!active) return
         setProfile(profileData)
+
+        // Determinar si es perfil propio para traer también pausadas
+        const isOwn = authUser && String(authUser._id || authUser.id) === String(profileData._id || profileData.id)
+        const pubsStatus = isOwn ? 'available,unavailable' : 'available'
+
+        const publicationsData = await getPublications({
+          userId: id,
+          status: pubsStatus,
+          limit: 20
+        })
+
+        if (!active) return
         setPublications(
           publicationsData?.publications ||
-          publicationsData?.items        ||
-          publicationsData?.data         || []
+          publicationsData?.items ||
+          publicationsData?.data || []
         )
       } catch (err) {
         if (!active) return
@@ -70,7 +64,7 @@ export default function PublicProfile() {
     }
     fetchProfile()
     return () => { active = false }
-  }, [id])
+  }, [id, authUser])
 
 
 
@@ -95,10 +89,8 @@ export default function PublicProfile() {
 
   if (!profile) return null
 
-  const fullName  = [profile.nombre, profile.apellido].filter(Boolean).join(' ')
-  const initial   = profile.nombre?.[0]?.toUpperCase() ?? '?'
-  const rating    = profile.calificacionPromedio ?? profile.averageRating ?? 0
-  const completados = profile.intercambiosCompletados ?? 0
+  const fullName = [profile.nombre, profile.apellido].filter(Boolean).join(' ')
+  const initial = profile.nombre?.[0]?.toUpperCase() ?? '?'
   const canonicalUrl = `${defaultSeo.siteUrl}/profile/${profile._id}`
 
   return (
@@ -122,9 +114,10 @@ export default function PublicProfile() {
       </AnimatePresence>
 
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
+        initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
+        exit={{ opacity: 0, y: -15 }}
+        transition={{ duration: 0.3 }}
         className="mx-auto max-w-5xl space-y-4 px-4 py-8"
       >
         {/* ── Card principal del perfil ── */}
@@ -157,19 +150,7 @@ export default function PublicProfile() {
               </div>
 
               {/* Stats */}
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                {/* Rating */}
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-100">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                  <span className="text-sm font-semibold text-gray-700">{rating > 0 ? rating.toFixed(1) : '—'}</span>
-                </div>
-
-                <StatCard value={completados} label="Intercambios" />
-                <StatCard value="0" label="Compras" badge />
-                <StatCard value="0" label="Ventas" badge />
-              </div>
+              <EstadisticasPerfil profile={profile} />
 
               {/* Acción */}
               <div className="pt-1">
@@ -220,18 +201,9 @@ export default function PublicProfile() {
                 ? '¡Animáte a subir tu primer objeto para intercambiar o vender!'
                 : 'Cuando este usuario publique artículos disponibles, van a aparecer acá.'
             }
+            showCreateButton={isOwnProfile}
             className="xl:grid-cols-2"
           />
-          {isOwnProfile && publications.length === 0 && (
-            <div className="text-center mt-4">
-              <Link
-                to="/publications/create"
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-white bg-brand hover:bg-brand-light transition-colors px-5 py-2.5 rounded-xl"
-              >
-                + Crear publicación
-              </Link>
-            </div>
-          )}
         </div>
       </motion.div>
     </>
