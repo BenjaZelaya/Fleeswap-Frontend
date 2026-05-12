@@ -97,7 +97,7 @@ export function validateTitle(value) {
 
 export function validateDescription(value) {
   const trimmed = value?.trim() ?? ''
-  if (!trimmed) return 'La descripción es obligatoria'
+  if (!trimmed) return ''
   if (trimmed.length < DESCRIPTION_MIN) return `Mínimo ${DESCRIPTION_MIN} caracteres`
   if (trimmed.length > DESCRIPTION_MAX) return `Máximo ${DESCRIPTION_MAX} caracteres`
   return ''

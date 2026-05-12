@@ -266,9 +266,10 @@ export default function EditPublication() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+      exit={{ opacity: 0, y: -15 }}
+      transition={{ duration: 0.3 }}
       className="max-w-2xl mx-auto px-4 py-8 space-y-4"
     >
       {/* Encabezado de página */}
@@ -354,7 +355,7 @@ export default function EditPublication() {
             {/* Título */}
             <div>
               <label className="block text-[10px] font-light uppercase tracking-[0.2em] text-slate-400 mb-1.5">
-                Título <span className="text-brand-accent">*</span>
+                Título <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -371,7 +372,7 @@ export default function EditPublication() {
             {/* Precio */}
             <div>
               <label className="block text-[10px] font-light uppercase tracking-[0.2em] text-slate-400 mb-1.5">
-                Precio {form.type !== 'trueque' && <span className="text-brand-accent">*</span>}
+                Precio {form.type !== 'trueque' && <span className="text-red-500">*</span>}
               </label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-gray-400">$</span>
@@ -397,7 +398,7 @@ export default function EditPublication() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-[10px] font-light uppercase tracking-[0.2em] text-slate-400 mb-1.5">
-                  Categoría <span className="text-brand-accent">*</span>
+                  Categoría <span className="text-red-500">*</span>
                 </label>
                 <Select
                   options={PUBLICATION_CATEGORIES}
@@ -417,7 +418,7 @@ export default function EditPublication() {
 
               <div>
                 <label className="block text-[10px] font-light uppercase tracking-[0.2em] text-slate-400 mb-1.5">
-                  Estado del Objeto <span className="text-brand-accent">*</span>
+                  Estado del Objeto <span className="text-red-500">*</span>
                 </label>
                 <Select
                   options={PUBLICATION_CONDITIONS}
@@ -439,7 +440,7 @@ export default function EditPublication() {
             {/* Ubicación */}
             <div>
               <label className="block text-[10px] font-light uppercase tracking-[0.2em] text-slate-400 mb-1.5">
-                Ubicación <span className="text-brand-accent">*</span>
+                Ubicación <span className="text-red-500">*</span>
               </label>
               <Select
                 inputId="location-select"
@@ -466,7 +467,7 @@ export default function EditPublication() {
             {/* Descripción */}
             <div>
               <label className="block text-[10px] font-light uppercase tracking-[0.2em] text-slate-400 mb-1.5">
-                Descripción
+                Descripción <span className="text-gray-400 font-normal lowercase">(opcional)</span>
               </label>
               <textarea
                 name="description"
@@ -483,7 +484,7 @@ export default function EditPublication() {
             {/* Historia */}
             <div>
               <label className="block text-[10px] font-light uppercase tracking-[0.2em] text-slate-400 mb-1.5">
-                Historia del Objeto <span className="text-brand-accent">*</span>
+                Historia del Objeto <span className="text-red-500">*</span>
               </label>
               <textarea
                 name="history"
