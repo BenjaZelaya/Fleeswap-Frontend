@@ -81,7 +81,7 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino, 
     if (!publicacionesDestino) return []
     return publicacionesDestino.filter(
       (p) =>
-        (p.status === 'available' || p.status === 'activo') &&
+        (!p.status || ['available', 'activo', 'disponible'].includes(p.status.toLowerCase())) &&
         ['trueque', 'ambos'].includes(p.type?.toLowerCase())
     )
   }, [publicacionesDestino])
@@ -111,7 +111,7 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino, 
         const data = await getMisPublicaciones()
         const activas = (data.publications ?? data).filter(
           (p) =>
-            (p.status === 'available' || p.status === 'activo') &&
+            (!p.status || ['available', 'activo', 'disponible'].includes(p.status.toLowerCase())) &&
             ['trueque', 'ambos'].includes(p.type?.toLowerCase())
         )
         setMisPublicaciones(activas)
