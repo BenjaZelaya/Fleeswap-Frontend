@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { enviarSolicitud, getMisPublicaciones } from '../services/solicitudService'
@@ -74,7 +75,6 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino, 
   const [monto, setMonto] = useState('')
   const [loadingPubs, setLoadingPubs] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [montoError, setMontoError] = useState('')
 
   // Filtrar publicaciones destino
   const pubsDestinoFiltradas = useMemo(() => {
@@ -97,7 +97,6 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino, 
     setSelectedDestinoId('')
     setSelectedId('')
     setMonto('')
-    setMontoError('')
     
     // Si ya viene con destino, empezamos en el paso 2
     if (publicacionDestino) {
@@ -238,7 +237,7 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino, 
         <button
           onClick={nextStep}
           disabled={!selectedId}
-          className="flex-[2] py-3 rounded-xl bg-brand text-white font-bold text-sm shadow-lg shadow-brand/20 disabled:opacity-40 disabled:shadow-none transition-all"
+          className="flex-2 py-3 rounded-xl bg-brand text-white font-bold text-sm shadow-lg shadow-brand/20 disabled:opacity-40 disabled:shadow-none transition-all"
         >
           Siguiente
         </button>
@@ -304,7 +303,7 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino, 
         <button
           onClick={handleSubmit}
           disabled={isSubmitting}
-          className="flex-[2] py-3 rounded-xl bg-brand text-white font-bold text-sm shadow-lg shadow-brand/20 disabled:opacity-40 flex items-center justify-center gap-2"
+          className="flex-2 py-3 rounded-xl bg-brand text-white font-bold text-sm shadow-lg shadow-brand/20 disabled:opacity-40 flex items-center justify-center gap-2"
         >
           {isSubmitting ? (
             <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
