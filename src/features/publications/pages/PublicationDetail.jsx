@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import useAuthStore from '../../../store/authStore'
 import { getPublicationById } from '../services/publicationService'
+import ReportModal from '../components/ReportModal'
 import { PUBLICATION_TYPES, PUBLICATION_CONDITIONS, PUBLICATION_CATEGORIES } from '../../../utils/constants'
 import Seo from '../../../shared/components/Seo'
 import PageSpinner from '../../../shared/components/ui/PageSpinner'
@@ -55,6 +56,8 @@ export default function PublicationDetail() {
     async function fetchPublication() {
       setLoading(true)
       setNotFound(false)
+      setAlreadyReported(false)
+      setShowReportModal(false)
       try {
         const data = await getPublicationById(id)
         setPublication(data)
@@ -68,10 +71,10 @@ export default function PublicationDetail() {
         setLoading(false)
       }
     }
+
     fetchPublication()
   }, [id])
 
-  // Helper functions
   const getTypeLabel = (type) => {
     const typeObj = PUBLICATION_TYPES.find((t) => t.value === type)
     return typeObj?.label || type
@@ -104,7 +107,7 @@ export default function PublicationDetail() {
         </div>
         <div className="text-center">
           <p className="font-semibold text-gray-800">Publicación no encontrada</p>
-          <p className="text-sm text-gray-400 mt-1">Esta publicación no existe o fue eliminada.</p>
+          <p className="text-sm text-gray-400 mt-1">Esta publicación ya no está disponible.</p>
         </div>
         <Link to="/" className="text-sm text-brand-accent font-medium hover:underline">
           Volver al inicio
