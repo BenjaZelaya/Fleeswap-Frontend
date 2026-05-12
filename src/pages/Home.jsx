@@ -185,7 +185,7 @@ function PublicationCard({ pub, compact = false, onIntercambiar }) {
                   }}
                   className="flex-1 bg-brand text-white text-xs font-semibold py-2.5 rounded-xl flex items-center justify-center gap-1.5 hover:bg-brand-light transition-colors cursor-pointer"
                 >
-                  ⇄ Intercambiar
+                  Intercambiar
                 </button>
               )}
               {(pub.type === 'venta' || pub.type === 'ambos') && (

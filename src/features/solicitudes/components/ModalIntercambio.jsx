@@ -43,7 +43,7 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino, 
     return publicacionesDestino.filter(
       (p) =>
         (p.status === 'available' || p.status === 'activo') &&
-        ['trueque', 'ambos', 'venta y trueque'].includes(p.type?.toLowerCase())
+        ['trueque', 'ambos'].includes(p.type?.toLowerCase())
     )
   }, [publicacionesDestino])
 
@@ -68,7 +68,7 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino, 
         const activas = (data.publications ?? data).filter(
           (p) =>
             (p.status === 'available' || p.status === 'activo') &&
-            (p.type === 'trueque' || p.type === 'ambos')
+            ['trueque', 'ambos'].includes(p.type?.toLowerCase())
         )
         setMisPublicaciones(activas)
       } catch {
