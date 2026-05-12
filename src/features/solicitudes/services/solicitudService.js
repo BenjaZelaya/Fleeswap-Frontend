@@ -50,3 +50,19 @@ export async function getSolicitudesEnviadas(params = {}) {
   const response = await api.get('/exchanges/sent', { params })
   return response.data
 }
+
+/**
+ * Acepta una solicitud de intercambio recibida.
+ */
+export async function aceptarSolicitud(id) {
+  const response = await api.patch(`/exchanges/${id}/accept`)
+  return response.data
+}
+
+/**
+ * Rechaza una solicitud de intercambio recibida.
+ */
+export async function rechazarSolicitud(id) {
+  const response = await api.patch(`/exchanges/${id}/reject`)
+  return response.data
+}
