@@ -4,13 +4,14 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createPortal } from 'react-dom'
 import { toast } from 'sonner'
-import { aceptarSolicitud, rechazarSolicitud } from '../services/solicitudService'
+import { aceptarSolicitud, rechazarSolicitud, confirmarIntercambio } from '../services/solicitudService'
 import { BADGE, BADGE_LABEL, CARD_ACCENT, cardVariants } from '../utils/constants'
 import ProductMini from './ProductMini'
 
 export default function SolicitudRecibidaCard({ solicitud, onUpdateSuccess }) {
-  const { requester, offeredPublication, requestedPublication, status, complementaryAmount, createdAt } = solicitud
+  const { requester, offeredPublication, requestedPublication, status, complementaryAmount, createdAt, confirmedByOwner, confirmedByRequester } = solicitud
   const [isUpdating, setIsUpdating] = useState(false)
+  const [isConfirming, setIsConfirming] = useState(false)
   const [confirmData, setConfirmData] = useState(null)
   const [lastAction, setLastAction] = useState('accepted')
   const initial = requester?.nombre?.[0]?.toUpperCase() ?? '?'
@@ -28,15 +29,34 @@ export default function SolicitudRecibidaCard({ solicitud, onUpdateSuccess }) {
         await rechazarSolicitud(solicitud._id || solicitud.id)
         toast.success('Solicitud rechazada con éxito')
       }
-
-      if (onUpdateSuccess) {
-        onUpdateSuccess()
-      }
+      if (onUpdateSuccess) onUpdateSuccess()
     } catch (error) {
       const errorMsg = error.response?.data?.message || 'Ocurrió un error al procesar tu decisión.'
       toast.error(errorMsg)
     } finally {
       setIsUpdating(false)
+    }
+  }
+
+  const handleConfirmar = async () => {
+    const confirmacion = window.confirm(
+      '¿Estás seguro de que ya recibiste el artículo y quieres dar por finalizado el trueque?'
+    )
+    if (!confirmacion) return
+
+    setIsConfirming(true)
+    try {
+      const respuesta = await confirmarIntercambio(solicitud._id || solicitud.id)
+      if (respuesta.status === 'completed') {
+        toast.success('¡Excelente! El intercambio se ha completado.')
+      } else {
+        toast.info('Confirmación registrada. Esperando a la otra parte.')
+      }
+      if (onUpdateSuccess) onUpdateSuccess()
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Error al confirmar el intercambio.')
+    } finally {
+      setIsConfirming(false)
     }
   }
 
@@ -128,6 +148,66 @@ export default function SolicitudRecibidaCard({ solicitud, onUpdateSuccess }) {
                 Aceptar
               </button>
             </motion.div>
+          ) : status === 'active' ? (
+            <motion.div
+              key="active-actions"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="w-full flex flex-col sm:flex-row items-center justify-between gap-3"
+            >
+              <div className="flex items-center gap-2 text-blue-600 bg-blue-50 px-3 py-2 rounded-xl border border-blue-100">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+                <span className="text-xs font-bold uppercase tracking-tight">Intercambio en curso</span>
+              </div>
+
+              <AnimatePresence mode="wait">
+                {!confirmedByOwner ? (
+                  <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                    {confirmedByRequester && (
+                      <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-100 animate-bounce">
+                        ¡La otra parte ya confirmó!
+                      </span>
+                    )}
+                    <motion.button
+                      key="btn-confirmar"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      onClick={handleConfirmar}
+                      disabled={isConfirming}
+                      className="w-full sm:w-auto flex items-center justify-center gap-2 bg-brand text-white font-bold py-2.5 px-6 rounded-xl hover:bg-brand-light transition-all text-sm shadow-md active:scale-95 disabled:opacity-50"
+                    >
+                      {isConfirming ? (
+                        <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                        </svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                      Confirmar Entrega
+                    </motion.button>
+                  </div>
+                ) : (
+                  <motion.div
+                    key="msg-espera"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex items-center gap-2 text-amber-600 bg-amber-50 px-4 py-2.5 rounded-xl border border-amber-100 shadow-sm"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 animate-spin-slow" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-xs font-semibold">Esperando confirmación de la otra parte...</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
           ) : (
             <motion.div
               key="badge"
@@ -136,12 +216,12 @@ export default function SolicitudRecibidaCard({ solicitud, onUpdateSuccess }) {
               className="w-full"
             >
               <div className={`w-full flex items-center justify-center gap-2 text-[13px] font-bold uppercase tracking-wider px-4 py-3 rounded-xl ${BADGE[status] ?? 'bg-slate-100 text-slate-500'}`}>
-                {status === 'active' || status === 'completed' ? (
+                {status === 'completed' ? (
                   <>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Intercambio Aceptado
+                    ¡Intercambio Completado Exitosamente!
                   </>
                 ) : status === 'rejected' ? (
                   <>
@@ -166,7 +246,7 @@ export default function SolicitudRecibidaCard({ solicitud, onUpdateSuccess }) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4"
+              className="fixed inset-0 z-9999 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4"
             >
               <motion.div
                 initial={{ scale: 0.95, y: 20 }}
