@@ -3,13 +3,14 @@ import { Link } from 'react-router-dom'
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
-import { confirmarIntercambio } from '../services/solicitudService'
+import { confirmarIntercambio, cancelarIntercambio } from '../services/solicitudService'
 import { BADGE, BADGE_LABEL, CARD_ACCENT, cardVariants } from '../utils/constants'
 import ProductMini from './ProductMini'
 
 export default function SolicitudEnviadaCard({ solicitud, onUpdateSuccess }) {
   const { owner, offeredPublication, requestedPublication, status, complementaryAmount, createdAt, confirmedByRequester, confirmedByOwner } = solicitud
   const [isConfirming, setIsConfirming] = useState(false)
+  const [isCanceling, setIsCanceling] = useState(false)
   const initial = owner?.nombre?.[0]?.toUpperCase() ?? '?'
   const name = [owner?.nombre, owner?.apellido].filter(Boolean).join(' ') || 'Usuario'
   const fecha = createdAt ? new Date(createdAt).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' }) : ''
@@ -34,6 +35,25 @@ export default function SolicitudEnviadaCard({ solicitud, onUpdateSuccess }) {
       toast.error(error.response?.data?.message || 'Error al confirmar el intercambio.')
     } finally {
       setIsConfirming(false)
+    }
+  }
+
+  const handleCancelar = async () => {
+    const confirmar = window.confirm(
+      '¿Estás seguro de que deseas cancelar este intercambio? Los artículos volverán a estar disponibles para otros usuarios.'
+    )
+    if (!confirmar) return
+
+    setIsCanceling(true)
+    try {
+      await cancelarIntercambio(solicitud._id || solicitud.id)
+      toast.success('El intercambio ha sido cancelado exitosamente.')
+      if (onUpdateSuccess) onUpdateSuccess()
+    } catch (error) {
+      const errorMsg = error.response?.data?.message || 'Hubo un error al intentar cancelar.'
+      toast.error(errorMsg)
+    } finally {
+      setIsCanceling(false)
     }
   }
 
@@ -114,39 +134,74 @@ export default function SolicitudEnviadaCard({ solicitud, onUpdateSuccess }) {
                         ¡La otra parte ya confirmó!
                       </span>
                     )}
-                    <motion.button
-                      key="btn-confirmar"
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      onClick={handleConfirmar}
-                      disabled={isConfirming}
-                      className="w-full sm:w-auto flex items-center justify-center gap-2 bg-brand text-white font-bold py-2.5 px-6 rounded-xl hover:bg-brand-light transition-all text-sm shadow-md active:scale-95 disabled:opacity-50"
-                    >
-                      {isConfirming ? (
-                        <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                        </svg>
-                      ) : (
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      )}
-                      Confirmar Entrega
-                    </motion.button>
+
+                    <div className="flex gap-2 w-full sm:w-auto">
+                      <button
+                        onClick={handleCancelar}
+                        disabled={isCanceling || isConfirming}
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 bg-white border border-red-200 text-red-500 font-semibold py-2 px-4 rounded-xl hover:bg-red-50 transition-all text-xs disabled:opacity-50"
+                      >
+                        {isCanceling ? (
+                          <>
+                            <svg className="animate-spin h-3 w-3 text-red-500" viewBox="0 0 24 24" fill="none">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                            </svg>
+                            Cancelando...
+                          </>
+                        ) : (
+                          <>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            Cancelar
+                          </>
+                        )}
+                      </button>
+
+                      <motion.button
+                        key="btn-confirmar"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        onClick={handleConfirmar}
+                        disabled={isConfirming || isCanceling}
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-brand text-white font-bold py-2.5 px-6 rounded-xl hover:bg-brand-light transition-all text-sm shadow-md active:scale-95 disabled:opacity-50"
+                      >
+                        {isConfirming ? (
+                          <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                          </svg>
+                        ) : (
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                        Confirmar Entrega
+                      </motion.button>
+                    </div>
                   </div>
                 ) : (
                   <motion.div
                     key="msg-espera"
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="flex items-center gap-2 text-amber-600 bg-amber-50 px-4 py-2.5 rounded-xl border border-amber-100 shadow-sm"
+                    className="flex flex-col sm:flex-row items-center gap-3"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 animate-spin-slow" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span className="text-xs font-semibold">Esperando confirmación de la otra parte...</span>
+                    <button
+                      onClick={handleCancelar}
+                      disabled={isCanceling}
+                      className="text-[10px] text-red-400 hover:text-red-600 font-semibold hover:underline transition-colors disabled:opacity-50"
+                    >
+                      {isCanceling ? 'Cancelando...' : '¿Arrepentido? Cancelar intercambio'}
+                    </button>
+                    <div className="flex items-center gap-2 text-amber-600 bg-amber-50 px-4 py-2.5 rounded-xl border border-amber-100 shadow-sm">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 animate-spin-slow" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="text-xs font-semibold">Esperando confirmación de la otra parte...</span>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
