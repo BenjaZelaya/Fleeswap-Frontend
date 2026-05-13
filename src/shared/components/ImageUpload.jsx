@@ -26,8 +26,12 @@ export default function ImageUpload({ images = [], onAddImage, onRemoveImage, er
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-end mb-0">
-        <span className="text-[10px] font-light text-slate-400">
+      <div className="flex items-center justify-between">
+        <label className="block text-sm font-semibold text-dark-warm">
+          Fotos
+          <span className="text-brand">*</span>
+        </label>
+        <span className="text-xs text-gray-500">
           {images.length} / {PHOTOS_MAX}
         </span>
       </div>

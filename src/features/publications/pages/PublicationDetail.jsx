@@ -90,7 +90,7 @@ export default function PublicationDetail() {
   const owner = publication.owner
   const ownerFullName = [owner.nombre, owner.apellido].filter(Boolean).join(' ')
   const ownerInitial = owner.nombre?.[0]?.toUpperCase() ?? '?'
-  const isOwner = authUser && String(authUser._id || authUser.id) === String(owner._id || owner.id)
+  const isOwner = authUser && String(authUser.id) === String(owner._id)
   const mainPhoto = publication.photos?.[0]
   const canonicalUrl = `${defaultSeo.siteUrl}/publications/${publication._id}`
   const image = publication.photos?.[selectedPhotoIndex] || mainPhoto || defaultSeo.image
@@ -161,41 +161,33 @@ export default function PublicationDetail() {
             )}
           </div>
 
-          {/* Left: Galería de fotos */}
-          <div className="lg:col-span-2 space-y-4">
-            {/* Foto principal */}
-            <div className="bg-gray-100 rounded-2xl overflow-hidden aspect-4/3">
-              {mainPhoto ? (
-                <img
-                  src={publication.photos[selectedPhotoIndex]}
-                  alt={publication.title}
-                  className="w-full h-full object-contain"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-400">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
-              )}
+          {/* Thumbnails */}
+          {publication.photos && publication.photos.length > 1 && (
+            <div className="flex gap-3 overflow-x-auto pb-2">
+              {publication.photos.map((photo, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setSelectedPhotoIndex(idx)}
+                  className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
+                    selectedPhotoIndex === idx 
+                      ? 'border-brand' 
+                      : 'border-gray-200 hover:border-brand/50'
+                  }`}
+                >
+                  <img src={photo} alt={`Foto ${idx + 1}`} className="w-full h-full object-cover" />
+                </button>
+              ))}
             </div>
           )}
 
-            {/* Thumbnails */}
-            {publication.photos && publication.photos.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto pb-2">
-                {publication.photos.map((photo, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setSelectedPhotoIndex(idx)}
-                    className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedPhotoIndex === idx
-                      ? 'border-brand'
-                      : 'border-gray-200 hover:border-brand/50'
-                      }`}
-                  >
-                    <img src={photo} alt={`Foto ${idx + 1}`} className="w-full h-full object-cover" />
-                  </button>
-                ))}
+          {/* Detalles Técnicos */}
+          <div className="mt-12 pt-8 border-t border-gray-200">
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Detalles Técnicos</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {/* Categoría */}
+              <div>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Categoría</p>
+                <p className="text-gray-900 font-semibold mt-1">{getCategoryLabel(publication.category)}</p>
               </div>
 
               {/* Estado */}
@@ -232,15 +224,21 @@ export default function PublicationDetail() {
             </span>
           </div>
 
-            {/* Título y Precio */}
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-3">{publication.title}</h1>
-              {publication.price ? (
-                <p className="text-3xl font-bold text-brand">${publication.price.toLocaleString('es-AR')}</p>
-              ) : (
-                <p className="text-lg font-semibold text-brand-accent">{getTypeLabel(publication.type)}</p>
-              )}
-            </div>
+          {/* Título y Precio */}
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-3">{publication.title}</h1>
+            {publication.price ? (
+              <p className="text-3xl font-bold text-brand">${publication.price.toLocaleString('es-AR')}</p>
+            ) : (
+              <p className="text-lg font-semibold text-brand-accent">Solo intercambio</p>
+            )}
+          </div>
+
+          {/* Descripción */}
+          <div>
+            <h3 className="font-bold text-gray-900 mb-2">Descripción</h3>
+            <p className="text-gray-600 text-sm leading-relaxed">{publication.description}</p>
+          </div>
 
           {/* Historia del Objeto */}
           {publication.history && (
@@ -248,21 +246,29 @@ export default function PublicationDetail() {
               <h3 className="font-bold text-gray-900 mb-2">Historia del Objeto</h3>
               <p className="text-gray-600 text-sm leading-relaxed">{publication.history}</p>
             </div>
+          )}
 
-            {/* Historia del Objeto */}
-            {publication.history && (
-              <div>
-                <h3 className="font-bold text-gray-900 mb-2">Historia del Objeto</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">{publication.history}</p>
-              </div>
-            )}
+          {/* Ubicación */}
+          {publication.location && (
+            <div className="flex items-start gap-2 pt-4 border-t border-gray-200">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span className="text-sm text-gray-600">{publication.location}</span>
+            </div>
+          )}
 
-            {/* Ubicación */}
-            {publication.location && (
-              <div className="flex items-start gap-2 pt-4 border-t border-gray-200">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          {/* Botones de Acción */}
+          {!isOwner && (
+            <div className="space-y-3 pt-4">
+              <button
+                disabled
+                title="Próximamente"
+                className="w-full py-3 bg-brand text-white font-semibold rounded-lg hover:bg-brand-light transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 Comprar ahora
               </button>
@@ -328,15 +334,11 @@ export default function PublicationDetail() {
                 )}
               </div>
 
-              {/* Botón Perfil */}
-              <div className="shrink-0 w-full sm:w-auto">
-                <Link
-                  to={`/profile/${owner._id}`}
-                  className="inline-flex items-center justify-center gap-1.5 text-sm font-semibold bg-gray-100 hover:bg-gray-200 text-gray-900 px-4 py-2 rounded-lg transition-colors"
-                >
-                  Ver perfil
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              {owner.location && (
+                <p className="text-sm text-gray-500 flex items-center gap-1 justify-center sm:justify-start">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   {owner.location}
                 </p>

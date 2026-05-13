@@ -172,16 +172,8 @@ function PublicationCard({ pub, compact = false }) {
           {!compact && (
             <div className="flex gap-2 pt-1" onClick={(e) => e.preventDefault()}>
               {(pub.type === 'trueque' || pub.type === 'ambos') && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    onIntercambiar?.(pub)
-                  }}
-                  className="flex-1 bg-brand text-white text-xs font-semibold py-2.5 rounded-xl flex items-center justify-center gap-1.5 hover:bg-brand-light transition-colors cursor-pointer"
-                >
-                  Intercambiar
+                <button type="button" className="flex-1 bg-brand text-white text-xs font-semibold py-2.5 rounded-xl flex items-center justify-center gap-1.5">
+                  ⇄ Intercambiar
                 </button>
               )}
               {(pub.type === 'venta' || pub.type === 'ambos') && (
