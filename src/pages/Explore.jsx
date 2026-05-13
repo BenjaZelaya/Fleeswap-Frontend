@@ -52,11 +52,9 @@ function buildSearchParams(filters) {
 
 function normalizeResponse(data, fallbackPage) {
   const publications = data?.publications || data?.items || data?.data || []
-  const pagination = data?.pagination || {}
-  
-  const total = pagination.total ?? data?.total ?? data?.count ?? publications.length
-  const page = pagination.page ?? data?.page ?? data?.currentPage ?? fallbackPage
-  const totalPages = pagination.totalPages ?? data?.totalPages ?? Math.max(1, Math.ceil(total / (pagination.limit || data?.limit || DEFAULT_FILTERS.limit)))
+  const total = data?.total || data?.count || publications.length
+  const totalPages = data?.totalPages || Math.max(1, Math.ceil(total / (data?.limit || DEFAULT_FILTERS.limit)))
+  const page = data?.page || data?.currentPage || fallbackPage
 
   return {
     publications,
@@ -158,13 +156,7 @@ export default function Explore() {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -15 }}
-      transition={{ duration: 0.3 }}
-      className="bg-slate-50"
-    >
+    <div className="bg-slate-50">
       <Seo
         page="explore"
         url={`${defaultSeo.siteUrl}/explore${searchParams.toString() ? `?${searchParams.toString()}` : ''}`}
@@ -249,6 +241,6 @@ export default function Explore() {
           />
         </div>
       </section>
-    </motion.div>
+    </div>
   )
 }

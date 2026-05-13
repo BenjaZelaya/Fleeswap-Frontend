@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Search, User, LogIn } from "lucide-react";
+import { Home, Plus, User, LogIn } from "lucide-react";
 import useAuthStore from "../../../store/authStore";
 import { logout as logoutService } from "../../../features/auth/services/authService";
 import ConfirmModal from "../ui/ConfirmModal";
@@ -258,38 +258,6 @@ export default function Navbar() {
                           </svg>
                           Mis publicaciones
                         </Link>
-                        <Link
-                          to="/solicitudes-recibidas"
-                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-slate-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={1.75}
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                          </svg>
-                          Recibidas
-                        </Link>
-                        <Link
-                          to="/solicitudes-enviadas"
-                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-slate-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={1.75}
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                          </svg>
-                          Enviadas
-                        </Link>
                       </div>
 
                       {/* Separador + logout */}
@@ -372,6 +340,26 @@ export default function Navbar() {
                       </div>
                       <div className="py-1">
                         <Link
+                          to={`/profile/${user?.id}`}
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4 text-slate-400"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={1.75}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                            />
+                          </svg>
+                          Ver perfil
+                        </Link>
+                        <Link
                           to="/edit-profile"
                           className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
                         >
@@ -430,38 +418,6 @@ export default function Navbar() {
                             />
                           </svg>
                           Mis publicaciones
-                        </Link>
-                        <Link
-                          to="/solicitudes-recibidas"
-                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-slate-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={1.75}
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                          </svg>
-                          Recibidas
-                        </Link>
-                        <Link
-                          to="/solicitudes-enviadas"
-                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-slate-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={1.75}
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                          </svg>
-                          Enviadas
                         </Link>
                       </div>
                       <div className="border-t border-slate-100 py-1">
@@ -522,8 +478,8 @@ export default function Navbar() {
           {/* Tab Publicaciones */}
           <MobileTab
             to="/explore"
-            icon={<Search size={20} strokeWidth={1.5} />}
-            label="Explorar"
+            icon={<Plus size={20} strokeWidth={1.5} />}
+            label="Publicaciones"
             active={location.pathname.startsWith("/explore")}
           />
 
