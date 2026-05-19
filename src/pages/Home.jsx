@@ -119,7 +119,7 @@ function PublicationCard({ pub, compact = false, onIntercambiar }) {
         className="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm flex flex-col h-full"
       >
         {/* Foto */}
-        <div className="relative bg-slate-100 overflow-hidden aspect-[4/3]">
+        <div className="relative bg-slate-100 overflow-hidden aspect-4/3">
           {pub.photos?.[0] ? (
             <img
               src={pub.photos[0]}
@@ -185,7 +185,7 @@ function PublicationCard({ pub, compact = false, onIntercambiar }) {
                   }}
                   className="flex-1 bg-brand text-white text-xs font-semibold py-2.5 rounded-xl flex items-center justify-center gap-1.5 hover:bg-brand-light transition-colors cursor-pointer"
                 >
-                  ⇄ Intercambiar
+                  Intercambiar
                 </button>
               )}
               {(pub.type === 'venta' || pub.type === 'ambos') && (
@@ -407,7 +407,7 @@ export default function Home() {
       </section>
 
       {/* ── Cómo funciona ───────────────────────────────────────────── */}
-      <section style={{ backgroundColor: '#1b365d' }}>
+      <section id="how-it-works" style={{ backgroundColor: '#1b365d' }}>
         <div className="max-w-6xl mx-auto px-6 py-20">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -492,7 +492,7 @@ export default function Home() {
             <div className="flex gap-5 overflow-hidden">
               {[...Array(3)].map((_, i) => (
                 <div key={i} className="shrink-0 w-full sm:w-[45%] lg:w-[31%] bg-white rounded-2xl border border-slate-100 overflow-hidden animate-pulse">
-                  <div className="aspect-[4/3] bg-slate-200" />
+                  <div className="aspect-4/3 bg-slate-200" />
                   <div className="p-4 space-y-3">
                     <div className="h-4 bg-slate-200 rounded w-3/4" />
                     <div className="h-3 bg-slate-100 rounded w-1/2" />
@@ -594,7 +594,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-white">
+      <section id="categories" className="bg-white">
         <div className="max-w-6xl mx-auto px-6 py-20">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
