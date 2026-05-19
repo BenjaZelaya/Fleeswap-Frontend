@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import ScrollToTop from '../shared/components/ScrollToTop'
 import MainLayout from '../shared/components/layout/MainLayout'
+import ChatLayout from '../shared/components/layout/ChatLayout'
 import PageSpinner from '../shared/components/ui/PageSpinner'
 import ProtectedRoute from './ProtectedRoute'
 
@@ -63,12 +64,16 @@ function AnimatedRoutes() {
             path="/solicitudes-enviadas"
             element={<ProtectedRoute><SolicitudesEnviadas /></ProtectedRoute>}
           />
+          {/* Catch-all: rutas no definidas */}
+          <Route path="*" element={<NotFound />} />
+        </Route>
+
+        {/* ── Chat: layout propio sin footer ni bottom bar ─────────── */}
+        <Route element={<ChatLayout />}>
           <Route
             path="/intercambios/:id/chat"
             element={<ProtectedRoute><ChatView /></ProtectedRoute>}
           />
-          {/* Catch-all: rutas no definidas */}
-          <Route path="*" element={<NotFound />} />
         </Route>
 
         <Route path="/login" element={<Login />} />
