@@ -1,21 +1,33 @@
 /**
- * chatService.js - H4.1: Servicio de Chat de Intercambio
+ * chatService.js
  *
- * Consume el endpoint GET /api/exchanges/:id/messages del backend.
- * El token JWT se adjunta automáticamente por el interceptor de api.js.
+ * Endpoint: GET /api/exchanges/:id/messages
+ * Respuesta: { messages, hasMore, exchangeStatus }
+ *
+ * Campos de cada mensaje:
+ *   _id       — ID único del mensaje
+ *   content   — texto del mensaje
+ *   sender    — { _id, nombre, apellido, photo }
+ *   createdAt — ISO timestamp
  */
 
 import api from '../../../services/api'
 
 /**
  * Obtiene el historial de mensajes de un intercambio.
- * Requiere que el usuario sea participante (requester u owner) y que el
- * intercambio esté en estado 'active'. Si no, el backend devuelve 403/400.
+ * El backend valida:
+ *   - Que el usuario sea requester u owner (403 si no)
+ *   - Que el intercambio esté en active/completed/cancelled (403 si pending/rejected)
+ *   - Que el intercambio exista (404)
  *
- * intercambioId - ID del intercambio.
- * Array de mensajes ordenados por fecha.
+ * Soporta paginación por cursor:
+ *   before — _id del mensaje más antiguo ya cargado (cursor)
+ *   limit  — cantidad de mensajes por página (default 20)
  */
-export async function getHistorialMensajes(intercambioId) {
-  const response = await api.get(`/exchanges/${intercambioId}/messages`)
-  return response.data
+export async function getHistorialMensajes(intercambioId, { before, limit } = {}) {
+  const params = {}
+  if (before) params.before = before
+  if (limit)  params.limit  = limit
+  const response = await api.get(`/exchanges/${intercambioId}/messages`, { params })
+  return response.data // { messages, hasMore, exchangeStatus }
 }
