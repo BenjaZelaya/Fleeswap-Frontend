@@ -56,8 +56,6 @@ export default function PublicationDetail() {
     async function fetchPublication() {
       setLoading(true)
       setNotFound(false)
-      setAlreadyReported(false)
-      setShowReportModal(false)
       try {
         const data = await getPublicationById(id)
         setPublication(data)
@@ -121,7 +119,7 @@ export default function PublicationDetail() {
   const owner = publication.owner
   const ownerFullName = [owner.nombre, owner.apellido].filter(Boolean).join(' ')
   const ownerInitial = owner.nombre?.[0]?.toUpperCase() ?? '?'
-  const isOwner = authUser && String(authUser.id) === String(owner._id)
+  const isOwner = authUser && String(authUser._id || authUser.id) === String(owner._id || owner.id)
   const mainPhoto = publication.photos?.[0]
   const canonicalUrl = `${defaultSeo.siteUrl}/publications/${publication._id}`
   const image = publication.photos?.[selectedPhotoIndex] || mainPhoto || defaultSeo.image
@@ -176,7 +174,7 @@ export default function PublicationDetail() {
           {/* Left: Galería de fotos */}
           <div className="lg:col-span-2 space-y-4">
             {/* Foto principal */}
-            <div className="bg-gray-100 rounded-2xl overflow-hidden aspect-[4/3]">
+            <div className="bg-gray-100 rounded-2xl overflow-hidden aspect-4/3">
               {mainPhoto ? (
                 <img
                   src={publication.photos[selectedPhotoIndex]}
@@ -199,7 +197,7 @@ export default function PublicationDetail() {
                   <button
                     key={idx}
                     onClick={() => setSelectedPhotoIndex(idx)}
-                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedPhotoIndex === idx
+                    className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedPhotoIndex === idx
                       ? 'border-brand'
                       : 'border-gray-200 hover:border-brand/50'
                       }`}
@@ -259,7 +257,7 @@ export default function PublicationDetail() {
               {publication.price ? (
                 <p className="text-3xl font-bold text-brand">${publication.price.toLocaleString('es-AR')}</p>
               ) : (
-                <p className="text-lg font-semibold text-brand-accent">Solo intercambio</p>
+                <p className="text-lg font-semibold text-brand-accent">{getTypeLabel(publication.type)}</p>
               )}
             </div>
 
@@ -280,7 +278,7 @@ export default function PublicationDetail() {
             {/* Ubicación */}
             {publication.location && (
               <div className="flex items-start gap-2 pt-4 border-t border-gray-200">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
@@ -392,7 +390,7 @@ export default function PublicationDetail() {
               </div>
 
               {/* Botón Perfil */}
-              <div className="flex-shrink-0 w-full sm:w-auto">
+              <div className="shrink-0 w-full sm:w-auto">
                 <Link
                   to={`/profile/${owner._id}`}
                   className="inline-flex items-center justify-center gap-1.5 text-sm font-semibold bg-gray-100 hover:bg-gray-200 text-gray-900 px-4 py-2 rounded-lg transition-colors"

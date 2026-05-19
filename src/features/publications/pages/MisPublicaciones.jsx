@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import useAuthStore from '../../../store/authStore'
+// eslint-disable-next-line no-unused-vars
+import { motion, AnimatePresence } from 'framer-motion'
 import { getMyPublications, deletePublication, updatePublicationStatus } from '../services/publicationService'
 import { toast } from 'sonner'
 
 export default function MisPublicaciones() {
-  const { user: authUser } = useAuthStore()
   const [publications, setPublications] = useState([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
   const [confirmDelete, setConfirmDelete] = useState(null)
   const [statusChange, setStatusChange] = useState(null)
 
@@ -19,12 +18,10 @@ export default function MisPublicaciones() {
   const fetchPublications = async () => {
     try {
       setLoading(true)
-      setError(null)
       const data = await getMyPublications()
       setPublications(Array.isArray(data) ? data : [])
     } catch (err) {
       const message = err.response?.data?.message || 'Error al cargar publicaciones'
-      setError(message)
       toast.error(message)
     } finally {
       setLoading(false)
@@ -71,7 +68,7 @@ export default function MisPublicaciones() {
 
     try {
       // Enviar directamente con el nuevo status (la función service lo convierte)
-      const updatedPub = await updatePublicationStatus(statusChange.id, statusChange.newStatus)
+      await updatePublicationStatus(statusChange.id, statusChange.newStatus)
       
       // Actualizar el estado local
       setPublications((prev) =>
@@ -103,25 +100,7 @@ export default function MisPublicaciones() {
   const activeExchanges = publications.filter(p => p.type === 'trueque' || p.type === 'ambos').length
   const rating = 4.9
 
-  // Mapear tipo de publicación a etiqueta
-  const getTypeLabel = (type) => {
-    const typeMap = {
-      venta: 'ACTIVO',
-      trueque: 'ACTIVO',
-      ambos: 'ACTIVO',
-    }
-    return typeMap[type] || 'ACTIVO'
-  }
 
-  // Mapear tipo a color de badge
-  const getTypeColor = (type) => {
-    const typeMap = {
-      venta: 'bg-blue-100 text-blue-800',
-      trueque: 'bg-green-100 text-green-800',
-      ambos: 'bg-purple-100 text-purple-800',
-    }
-    return typeMap[type] || 'bg-blue-100 text-blue-800'
-  }
 
   // Obtener etiqueta y color del estado
   const getStatusLabel = (status) => {
@@ -137,7 +116,13 @@ export default function MisPublicaciones() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F9F7F4]">
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -15 }}
+      transition={{ duration: 0.3 }}
+      className="min-h-screen bg-warm-white"
+    >
       {/* Header con navegación */}
       <div className="bg-white border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
@@ -479,6 +464,6 @@ export default function MisPublicaciones() {
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
   )
 }
