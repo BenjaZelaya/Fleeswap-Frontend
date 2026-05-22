@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Search, User, LogIn } from "lucide-react";
+import { Home, Search, User, LogIn, MessageSquare } from "lucide-react";
 import useAuthStore from "../../../store/authStore";
 import { logout as logoutService } from "../../../features/auth/services/authService";
 import ConfirmModal from "../ui/ConfirmModal";
@@ -259,6 +259,13 @@ export default function Navbar() {
                           Mis publicaciones
                         </Link>
                         <Link
+                          to="/chats"
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                        >
+                          <MessageSquare size={16} className="text-slate-400" />
+                          Mensajes
+                        </Link>
+                        <Link
                           to="/solicitudes-recibidas"
                           className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
                         >
@@ -432,6 +439,13 @@ export default function Navbar() {
                           Mis publicaciones
                         </Link>
                         <Link
+                          to="/chats"
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                        >
+                          <MessageSquare size={16} className="text-slate-400" />
+                          Mensajes
+                        </Link>
+                        <Link
                           to="/solicitudes-recibidas"
                           className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
                         >
@@ -526,6 +540,15 @@ export default function Navbar() {
             label="Explorar"
             active={location.pathname.startsWith("/explore")}
           />
+
+          {isAuthenticated && (
+            <MobileTab
+              to="/chats"
+              icon={<MessageSquare size={20} strokeWidth={location.pathname.startsWith("/chats") ? 2.5 : 1.5} />}
+              label="Chats"
+              active={location.pathname.startsWith("/chats")}
+            />
+          )}
 
           {isAuthenticated ? (
             <MobileTab

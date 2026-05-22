@@ -81,3 +81,27 @@ export async function cancelarIntercambio(id) {
   const response = await api.patch(`/exchanges/${id}/cancel`)
   return response.data
 }
+
+/**
+ * Obtiene los detalles de un intercambio por ID.
+ */
+export async function getIntercambio(id) {
+  const response = await api.get(`/exchanges/${id}`)
+  return response.data
+}
+
+/**
+ * Retorna todos los intercambios con chat habilitado (active/completed/cancelled),
+ * mergeando recibidos y enviados, ordenados por última actividad.
+ */
+export async function getMisChats() {
+  const CHAT_STATUSES = ['active', 'completed', 'cancelled']
+  const normalize = (data) => Array.isArray(data) ? data : (data?.exchanges ?? [])
+  const [recibidas, enviadas] = await Promise.all([
+    getSolicitudesRecibidas(),
+    getSolicitudesEnviadas(),
+  ])
+  return [...normalize(recibidas), ...normalize(enviadas)]
+    .filter(e => CHAT_STATUSES.includes(e.status))
+    .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+}
