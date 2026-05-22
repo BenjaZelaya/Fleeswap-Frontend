@@ -33,12 +33,7 @@ export default function ChatInput({ inputText, setInputText, onSend, chatEnabled
         )}
 
         {/* Contenedor del input */}
-        <div
-          className={`flex items-center gap-3 rounded-2xl border-2 px-4 py-3 transition-all duration-200 ${chatEnabled
-            ? 'bg-white border-slate-200 focus-within:border-brand/40 focus-within:shadow-[0_0_0_4px_rgba(27,54,93,0.06)]'
-            : 'bg-slate-50/80 border-slate-100'
-            }`}
-        >
+        <div className="flex items-center gap-3 rounded-2xl border-2 px-4 py-3 transition-all duration-200 bg-white border-slate-200 focus-within:border-brand/40 focus-within:shadow-[0_0_0_4px_rgba(27,54,93,0.06)]">
 
           {/* Textarea */}
           <textarea
@@ -48,7 +43,7 @@ export default function ChatInput({ inputText, setInputText, onSend, chatEnabled
               if (e.target.value.length <= MAX_CHARS) setInputText(e.target.value)
             }}
             onKeyDown={handleKeyDown}
-            disabled={!chatEnabled || sending}
+            disabled={sending}
             placeholder="Escribí un mensaje..."
             rows={1}
             aria-label="Campo de mensaje"
