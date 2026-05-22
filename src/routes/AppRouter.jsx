@@ -23,8 +23,9 @@ const EditPublication = lazy(() => import('../features/publications/pages/EditPu
 const PublicationDetail = lazy(() => import('../features/publications/pages/PublicationDetail'))
 const SolicitudesRecibidas = lazy(() => import('../features/solicitudes/pages/SolicitudesRecibidas'))
 const SolicitudesEnviadas = lazy(() => import('../features/solicitudes/pages/SolicitudesEnviadas'))
-const ChatView = lazy(() => import('../features/solicitudes/pages/ChatView'))
-const NotFound = lazy(() => import('../pages/NotFound'))
+const ChatView        = lazy(() => import('../features/solicitudes/pages/ChatView'))
+const MensajeriaView  = lazy(() => import('../features/solicitudes/pages/MensajeriaView'))
+const NotFound        = lazy(() => import('../pages/NotFound'))
 
 function AnimatedRoutes() {
   const location = useLocation()
@@ -73,6 +74,14 @@ function AnimatedRoutes() {
           <Route
             path="/intercambios/:id/chat"
             element={<ProtectedRoute><ChatView /></ProtectedRoute>}
+          />
+          <Route
+            path="/chats"
+            element={<ProtectedRoute><MensajeriaView /></ProtectedRoute>}
+          />
+          <Route
+            path="/chats/:intercambioId"
+            element={<ProtectedRoute><MensajeriaView /></ProtectedRoute>}
           />
         </Route>
 

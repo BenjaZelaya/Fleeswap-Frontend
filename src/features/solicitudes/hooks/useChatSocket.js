@@ -57,14 +57,15 @@ export function useChatSocket(exchangeId, onMessage) {
     // ── Eventos de conexión ──────────────────────────────────────────────────
     socket.on('connect', () => {
       setConnected(true)
+      setChatEnabled(true)   // Habilitar escritura en cuanto conecta
       setConnError(null)
 
-      // Unirse a la sala del intercambio
+      // Unirse a la sala para RECIBIR mensajes
+      // Si el servidor rechaza explícitamente, deshabilitar
       socket.emit('chat:join', { exchangeId }, (ack) => {
-        if (ack?.ok) {
-          setChatEnabled(true)
-        } else {
-          setConnError(ack?.error ?? 'No se pudo unir al chat')
+        if (ack?.ok === false) {
+          setChatEnabled(false)
+          setConnError(ack.error ?? 'No se pudo unir al chat')
         }
       })
     })
