@@ -1,5 +1,5 @@
 import { Component } from 'react'
-import { Link } from 'react-router-dom'
+
 
 export default class ErrorBoundary extends Component {
   constructor(props) {
@@ -37,12 +37,12 @@ export default class ErrorBoundary extends Component {
             >
               Recargar
             </button>
-            <Link
-              to="/"
+            <a
+              href="/"
               className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300"
             >
               Ir al inicio
-            </Link>
+            </a>
           </div>
         </div>
       </div>
