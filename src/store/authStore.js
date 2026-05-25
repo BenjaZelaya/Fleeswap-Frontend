@@ -26,7 +26,18 @@ const useAuthStore = create(
 
       // ── Acciones ─────────────────────────────────────────────────────────────
 
-      setAuth: (user, token) => set({ user, token }),
+      setAuth: (user, token) => {
+        let role = user?.role
+        if (!role && token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')))
+            role = payload.role
+          } catch {
+            // Ignorar errores de parseo
+          }
+        }
+        set({ user: user ? { ...user, role } : null, token })
+      },
 
       updateUser: (userData) =>
         set((state) => ({ user: { ...state.user, ...userData } })),
