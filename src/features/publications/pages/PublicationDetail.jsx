@@ -27,6 +27,7 @@ export default function PublicationDetail() {
   const [notFound, setNotFound] = useState(false)
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false)
 
   // ── Guards de autenticación ────────────────────────────────────────────
   function handleIntercambiar() {
@@ -50,6 +51,17 @@ export default function PublicationDetail() {
     }
     // TODO: lógica de compra
     toast.info('La función de compra estará disponible próximamente.')
+  }
+
+  function handleReportar() {
+    if (!token) {
+      navigate('/login',
+        {
+          state: { toast: 'Iniciá sesión para reportar una publicación' }
+        })
+      return
+    }
+    setIsReportModalOpen(true)
   }
 
   useEffect(() => {
@@ -302,7 +314,7 @@ export default function PublicationDetail() {
                   </button>
                 )}
 
-                {/* Botón Intercambio — H3.1 */}
+                {/* Botón Intercambio */}
                 {(publication.type === 'trueque' || publication.type === 'ambos') && (
                   <button
                     id="btn-enviar-solicitud"
@@ -319,9 +331,20 @@ export default function PublicationDetail() {
                 {/* Si es solo intercambio, no hay precio */}
                 {publication.type === 'trueque' && (
                   <p className="text-xs text-center text-gray-400">
-                    Esta publicación es solo para intercambio — sin precio de venta.
+                    Esta publicación es solo para intercambio
                   </p>
                 )}
+
+                {/* Botón Reportar */}
+                <button
+                  onClick={handleReportar}
+                  className="w-full mt-4 flex items-center justify-center gap-2 py-2.5 text-sm text-red-500 bg-red-50/50 border border-red-100 hover:bg-red-50 hover:border-red-200 hover:text-red-600 font-semibold rounded-xl transition-all"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                  </svg>
+                  Reportar publicación
+                </button>
               </div>
             )}
 
@@ -412,6 +435,16 @@ export default function PublicationDetail() {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           publicacionDestino={publication}
+        />
+      )}
+
+      {/* ── Modal: Reporte ── */}
+      {publication && (
+        <ReportModal
+          open={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          publicationId={publication._id}
+          onAlreadyReported={() => toast.error('Ya enviaste un reporte para esta publicación.')}
         />
       )}
     </>
