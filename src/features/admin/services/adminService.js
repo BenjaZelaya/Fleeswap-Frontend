@@ -26,3 +26,16 @@ export const deletePublication = async (id) => {
   const response = await api.delete(`/admin/publications/${id}`)
   return response.data
 }
+
+// ── Reportes ─────────────────────────────────────────────────────────────────
+export const getAdminReportes = async (params = {}) => {
+  // params puede incluir: status, reason, page, limit
+  const response = await api.get('/admin/reports', { params })
+  return response.data
+}
+
+export const resolverReporte = async (id, action) => {
+  // action: 'suspend_publication' | 'dismiss'
+  const response = await api.patch(`/admin/reports/${id}/resolve`, { action })
+  return response.data
+}
