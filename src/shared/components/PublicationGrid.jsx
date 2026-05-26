@@ -48,7 +48,7 @@ export default function PublicationGrid({
   className = '',
 }) {
   return (
-    <div className="relative min-h-[400px]">
+    <div className="relative min-h-100">
       <AnimatePresence mode="wait">
         {loading ? (
           <motion.div
