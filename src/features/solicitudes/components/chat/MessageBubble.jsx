@@ -3,8 +3,9 @@ import { motion } from 'framer-motion'
 import { formatChatDate } from '../../utils/formatChatDate'
 
 export default function MessageBubble({ message, isOwn, showAvatar }) {
-  const initial = message.sender?.nombre?.[0]?.toUpperCase() ?? '?'
-  const senderName = [message.sender?.nombre, message.sender?.apellido].filter(Boolean).join(' ')
+  const isDeleted = !message.sender || !message.sender.nombre
+  const initial = isDeleted ? '?' : (message.sender.nombre?.[0]?.toUpperCase() ?? '?')
+  const senderName = isDeleted ? 'Usuario eliminado' : [message.sender.nombre, message.sender.apellido].filter(Boolean).join(' ')
 
   return (
     <motion.div
@@ -17,7 +18,13 @@ export default function MessageBubble({ message, isOwn, showAvatar }) {
       {!isOwn && (
         <div className="w-8 h-8 shrink-0 mb-1">
           {showAvatar ? (
-            message.sender?.photo ? (
+            isDeleted ? (
+              <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 shadow-sm ring-2 ring-white">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                </svg>
+              </div>
+            ) : message.sender?.photo ? (
               <img
                 src={message.sender.photo}
                 alt={senderName}
@@ -37,8 +44,8 @@ export default function MessageBubble({ message, isOwn, showAvatar }) {
       {/* Contenido */}
       <div className={`flex flex-col gap-1 max-w-[70%] ${isOwn ? 'items-end' : 'items-start'}`}>
         {/* Nombre (solo primer mensaje del bloque) */}
-        {!isOwn && showAvatar && senderName && (
-          <span className="text-[10px] font-semibold text-slate-500 px-1 tracking-wide">
+        {!isOwn && showAvatar && (
+          <span className={`text-[10px] font-semibold px-1 tracking-wide ${isDeleted ? 'text-slate-400 italic' : 'text-slate-500'}`}>
             {senderName}
           </span>
         )}
