@@ -19,6 +19,21 @@ export async function enviarSolicitud({ requestedPublicationId, offeredPublicati
     requestedPublicationId,
     offeredPublicationId,
     complementaryAmount,
+    type: 'exchange',
+  })
+  return response.data
+}
+
+/**
+ * Envía una solicitud de COMPRA directa (sin producto propio para intercambio).
+ * El backend crea un Exchange con type="purchase" y abre el chat inmediatamente.
+ *
+ * requestedPublicationId - ID de la publicación que quiero comprar.
+ */
+export async function enviarSolicitudCompra(requestedPublicationId) {
+  const response = await api.post('/exchanges', {
+    requestedPublicationId,
+    type: 'purchase',
   })
   return response.data
 }
@@ -92,7 +107,7 @@ export async function getIntercambio(id) {
 
 /**
  * Retorna todos los intercambios con chat habilitado (active/completed/cancelled),
- * mergeando recibidos y enviados, ordenados por última actividad.
+ * mergeando recibidos y enviados, ordenados por última actividad (más reciente primero).
  */
 export async function getMisChats() {
   const CHAT_STATUSES = ['active', 'completed', 'cancelled']
@@ -103,5 +118,9 @@ export async function getMisChats() {
   ])
   return [...normalize(recibidas), ...normalize(enviadas)]
     .filter(e => CHAT_STATUSES.includes(e.status))
-    .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+    .sort((a, b) => {
+      const dateA = new Date(a.updatedAt ?? a.createdAt ?? 0)
+      const dateB = new Date(b.updatedAt ?? b.createdAt ?? 0)
+      return dateB - dateA
+    })
 }

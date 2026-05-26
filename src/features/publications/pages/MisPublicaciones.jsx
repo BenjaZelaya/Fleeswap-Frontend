@@ -29,13 +29,14 @@ export default function MisPublicaciones() {
   }
 
   const handleDeleteClick = (pub) => {
-    // Verificar si hay intercambios en curso
-    if (pub.status === 'en_intercambio' || pub.hasActiveExchange) {
-      toast.error('No puedes eliminar una publicación con un intercambio en curso')
+    if (pub.intercambioActivo) {
+      toast.error('No podés eliminar una publicación con un intercambio en curso')
       return
     }
-
-    // Si llegamos aquí, podemos eliminar (ya están filtradas por usuario)
+    if (pub.status === 'sold' || pub.status === 'exchanged') {
+      toast.error('Las publicaciones vendidas o intercambiadas no pueden eliminarse')
+      return
+    }
     setConfirmDelete(pub._id)
   }
 
@@ -56,9 +57,9 @@ export default function MisPublicaciones() {
     const backendStatus = pub.status || 'available'
     const isCurrentlyAvailable = backendStatus === 'available'
     const newStatus = isCurrentlyAvailable ? 'no_disponible' : 'disponible'
-    setStatusChange({ 
-      id: pub._id, 
-      newStatus, 
+    setStatusChange({
+      id: pub._id,
+      newStatus,
       title: pub.title
     })
   }
@@ -69,16 +70,16 @@ export default function MisPublicaciones() {
     try {
       // Enviar directamente con el nuevo status (la función service lo convierte)
       await updatePublicationStatus(statusChange.id, statusChange.newStatus)
-      
+
       // Actualizar el estado local
       setPublications((prev) =>
-        prev.map((p) => (p._id === statusChange.id ? { 
-          ...p, 
+        prev.map((p) => (p._id === statusChange.id ? {
+          ...p,
           status: statusChange.newStatus === 'no_disponible' ? 'unavailable' : 'available'
         } : p))
       )
-      
-      const message = statusChange.newStatus === 'no_disponible' 
+
+      const message = statusChange.newStatus === 'no_disponible'
         ? 'Publicación marcada como no disponible'
         : 'Publicación marcada como disponible'
       toast.success(message)
@@ -89,7 +90,7 @@ export default function MisPublicaciones() {
         message: err.response?.data?.message,
         data: err.response?.data
       })
-      
+
       const message = err.response?.data?.message || 'Error al cambiar el estado'
       toast.error(message)
     }
@@ -97,22 +98,21 @@ export default function MisPublicaciones() {
 
   // Calcular estadísticas
   const totalArticles = publications.length
-  const activeExchanges = publications.filter(p => p.type === 'trueque' || p.type === 'ambos').length
-  const rating = 4.9
+  const activeExchanges = publications.filter(p => p.intercambioActivo === true).length
+  const totalSold = publications.filter(p => p.status === 'sold').length
+  const totalExchanged = publications.filter(p => p.status === 'exchanged').length
 
-
+  // Determinar si una publicación es definitivamente final (no reversible)
+  const isFinal = (pub) => pub.status === 'sold' || pub.status === 'exchanged'
 
   // Obtener etiqueta y color del estado
-  const getStatusLabel = (status) => {
-    // Mapear tanto valores en inglés como en español
-    const statusMap = {
-      disponible: { label: 'ACTIVO', color: 'bg-green-100 text-green-800' },
-      no_disponible: { label: 'NO DISPONIBLE', color: 'bg-gray-100 text-gray-800' },
-      en_intercambio: { label: 'EN INTERCAMBIO', color: 'bg-yellow-100 text-yellow-800' },
-      available: { label: 'ACTIVO', color: 'bg-green-100 text-green-800' },
-      unavailable: { label: 'NO DISPONIBLE', color: 'bg-gray-100 text-gray-800' },
-    }
-    return statusMap[status] || { label: 'ACTIVO', color: 'bg-green-100 text-green-800' }
+  const getStatusLabel = (pub) => {
+    if (pub.status === 'suspended') return { label: 'BLOQUEADA', color: 'bg-red-100 text-red-700 border border-red-200' }
+    if (pub.status === 'sold') return { label: 'VENDIDA', color: 'bg-purple-100 text-purple-800 border border-purple-200' }
+    if (pub.status === 'exchanged') return { label: 'INTERCAMBIADA', color: 'bg-indigo-100 text-indigo-800 border border-indigo-200' }
+    if (pub.intercambioActivo) return { label: 'EN PROCESO', color: 'bg-yellow-100 text-yellow-800 border border-yellow-200' }
+    if (pub.status === 'unavailable' || pub.status === 'no_disponible') return { label: 'NO DISPONIBLE', color: 'bg-gray-100 text-gray-600 border border-gray-200' }
+    return { label: 'ACTIVA', color: 'bg-emerald-100 text-emerald-800 border border-emerald-200' }
   }
 
   return (
@@ -152,18 +152,22 @@ export default function MisPublicaciones() {
 
       {/* Estadísticas */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="bg-white rounded-lg p-6 border border-gray-200">
-            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Total artículos</p>
-            <p className="text-3xl font-bold text-gray-900 mt-2">{totalArticles}</p>
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm">
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Total</p>
+            <p className="text-3xl font-bold text-slate-900 mt-1.5">{totalArticles}</p>
           </div>
-          <div className="bg-white rounded-lg p-6 border border-gray-200">
-            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Intercambios activos</p>
-            <p className="text-3xl font-bold text-gray-900 mt-2">{activeExchanges}</p>
+          <div className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm">
+            <p className="text-[10px] font-bold text-yellow-600 uppercase tracking-widest">En proceso</p>
+            <p className="text-3xl font-bold text-slate-900 mt-1.5">{activeExchanges}</p>
           </div>
-          <div className="bg-white rounded-lg p-6 border border-gray-200">
-            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Calificación</p>
-            <p className="text-3xl font-bold text-gray-900 mt-2">{rating} <span className="text-red-500">★</span></p>
+          <div className="bg-white rounded-xl p-5 border border-purple-100 shadow-sm">
+            <p className="text-[10px] font-bold text-purple-600 uppercase tracking-widest">Vendidas</p>
+            <p className="text-3xl font-bold text-purple-700 mt-1.5">{totalSold}</p>
+          </div>
+          <div className="bg-white rounded-xl p-5 border border-indigo-100 shadow-sm">
+            <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">Intercambiadas</p>
+            <p className="text-3xl font-bold text-indigo-700 mt-1.5">{totalExchanged}</p>
           </div>
         </div>
       </div>
@@ -198,7 +202,7 @@ export default function MisPublicaciones() {
             {/* ── Móvil: tarjetas ──────────────────────────────────── */}
             <div className="block sm:hidden space-y-3">
               {publications.map((pub) => {
-                const { label, color } = getStatusLabel(pub.status || 'available')
+                const { label, color } = getStatusLabel(pub)
                 const isUnavailable = pub.status === 'no_disponible' || pub.status === 'unavailable'
                 return (
                   <div key={pub._id} className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
@@ -238,43 +242,65 @@ export default function MisPublicaciones() {
 
                     {/* Barra de acciones */}
                     <div className="flex border-t border-slate-100 divide-x divide-slate-100">
-                      <Link
-                        to={`/publications/${pub._id}/edit`}
-                        className="flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-semibold text-slate-600 hover:bg-slate-50 active:bg-slate-100 transition-colors"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                        Editar
-                      </Link>
-                      <button
-                        onClick={() => handleToggleAvailability(pub)}
-                        className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-semibold transition-colors ${
-                          isUnavailable
-                            ? 'text-green-600 hover:bg-green-50 active:bg-green-100'
-                            : 'text-orange-600 hover:bg-orange-50 active:bg-orange-100'
-                        }`}
-                      >
-                        {isUnavailable ? (
+                      {pub.status === 'sold' ? (
+                        <div className="flex-1 flex items-center justify-center p-3 text-[10px] sm:text-xs text-purple-700 font-bold bg-purple-50">
+                          Vendida — sin acciones disponibles
+                        </div>
+                      ) : pub.status === 'exchanged' ? (
+                        <div className="flex-1 flex items-center justify-center p-3 text-[10px] sm:text-xs text-indigo-700 font-bold bg-indigo-50">
+                          Intercambiada — sin acciones disponibles
+                        </div>
+                      ) : pub.status === 'suspended' ? (
+                        <div className="flex-1 flex items-center justify-center p-3 text-[10px] sm:text-xs text-red-600 font-semibold bg-red-50">
+                          Bloqueada por moderación
+                        </div>
+                      ) : pub.intercambioActivo ? (
+                        <div className="flex-1 flex items-center justify-center p-3 text-[10px] sm:text-xs text-yellow-700 font-semibold bg-yellow-50">
+                          En proceso — acciones limitadas
+                        </div>
+                      ) : (
+                        <>
+                          <Link
+                            to={`/publications/${pub._id}/edit`}
+                            className="flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-semibold text-slate-600 hover:bg-slate-50 active:bg-slate-100 transition-colors"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            Editar
+                          </Link>
+                          <button
+                            onClick={() => handleToggleAvailability(pub)}
+                            className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-semibold transition-colors ${isUnavailable
+                                ? 'text-green-600 hover:bg-green-50 active:bg-green-100'
+                                : 'text-orange-600 hover:bg-orange-50 active:bg-orange-100'
+                              }`}
+                          >
+                            {isUnavailable ? (
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            ) : (
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            )}
+                            {isUnavailable ? 'Activar' : 'Pausar'}
+                          </button>
+                        </>
+                      )}
+                      {!isFinal(pub) && (
+                        <button
+                          onClick={() => handleDeleteClick(pub)}
+                          disabled={pub.intercambioActivo}
+                          className="flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-semibold text-red-500 hover:bg-red-50 active:bg-red-100 disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+                        >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                           </svg>
-                        ) : (
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        )}
-                        {isUnavailable ? 'Activar' : 'Pausar'}
-                      </button>
-                      <button
-                        onClick={() => handleDeleteClick(pub)}
-                        className="flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-semibold text-red-500 hover:bg-red-50 active:bg-red-100 transition-colors"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                        Eliminar
-                      </button>
+                          Eliminar
+                        </button>
+                      )}
                     </div>
                   </div>
                 )
@@ -311,8 +337,8 @@ export default function MisPublicaciones() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${getStatusLabel(pub.status || 'disponible').color}`}>
-                          {getStatusLabel(pub.status || 'disponible').label}
+                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${getStatusLabel(pub).color}`}>
+                          {getStatusLabel(pub).label}
                         </span>
                       </td>
                       <td className="px-6 py-4">
@@ -324,43 +350,57 @@ export default function MisPublicaciones() {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <Link
-                            to={`/publications/${pub._id}/edit`}
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                            title="Editar"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                          </Link>
-                          <button
-                            onClick={() => handleToggleAvailability(pub)}
-                            className={`p-2 rounded-lg transition-colors ${
-                              (pub.status === 'no_disponible' || pub.status === 'unavailable')
-                                ? 'text-green-600 hover:bg-green-50'
-                                : 'text-orange-600 hover:bg-orange-50'
-                            }`}
-                            title={(pub.status === 'no_disponible' || pub.status === 'unavailable') ? 'Marcar como disponible' : 'Marcar como no disponible'}
-                          >
-                            {(pub.status === 'no_disponible' || pub.status === 'unavailable') ? (
+                          {pub.status === 'sold' ? (
+                            <span className="text-xs text-purple-700 font-bold bg-purple-50 px-3 py-1 rounded-full">Vendida</span>
+                          ) : pub.status === 'exchanged' ? (
+                            <span className="text-xs text-indigo-700 font-bold bg-indigo-50 px-3 py-1 rounded-full">Intercambiada</span>
+                          ) : pub.status === 'suspended' ? (
+                            <span className="text-xs text-red-500 font-medium mr-2">Bloqueada</span>
+                          ) : pub.intercambioActivo ? (
+                            <span className="text-xs text-yellow-700 font-medium mr-2">En proceso</span>
+                          ) : (
+                            <>
+                              <Link
+                                to={`/publications/${pub._id}/edit`}
+                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                title="Editar"
+                              >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                              </Link>
+                              <button
+                                onClick={() => handleToggleAvailability(pub)}
+                                className={`p-2 rounded-lg transition-colors ${(pub.status === 'no_disponible' || pub.status === 'unavailable')
+                                    ? 'text-green-600 hover:bg-green-50'
+                                    : 'text-orange-600 hover:bg-orange-50'
+                                  }`}
+                                title={(pub.status === 'no_disponible' || pub.status === 'unavailable') ? 'Marcar como disponible' : 'Marcar como no disponible'}
+                              >
+                                {(pub.status === 'no_disponible' || pub.status === 'unavailable') ? (
+                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                ) : (
+                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 13h8m-8-6h8M13 19h8M5 13a2 2 0 11-4 0 2 2 0 014 0zM5 7a2 2 0 11-4 0 2 2 0 014 0zM5 19a2 2 0 11-4 0 2 2 0 014 0z" />
+                                  </svg>
+                                )}
+                              </button>
+                            </>
+                          )}
+                          {!isFinal(pub) && (
+                            <button
+                              onClick={() => handleDeleteClick(pub)}
+                              disabled={pub.intercambioActivo}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
+                              title="Eliminar"
+                            >
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                               </svg>
-                            ) : (
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 13h8m-8-6h8M13 19h8M5 13a2 2 0 11-4 0 2 2 0 014 0zM5 7a2 2 0 11-4 0 2 2 0 014 0zM5 19a2 2 0 11-4 0 2 2 0 014 0z" />
-                              </svg>
-                            )}
-                          </button>
-                          <button
-                            onClick={() => handleDeleteClick(pub)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            title="Eliminar"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -436,12 +476,12 @@ export default function MisPublicaciones() {
 
             {/* Título y mensaje */}
             <h3 className="text-lg font-bold text-gray-900 text-center">
-              {statusChange.newStatus === 'no_disponible' 
-                ? '¿Marcar como no disponible?' 
+              {statusChange.newStatus === 'no_disponible'
+                ? '¿Marcar como no disponible?'
                 : '¿Marcar como disponible?'}
             </h3>
             <p className="text-sm text-gray-600 text-center mt-2">
-              {statusChange.newStatus === 'no_disponible' 
+              {statusChange.newStatus === 'no_disponible'
                 ? 'Tu publicación no aparecerá en los listados activos, pero permanecerá en tu historial.'
                 : 'Tu publicación vuelva a ser visible para otros usuarios.'}
             </p>

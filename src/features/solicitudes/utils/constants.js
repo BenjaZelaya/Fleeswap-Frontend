@@ -23,6 +23,23 @@ export const BADGE_LABEL = {
   cancelled: 'Cancelada',
 }
 
+// Etiquetas diferenciadas según el tipo (compra vs intercambio)
+export const BADGE_LABEL_PURCHASE = {
+  pending: 'Compra pendiente',
+  active: 'Coordinando venta',
+  rejected: 'Compra rechazada',
+  completed: 'Venta completada',
+  cancelled: 'Venta cancelada',
+}
+
+export const BADGE_LABEL_EXCHANGE = {
+  pending: 'Intercambio pendiente',
+  active: 'Intercambio activo',
+  rejected: 'Intercambio rechazado',
+  completed: 'Intercambio completado',
+  cancelled: 'Intercambio cancelado',
+}
+
 export const CARD_ACCENT = {
   pending: 'border-l-4 border-l-amber-400',
   active: 'border-l-4 border-l-blue-400',
