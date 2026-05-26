@@ -20,11 +20,15 @@ function App() {
     async function initAuth() {
       try {
         const { accessToken } = await refreshToken()
+        // getMyProfile usa el token que acabamos de setear para obtener el perfil completo y fresco
         useAuthStore.getState().setToken(accessToken)
         const user = await getMyProfile()
         setAuth(user, accessToken)
       } catch {
-        // No hay sesión activa o la cookie expiró.
+        // El refresh falló (sin cookie, o expirada).
+        // Solo limpiamos el token en memoria; el user de localStorage se limpia
+        // para no mostrar datos desactualizados de una sesión expirada.
+        useAuthStore.getState().logout()
       } finally {
         setAuthReady(true)
       }

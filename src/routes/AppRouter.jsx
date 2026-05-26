@@ -27,6 +27,7 @@ const ChatView        = lazy(() => import('../features/solicitudes/pages/ChatVie
 const MensajeriaView  = lazy(() => import('../features/solicitudes/pages/MensajeriaView'))
 const AdminDashboard  = lazy(() => import('../features/admin/pages/AdminDashboard'))
 const AdminUsers = lazy(() => import('../features/admin/pages/AdminUsers'))
+const AdminReportes = lazy(() => import('../features/admin/pages/AdminReportes'))
 const NotFound        = lazy(() => import('../pages/NotFound'))
 
 function AnimatedRoutes() {
@@ -74,6 +75,10 @@ function AnimatedRoutes() {
           <Route
             path="/admin/usuarios"
             element={<ProtectedRoute requireAdmin={true}><AdminUsers /></ProtectedRoute>}
+          />
+          <Route
+            path="/admin/reportes"
+            element={<ProtectedRoute requireAdmin={true}><AdminReportes /></ProtectedRoute>}
           />
           {/* Catch-all: rutas no definidas */}
           <Route path="*" element={<NotFound />} />

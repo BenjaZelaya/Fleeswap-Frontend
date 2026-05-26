@@ -36,15 +36,33 @@ const useAuthStore = create(
             // Ignorar errores de parseo
           }
         }
-        set({ user: user ? { ...user, role } : null, token })
+        // Normalizar _id → id para que todos los componentes usen user.id de forma consistente
+        const normalizedUser = user ? {
+          ...user,
+          id: user.id || user._id?.toString(),
+          role,
+        } : null
+        set({ user: normalizedUser, token })
       },
 
       updateUser: (userData) =>
-        set((state) => ({ user: { ...state.user, ...userData } })),
+        set((state) => ({
+          user: state.user ? {
+            ...state.user,
+            ...userData,
+            // Mantener normalización de id al actualizar
+            id: userData.id || userData._id?.toString() || state.user.id,
+          } : null
+        })),
 
       setToken: (token) => set({ token }),
 
+      // logout limpia TODO (llamado al cerrar sesión explícitamente)
       logout: () => set({ user: null, token: null }),
+
+      // clearToken limpia solo el token en memoria (llamado si el refresh falla al iniciar)
+      // El user del localStorage se preserva para evitar flash de contenido no autenticado
+      clearToken: () => set({ token: null }),
     }),
     {
       name: 'fleeswap-auth',

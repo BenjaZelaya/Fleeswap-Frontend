@@ -12,6 +12,7 @@ import PageSpinner from '../../../shared/components/ui/PageSpinner'
 import { defaultSeo } from '../../../utils/seoConfig'
 import { logError } from '../../../utils/logger'
 import ModalIntercambio from '../../solicitudes/components/ModalIntercambio'
+import { enviarSolicitudCompra } from '../../solicitudes/services/solicitudService'
 
 function LoadingSpinner() {
   return <PageSpinner label="Cargando publicación" />
@@ -28,6 +29,7 @@ export default function PublicationDetail() {
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isReportModalOpen, setIsReportModalOpen] = useState(false)
+  const [isBuying, setIsBuying] = useState(false)
 
   // ── Guards de autenticación ────────────────────────────────────────────
   function handleIntercambiar() {
@@ -41,16 +43,27 @@ export default function PublicationDetail() {
     setIsModalOpen(true)
   }
 
-  function handleComprar() {
+  async function handleComprar() {
     if (!token) {
-      navigate('/login',
-        {
-          state: { toast: 'Iniciá sesión para realizar una compra' }
-        })
+      navigate('/login', { state: { toast: 'Iniciá sesión para realizar una compra' } })
       return
     }
-    // TODO: lógica de compra
-    toast.info('La función de compra estará disponible próximamente.')
+    setIsBuying(true)
+    try {
+      const exchange = await enviarSolicitudCompra(id)
+      const exchangeId = exchange._id || exchange.id
+      toast.success('¡Propuesta enviada! Te llevamos al chat para coordinar.')
+      navigate(`/intercambios/${exchangeId}/chat`)
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Error al enviar la solicitud de compra'
+      if (err.response?.status === 409) {
+        toast.info('Ya tenés una solicitud activa para esta publicación')
+      } else {
+        toast.error(msg)
+      }
+    } finally {
+      setIsBuying(false)
+    }
   }
 
   function handleReportar() {
@@ -305,12 +318,20 @@ export default function PublicationDetail() {
                 {(publication.type === 'venta' || publication.type === 'ambos') && (
                   <button
                     onClick={handleComprar}
-                    className="w-full py-3 bg-brand text-white font-semibold rounded-lg hover:bg-brand-light transition-colors flex items-center justify-center gap-2"
+                    disabled={isBuying}
+                    className="w-full py-3 bg-brand text-white font-semibold rounded-lg hover:bg-brand-light transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    Comprar ahora
+                    {isBuying ? (
+                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                      </svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                    )}
+                    {isBuying ? 'Enviando propuesta...' : 'Comprar ahora'}
                   </button>
                 )}
 
