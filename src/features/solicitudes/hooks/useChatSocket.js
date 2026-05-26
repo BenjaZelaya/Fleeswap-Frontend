@@ -38,7 +38,9 @@ export function useChatSocket(exchangeId, onMessage) {
   const [connError,    setConnError]    = useState(null)
 
   useEffect(() => {
-    if (!exchangeId || !token) return
+    if (!exchangeId || !token || token === 'undefined' || token === 'null' || typeof token !== 'string' || !token.trim()) {
+      return
+    }
 
     const socketURL = getSocketURL()
 

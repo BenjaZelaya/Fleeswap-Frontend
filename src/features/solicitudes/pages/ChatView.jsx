@@ -32,6 +32,7 @@ export default function ChatView({ exchangeId: propId, onBack, exchange: propExc
   const [sending,        setSending]        = useState(false)
   const [exchangeStatus, setExchangeStatus] = useState(null)
   const [exchange,       setExchange]       = useState(propExchange ?? null)
+  const [initialLoad,    setInitialLoad]    = useState(true)
 
   const bottomRef = useRef(null)
 
@@ -71,16 +72,26 @@ export default function ChatView({ exchangeId: propId, onBack, exchange: propExc
 
   useEffect(() => { fetchMessages() }, [fetchMessages])
 
-  // Si no llega el exchange por prop (ruta standalone), cargarlo por API
+  // Si llega un exchange por prop (desde la sidebar), sincronizarlo con el estado.
+  // Si no hay prop, cargarlo desde la API (ruta standalone /intercambios/:id/chat).
   useEffect(() => {
-    if (!propExchange && id) {
+    if (propExchange) {
+      setExchange(propExchange)
+    } else if (id) {
       getIntercambio(id).then(setExchange).catch(() => {})
     }
   }, [id, propExchange])
 
+
   // ── Auto-scroll ────────────────────────────────────────────────────────────
   useEffect(() => {
-    if (!isLoading) bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (!isLoading && bottomRef.current) {
+      bottomRef.current.scrollIntoView({
+        behavior: initialLoad ? 'instant' : 'smooth',
+      })
+      if (initialLoad) setInitialLoad(false)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages.length, isLoading])
 
   // ── Enviar mensaje ─────────────────────────────────────────────────────────
@@ -104,16 +115,14 @@ export default function ChatView({ exchangeId: propId, onBack, exchange: propExc
     setSending(false)
   }
 
-  // ── Estado de conexión para el header ──────────────────────────────────────
-  // Muestra 'online' en cuanto el socket conecta (no espera room join)
-  // para que el usuario vea el indicador verde de inmediato.
-  const connStatus = isLoading ? 'loading'
-    : error        ? 'error'
-    : connected    ? 'online'
-    : 'connecting'
-
   const currentUserId = user?._id ?? user?.id
-  const canSend = inputText.trim().length > 0 && chatEnabled && !sending && !!token
+  const isRequester = exchange?.requester?._id === currentUserId
+  const contraparte = exchange
+    ? (isRequester ? exchange.owner : exchange.requester)
+    : null
+  const isContraparteDeleted = !!exchange && !contraparte
+
+  const canSend = inputText.trim().length > 0 && chatEnabled && !sending && !!token && !isContraparteDeleted
 
   return (
     <div
@@ -121,14 +130,13 @@ export default function ChatView({ exchangeId: propId, onBack, exchange: propExc
       style={{ background: 'linear-gradient(180deg, #F9F7F4 0%, #F3F1EE 100%)' }}
     >
       <ChatHeader
-        connStatus={connStatus}
         onBack={onBack}
         exchange={exchange}
         currentUserId={currentUserId}
       />
 
       <AnimatePresence>
-        {!isLoading && !error && isChatActive && !connected && (
+        {!isLoading && !error && isChatActive && !connected && !isContraparteDeleted && (
           <ReconnectBanner connError={connError} />
         )}
       </AnimatePresence>
@@ -138,7 +146,7 @@ export default function ChatView({ exchangeId: propId, onBack, exchange: propExc
         isLoading={isLoading}
         error={error}
         retrying={retrying}
-        chatEnabled={chatEnabled}
+        chatEnabled={chatEnabled && !isContraparteDeleted}
         currentUserId={currentUserId}
         bottomRef={bottomRef}
         onRetry={() => { setRetrying(true); fetchMessages() }}
@@ -146,18 +154,30 @@ export default function ChatView({ exchangeId: propId, onBack, exchange: propExc
 
       <AnimatePresence>
         {!error && (
-          isChatActive
-            ? (
-              <ChatInput
-                inputText={inputText}
-                setInputText={setInputText}
-                onSend={handleSend}
-                chatEnabled={chatEnabled}
-                sending={sending}
-                canSend={canSend}
-              />
-            )
-            : exchangeStatus && <ChatClosedBanner exchangeStatus={exchangeStatus} />
+          isContraparteDeleted ? (
+            <div className="bg-slate-50 border-t border-slate-200/60 px-6 py-4 flex flex-col items-center gap-2 text-center text-slate-500 shadow-inner shrink-0 select-none">
+              <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 text-slate-400">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                </svg>
+              </div>
+              <div className="space-y-0.5">
+                <p className="text-xs font-bold text-slate-700 uppercase tracking-wider">Chat Deshabilitado</p>
+                <p className="text-[11px] text-slate-400">El otro usuario ha eliminado su cuenta y esta conversación no se puede continuar.</p>
+              </div>
+            </div>
+          ) : isChatActive ? (
+            <ChatInput
+              inputText={inputText}
+              setInputText={setInputText}
+              onSend={handleSend}
+              chatEnabled={chatEnabled}
+              sending={sending}
+              canSend={canSend}
+            />
+          ) : (
+            exchangeStatus && <ChatClosedBanner exchangeStatus={exchangeStatus} />
+          )
         )}
       </AnimatePresence>
     </div>
