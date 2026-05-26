@@ -5,6 +5,12 @@ export const getAdminStats = async () => {
   return response.data
 }
 
+export const getAdminUsers = async (params = {}) => {
+  // params puede incluir: search, role, isActive, page, limit
+  const response = await api.get('/admin/users', { params })
+  return response.data
+}
+
 export const getAdminPublications = async (params = {}) => {
   // params puede incluir: status, category, page, limit
   const response = await api.get('/admin/publications', { params })
