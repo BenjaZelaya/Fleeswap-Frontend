@@ -263,9 +263,9 @@ export default function EditProfile() {
                   backgroundColor: state.isSelected
                     ? 'var(--color-brand, #1e3a5f)'
                     : state.isFocused
-                      ? '#f1f5f9'
+                      ? '#e0e7ff'
                       : 'white',
-                  color: state.isSelected ? 'white' : '#1e293b',
+                  color: state.isSelected ? 'white' : state.isFocused ? 'var(--color-brand, #1e3a5f)' : '#1e293b',
                 }),
                 menuList: (base) => ({ ...base, maxHeight: '220px' }),
               }}
