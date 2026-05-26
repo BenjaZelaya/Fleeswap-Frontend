@@ -35,6 +35,15 @@ export default function AdminLayout({ children, title, subtitle }) {
           >
             Usuarios
           </Link>
+          <Link
+            to="/admin/reportes"
+            className={`pb-4 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${location.pathname === '/admin/reportes'
+              ? 'border-brand-accent text-brand-accent'
+              : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+              }`}
+          >
+            Reportes
+          </Link>
         </div>
 
         {/* Contenido Principal con Animación */}

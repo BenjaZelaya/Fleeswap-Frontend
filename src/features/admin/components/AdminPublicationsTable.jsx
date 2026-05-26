@@ -256,7 +256,7 @@ export default function AdminPublicationsTable() {
             <ChevronLeft className="w-4 h-4" /> Anterior
           </button>
           <span className="text-sm font-semibold text-slate-500">
-            Página {pagination.paginaActual} de {pagination.totalPaginas}
+            {pagination.paginaActual} de {pagination.totalPaginas}
           </span>
           <button
             onClick={handleNextPage}
