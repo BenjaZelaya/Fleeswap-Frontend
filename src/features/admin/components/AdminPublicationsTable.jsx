@@ -117,8 +117,6 @@ export default function AdminPublicationsTable() {
       borderColor: state.isFocused ? 'var(--color-brand, #1e3a5f)' : '#d1d5db',
       boxShadow: 'none',
       fontSize: '0.875rem',
-      backgroundColor: 'white',
-      minHeight: '46px',
       '&:hover': { borderColor: '#9ca3af' },
     }),
     option: (base, state) => ({
@@ -127,25 +125,20 @@ export default function AdminPublicationsTable() {
       backgroundColor: state.isSelected
         ? 'var(--color-brand, #1e3a5f)'
         : state.isFocused
-          ? '#f1f5f9'
+          ? '#e0e7ff'
           : 'white',
-      color: state.isSelected ? 'white' : '#1e293b',
-      cursor: 'pointer'
+      color: state.isSelected ? 'white' : state.isFocused ? 'var(--color-brand, #1e3a5f)' : '#1e293b',
     }),
     menuList: (base) => ({ ...base, maxHeight: '220px' }),
-    valueContainer: (base) => ({ ...base, paddingLeft: '2.5rem' }),
-    menuPortal: (base) => ({ ...base, zIndex: 9999 })
+    menu: (base) => ({ ...base, zIndex: 9999 })
   }
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-100 flex flex-col">
       <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/50 backdrop-blur-sm relative z-20">
         <h2 className="text-lg font-bold text-slate-800 tracking-tight">Moderación de Publicaciones</h2>
-        <div className="flex items-center gap-3">
-          <div className="relative min-w-[220px]">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-              <Filter className="h-4 w-4 text-slate-400" />
-            </div>
+        <div className="flex items-center gap-3 relative z-30">
+          <div className="relative min-w-[220px] z-30">
             <Select
               options={statusOptions}
               value={statusOptions.find(o => o.value === filterStatus) || statusOptions[0]}
@@ -153,7 +146,6 @@ export default function AdminPublicationsTable() {
               isSearchable={false}
               classNamePrefix="rs"
               styles={customSelectStyles}
-              menuPortalTarget={document.body}
             />
           </div>
         </div>
