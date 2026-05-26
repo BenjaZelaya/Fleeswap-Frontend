@@ -10,7 +10,7 @@ describe('PublicationDetail — control de acceso por ownership', () => {
     status: 'available',
     category: 'sports',
     condition: 'used',
-    type: 'exchange',
+    type: 'ambos',
     photos: [],
     location: 'Tucumán',
     createdAt: new Date().toISOString(),
@@ -67,7 +67,7 @@ describe('PublicationDetail — control de acceso por ownership', () => {
 
   // Los botones de acción SÍ deben estar en el DOM
   cy.contains('Comprar ahora').should('exist')
-  cy.contains('Me interesa').should('exist')
+  cy.contains('Me interesa (intercambio)').should('exist')
 })
 
     it('FE-03 — publicación no encontrada: muestra estado vacío', () => {
@@ -85,7 +85,7 @@ describe('PublicationDetail — control de acceso por ownership', () => {
     cy.wait('@getPublicationNotFound')
 
     cy.contains('Publicación no encontrada').should('be.visible')
-    cy.contains('Esta publicación no existe o fue eliminada.').should('be.visible')
+    cy.contains('Esta publicación ya no está disponible.').should('be.visible')
     cy.contains('Volver al inicio').should('be.visible')
     })
 

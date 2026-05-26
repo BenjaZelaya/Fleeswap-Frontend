@@ -12,6 +12,7 @@ dist
 # Claude Code (local only)
 .claude
 
+
 # Logs
 logs
 *.log
