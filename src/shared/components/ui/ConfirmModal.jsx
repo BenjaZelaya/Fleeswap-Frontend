@@ -15,7 +15,6 @@ export default function ConfirmModal({
   cancelText = 'Cancelar',
   variant = 'default',
   loading = false,
-  confirmDisabled = false,
   size = 'sm',
   descriptionAlign = 'center',
   children,
@@ -81,8 +80,8 @@ export default function ConfirmModal({
                     onClick={onConfirm}
                     disabled={loading}
                     className={`flex-1 disabled:opacity-50 text-white font-semibold py-2.5 rounded-xl transition-colors text-sm ${isDanger
-                        ? 'bg-red-500 hover:bg-red-600'
-                        : 'bg-blue-600 hover:bg-blue-700'
+                      ? 'bg-red-500 hover:bg-red-600'
+                      : 'bg-blue-600 hover:bg-blue-700'
                       }`}
                   >
                     {loading ? 'Procesando...' : (confirmText || confirmLabel)}
