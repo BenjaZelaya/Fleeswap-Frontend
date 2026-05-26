@@ -92,8 +92,6 @@ export default function AdminUsersTable() {
       borderColor: state.isFocused ? 'var(--color-brand, #1e3a5f)' : '#d1d5db',
       boxShadow: 'none',
       fontSize: '0.875rem',
-      backgroundColor: 'white',
-      minHeight: '46px',
       '&:hover': { borderColor: '#9ca3af' },
     }),
     option: (base, state) => ({
@@ -102,14 +100,12 @@ export default function AdminUsersTable() {
       backgroundColor: state.isSelected
         ? 'var(--color-brand, #1e3a5f)'
         : state.isFocused
-          ? '#f1f5f9'
+          ? '#e0e7ff'
           : 'white',
-      color: state.isSelected ? 'white' : '#1e293b',
-      cursor: 'pointer'
+      color: state.isSelected ? 'white' : state.isFocused ? 'var(--color-brand, #1e3a5f)' : '#1e293b',
     }),
     menuList: (base) => ({ ...base, maxHeight: '220px' }),
-    valueContainer: (base) => ({ ...base, paddingLeft: '2.5rem' }),
-    menuPortal: (base) => ({ ...base, zIndex: 9999 })
+    menu: (base) => ({ ...base, zIndex: 9999 })
   }
 
   return (
@@ -117,7 +113,7 @@ export default function AdminUsersTable() {
       {/* Filtros */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-8 relative">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 relative z-10">
-          <div className="md:col-span-6 relative">
+          <div className="md:col-span-6 relative z-10">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
               <Search className="h-5 w-5 text-slate-400" />
             </div>
@@ -126,14 +122,11 @@ export default function AdminUsersTable() {
               placeholder="Buscar por nombre o correo..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-white border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-0 focus:border-brand hover:border-gray-400 transition-colors h-[46px]"
+              className="w-full pl-11 pr-4 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-0 focus:border-brand hover:border-gray-400 transition-colors h-[38px]"
             />
           </div>
 
-          <div className="md:col-span-3 relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-              <Filter className="h-4 w-4 text-slate-400" />
-            </div>
+          <div className="md:col-span-3 relative z-20">
             <Select
               options={roleOptions}
               value={roleOptions.find(o => o.value === role) || roleOptions[0]}
@@ -141,14 +134,10 @@ export default function AdminUsersTable() {
               isSearchable={false}
               classNamePrefix="rs"
               styles={customSelectStyles}
-              menuPortalTarget={document.body}
             />
           </div>
 
-          <div className="md:col-span-3 relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-              <AlertTriangle className="h-4 w-4 text-slate-400" />
-            </div>
+          <div className="md:col-span-3 relative z-20">
             <Select
               options={activeOptions}
               value={activeOptions.find(o => o.value === isActive) || activeOptions[0]}
@@ -156,7 +145,6 @@ export default function AdminUsersTable() {
               isSearchable={false}
               classNamePrefix="rs"
               styles={customSelectStyles}
-              menuPortalTarget={document.body}
             />
           </div>
         </div>
