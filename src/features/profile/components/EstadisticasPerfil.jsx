@@ -4,6 +4,8 @@ export default function EstadisticasPerfil({ profile }) {
   if (!profile) return null
 
   const completados = profile.intercambiosCompletados ?? profile.successfulExchanges ?? 0
+  const compras = profile.comprasCompletadas ?? 0
+  const ventas = profile.ventasCompletadas ?? 0
 
   return (
     <div className="space-y-4 w-full sm:max-w-md">
@@ -33,31 +35,25 @@ export default function EstadisticasPerfil({ profile }) {
         </div>
 
         {/* Compras */}
-        <div className="relative group flex flex-col items-center justify-center p-3 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm opacity-80">
-          <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-slate-200 text-slate-500 text-[8px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap uppercase tracking-tighter shadow-sm">
-            Próximamente
-          </div>
-          <div className="mb-2 text-slate-400">
+        <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-brand/5 border border-brand/10 shadow-sm transition-all hover:bg-brand/10">
+          <div className="mb-2 text-brand">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
           </div>
-          <span className="text-xl font-bold text-slate-400 leading-none">0</span>
-          <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider mt-1.5">Compras</span>
+          <span className="text-xl font-bold text-slate-900 leading-none">{compras}</span>
+          <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider mt-1.5">Compras</span>
         </div>
 
         {/* Ventas */}
-        <div className="relative group flex flex-col items-center justify-center p-3 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm opacity-80">
-          <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-slate-200 text-slate-500 text-[8px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap uppercase tracking-tighter shadow-sm">
-            Próximamente
-          </div>
-          <div className="mb-2 text-slate-400">
+        <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-brand/5 border border-brand/10 shadow-sm transition-all hover:bg-brand/10">
+          <div className="mb-2 text-brand">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
             </svg>
           </div>
-          <span className="text-xl font-bold text-slate-400 leading-none">0</span>
-          <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider mt-1.5">Ventas</span>
+          <span className="text-xl font-bold text-slate-900 leading-none">{ventas}</span>
+          <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider mt-1.5">Ventas</span>
         </div>
       </div>
     </div>
