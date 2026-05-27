@@ -4,6 +4,7 @@ import ChatSkeleton    from './ChatSkeleton'
 import ChatError       from './ChatError'
 import ChatEmpty       from './ChatEmpty'
 import MessageBubble   from './MessageBubble'
+import { useEffect, useRef } from 'react'
 
 export default function ChatMessageList({
   messages,
@@ -15,8 +16,36 @@ export default function ChatMessageList({
   bottomRef,
   onRetry,
 }) {
+  // Ref interna para el contenedor de scroll
+  const scrollContainerRef = useRef(null)
+
+  // Referencia para saber si es la primera carga
+  const isFirstLoad = useRef(true)
+
+  // Auto-scroll al fondo cuando los mensajes cambian o terminan de cargar
+  useEffect(() => {
+    if (!isLoading && !error && messages.length > 0 && scrollContainerRef.current) {
+      requestAnimationFrame(() => {
+        const container = scrollContainerRef.current
+        if (container) {
+          if (isFirstLoad.current) {
+            // Primera carga: scroll instantáneo sin animación para no marear
+            container.scrollTop = container.scrollHeight
+            isFirstLoad.current = false
+          } else {
+            // Mensajes nuevos: transición suave y elegante
+            container.scrollTo({
+              top: container.scrollHeight,
+              behavior: 'smooth'
+            })
+          }
+        }
+      })
+    }
+  }, [messages.length, isLoading, error])
+
   return (
-    <div className="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar">
+    <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar">
       <div className="max-w-2xl mx-auto">
         <AnimatePresence mode="wait">
 
@@ -59,6 +88,14 @@ export default function ChatMessageList({
               key="messages"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
+              onAnimationComplete={() => {
+                // Scroll al fondo cuando la animación de entrada termine
+                const container = scrollContainerRef.current
+                if (container) {
+                  container.scrollTop = container.scrollHeight
+                  isFirstLoad.current = false
+                }
+              }}
               className="flex flex-col gap-2 pb-2"
             >
               {messages.map((msg, i) => {
