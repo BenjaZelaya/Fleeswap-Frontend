@@ -119,7 +119,7 @@ export default function SolicitudEnviadaCard({ solicitud, onUpdateSuccess }) {
             </span>
           )}
           {fecha && <span className="hidden sm:block text-[10px] font-light text-slate-400">{fecha}</span>}
-          {status !== 'active' && status !== 'completed' && (
+          {status !== 'active' && status !== 'completed' && status !== 'pending' && (
             <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${BADGE[status] ?? 'bg-slate-100 text-slate-500'}`}>
               {BADGE_LABELS[status] ?? status}
             </span>
