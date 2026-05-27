@@ -144,7 +144,11 @@ export default function ChatView({ exchangeId: propId, onBack, exchange: propExc
       <ChatMessageList
         messages={messages}
         isLoading={isLoading}
-        error={error}
+        error={
+          error === 'No tenés permisos para ver este chat, o el intercambio no está activo.' && exchange?.status === 'pending'
+            ? 'esperando_vendedor'
+            : error
+        }
         retrying={retrying}
         chatEnabled={chatEnabled && !isContraparteDeleted}
         currentUserId={currentUserId}
