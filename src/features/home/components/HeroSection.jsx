@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion'
 import SearchBar from '../../../shared/components/SearchBar'
-import HomePublicationCard from './HomePublicationCard'
+import PublicationCard from './PublicationCard'
 
 const fadeUp = { hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0 } }
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.1 } } }
@@ -95,7 +95,7 @@ export default function HeroSection({
               transition={{ delay: 0.2, duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
               className="absolute top-0 left-0 w-56 origin-bottom"
             >
-              <HomePublicationCard pub={publications[0]} compact />
+              <PublicationCard pub={publications[0]} compact />
             </motion.div>
           )}
           {publications[1] && (
@@ -105,7 +105,7 @@ export default function HeroSection({
               transition={{ delay: 0.35, duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
               className="absolute top-12 right-4 w-56 origin-bottom"
             >
-              <HomePublicationCard pub={publications[1]} compact />
+              <PublicationCard pub={publications[1]} compact />
             </motion.div>
           )}
           {publications[2] && (
@@ -115,7 +115,7 @@ export default function HeroSection({
               transition={{ delay: 0.5, duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
               className="absolute bottom-0 left-20 w-56 origin-top"
             >
-              <HomePublicationCard pub={publications[2]} compact />
+              <PublicationCard pub={publications[2]} compact />
             </motion.div>
           )}
         </div>
