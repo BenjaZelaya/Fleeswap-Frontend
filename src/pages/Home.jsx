@@ -371,7 +371,7 @@ export default function Home() {
           </motion.div>
 
           {/* Cards flotantes */}
-          <div className="relative h-[480px] hidden lg:block">
+          <div className="relative h-120 hidden lg:block">
             {publications[0] && (
               <motion.div
                 initial={{ opacity: 0, y: 30, rotate: -3 }}

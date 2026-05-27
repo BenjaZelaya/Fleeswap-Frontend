@@ -65,7 +65,7 @@ export default function Footer() {
             <Link to="/" className="inline-block hover:opacity-80 transition-opacity">
               <WordMark className="text-3xl" />
             </Link>
-            <p className="text-slate-400 text-sm leading-relaxed max-w-[240px]">
+            <p className="text-slate-400 text-sm leading-relaxed max-w-60">
               La red de intercambio más grande de Tucumán. <br />
               <span className="text-slate-300 font-light italic">Dale valor a lo que ya no usás.</span>
             </p>

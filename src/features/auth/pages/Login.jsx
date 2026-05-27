@@ -54,6 +54,10 @@ export default function Login() {
 
     try {
       const data = await login(form.email, form.password)
+      // Limpiar sesión previa antes de establecer la nueva.
+      // Esto garantiza que si el usuario estaba logueado con otra cuenta,
+      // el token anterior no quede en memoria ni en localStorage.
+      useAuthStore.getState().logout()
       setAuth(data.user, data.accessToken)
       navigate(getSafeRedirectPath(location.state?.from?.pathname))
     } catch (err) {
