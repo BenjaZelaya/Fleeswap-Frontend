@@ -1,11 +1,5 @@
 import { useNavigate } from 'react-router-dom'
 
-const STATUS_META = {
-  active:    { label: 'Activo',      pill: 'bg-emerald-50 text-emerald-700 border-emerald-100' },
-  completed: { label: 'Finalizado',  pill: 'bg-slate-100  text-slate-500   border-slate-200'  },
-  cancelled: { label: 'Cancelado',   pill: 'bg-red-50     text-red-500     border-red-100'    },
-  rejected:  { label: 'Rechazado',   pill: 'bg-red-50     text-red-500     border-red-100'    },
-}
 
 function Avatar({ photo, nombre, isDeleted }) {
   if (isDeleted) {
@@ -38,11 +32,13 @@ export default function ChatListItem({ exchange, currentUserId, isSelected }) {
   const navigate = useNavigate()
 
   const isPurchase = (exchange.type ?? 'exchange') === 'purchase'
-  const isRequester = exchange.requester?._id === currentUserId
+
+  const requesterId = exchange.requester?._id ?? exchange.requester
+  const isRequester = requesterId === currentUserId
 
   // La contraparte siempre es el otro usuario
   const contraparte = isRequester ? exchange.owner : exchange.requester
-  const isDeleted = !contraparte || !contraparte.nombre
+  const isDeleted = !contraparte || typeof contraparte === 'string' || !contraparte.nombre
   const contraparteName = isDeleted ? 'Usuario eliminado' : `${contraparte.nombre} ${contraparte.apellido || ''}`.trim()
 
   // La imagen que se muestra es el producto que me interesa / me ofrecen
@@ -55,7 +51,6 @@ export default function ChatListItem({ exchange, currentUserId, isSelected }) {
   const imagen = productToShow?.photos?.[0]
   const titulo = productToShow?.title ?? 'Publicación'
 
-  const meta = STATUS_META[exchange.status] ?? STATUS_META.active
 
   // Determinar dinámicamente badge de rol
   let badgeText = 'Intercambio'
@@ -87,11 +82,10 @@ export default function ChatListItem({ exchange, currentUserId, isSelected }) {
   return (
     <button
       onClick={() => navigate(`/chats/${exchange._id}`)}
-      className={`w-full text-left px-4 py-3 flex items-center gap-3 transition-all duration-150 border-l-2 hover:bg-slate-50 ${
-        isSelected
+      className={`w-full text-left px-4 py-3 flex items-center gap-3 transition-all duration-150 border-l-2 hover:bg-slate-50 ${isSelected
           ? 'bg-brand/5 border-brand'
           : 'border-transparent'
-      }`}
+        }`}
     >
       {/* Avatar contraparte */}
       <Avatar photo={contraparte?.photo} nombre={contraparte?.nombre} isDeleted={isDeleted} />
