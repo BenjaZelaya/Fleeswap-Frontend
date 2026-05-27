@@ -41,7 +41,7 @@ function FooterLink({ to, icon: Icon, children, isExternal = false, primary = fa
 
   return (
     <li>
-      <Link to={to}>{content}</Link>
+      <Link to={to} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>{content}</Link>
     </li>
   );
 }
@@ -53,7 +53,7 @@ export default function Footer() {
 
   return (
     <footer className="bg-white border-t border-slate-100 mt-auto overflow-hidden">
-      <div className="max-w-6xl mx-auto px-6 py-16">
+      <div className="max-w-6xl mx-auto px-6 py-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-16 lg:gap-32 mb-16">
           {/* Columna 1: Marca */}
           <motion.div
@@ -62,7 +62,7 @@ export default function Footer() {
             viewport={{ once: true }}
             className="space-y-6"
           >
-            <Link to="/" className="inline-block hover:opacity-80 transition-opacity">
+            <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="inline-block hover:opacity-80 transition-opacity">
               <WordMark className="text-3xl" />
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed max-w-60">
@@ -125,17 +125,12 @@ export default function Footer() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.4 }}
-          className="pt-8 border-t border-slate-50 flex flex-col md:flex-row items-center justify-between gap-6"
+          className="pt-5 border-t border-slate-50 flex flex-col md:flex-row items-center justify-center gap-6"
         >
           <div className="flex flex-col md:flex-row items-center gap-4 text-[11px] font-medium text-slate-400">
             <span>© {currentYear} Fleeswap</span>
             <span className="hidden md:inline text-slate-200">|</span>
             <span className="uppercase tracking-[0.2em] text-[9px] text-slate-300 font-bold">Tucumán, Argentina</span>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="h-1.5 w-1.5 rounded-full bg-brand-accent animate-pulse" />
-            <span className="text-[10px] text-slate-300 uppercase tracking-widest font-medium">Plataforma Activa</span>
           </div>
         </motion.div>
       </div>
