@@ -19,14 +19,14 @@ import useAuthStore from '../../../store/authStore'
 
 // La URL base del backend SIN /api (Socket.IO corre en la raíz del httpServer)
 function getSocketURL() {
-  // En producción: "https://fleeswap-backend.onrender.com"
-  // En desarrollo: "http://localhost:3000"
-  return import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'
+  // En producción (Vercel): usar la variable directa al backend en Render para WebSockets
+  // En desarrollo: localhost
+  return import.meta.env.VITE_SOCKET_URL || import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || 'http://localhost:3000'
 }
 
 /**
- * @param {string} exchangeId - ID del intercambio activo
- * @param {function} onMessage - callback(msg) invocado al recibir un mensaje nuevo
+ * exchangeId - ID del intercambio activo
+ * onMessage - callback(msg) invocado al recibir un mensaje nuevo
  */
 export function useChatSocket(exchangeId, onMessage) {
   const { token } = useAuthStore()
@@ -48,6 +48,7 @@ export function useChatSocket(exchangeId, onMessage) {
     const socket = io(socketURL, {
       auth: { token },
       autoConnect: false,
+      withCredentials: true,
       transports: ['websocket', 'polling'], // WebSocket primero, polling como fallback
       reconnection: true,
       reconnectionAttempts: 5,
