@@ -1,4 +1,6 @@
 import { useState, useMemo } from 'react'
+// eslint-disable-next-line no-unused-vars
+import { motion, AnimatePresence } from 'framer-motion'
 import useAuthStore from '../../../../store/authStore'
 import ChatListItem from './ChatListItem'
 
@@ -26,8 +28,16 @@ export default function ChatSidebar({ chats, selectedId, loading }) {
   const [activeFilter, setActiveFilter] = useState('all')
 
   const filtered = useMemo(() => {
-    if (activeFilter === 'all') return chats
-    return chats.filter(c => (c.type ?? 'exchange') === activeFilter)
+    let list = chats
+    if (activeFilter !== 'all') {
+      list = chats.filter(c => (c.type ?? 'exchange') === activeFilter)
+    }
+    // Ordenar por actividad (el más reciente arriba)
+    return [...list].sort((a, b) => {
+      const dateA = new Date(a.updatedAt || a.createdAt).getTime()
+      const dateB = new Date(b.updatedAt || b.createdAt).getTime()
+      return dateB - dateA
+    })
   }, [chats, activeFilter])
 
   return (
@@ -78,14 +88,24 @@ export default function ChatSidebar({ chats, selectedId, loading }) {
           </div>
         )}
 
-        {!loading && filtered.map(exchange => (
-          <ChatListItem
-            key={exchange._id}
-            exchange={exchange}
-            currentUserId={currentUserId}
-            isSelected={exchange._id === selectedId}
-          />
-        ))}
+        <AnimatePresence initial={false}>
+          {!loading && filtered.map(exchange => (
+            <motion.div
+              key={exchange._id}
+              layout
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 35, mass: 0.8 }}
+            >
+              <ChatListItem
+                exchange={exchange}
+                currentUserId={currentUserId}
+                isSelected={exchange._id === selectedId}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </div>
   )
