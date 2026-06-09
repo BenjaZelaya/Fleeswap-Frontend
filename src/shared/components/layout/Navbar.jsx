@@ -6,6 +6,7 @@ import { Home, Search, User, LogIn, MessageSquare, Bell } from "lucide-react";
 import useAuthStore from "../../../store/authStore";
 import { logout as logoutService } from "../../../features/auth/services/authService";
 import ConfirmModal from "../ui/ConfirmModal";
+import NotificationBell from "../../../features/notifications/components/NotificationBell";
 
 function WordMark({ className = "" }) {
   return (
@@ -125,10 +126,12 @@ export default function Navbar() {
           <div className="hidden lg:flex items-center gap-3">
             {isAuthenticated ? (
               <div className="relative" ref={desktopDropdownRef}>
-                <button
-                  onClick={() => setDropdownOpen((v) => !v)}
-                  className="flex items-center gap-2.5 hover:opacity-75 transition-opacity"
-                >
+                <div className="flex items-center gap-2.5 hover:opacity-75 transition-opacity">
+                  <NotificationBell />
+                  <button
+                    onClick={() => setDropdownOpen((v) => !v)}
+                    className="flex items-center gap-2.5"
+                  >
                   <motion.div whileHover={{ scale: 1.06 }}>
                     <Avatar initial={initial} photo={user?.photo} alt={displayName} />
                   </motion.div>
@@ -151,7 +154,8 @@ export default function Navbar() {
                       d="M19 9l-7 7-7-7"
                     />
                   </motion.svg>
-                </button>
+                  </button>
+                </div>
 
                 {/* Dropdown */}
                 <AnimatePresence>
@@ -352,9 +356,12 @@ export default function Navbar() {
           <div className="lg:hidden">
             {isAuthenticated ? (
               <div className="relative" ref={mobileDropdownRef}>
-                <button onClick={() => setDropdownOpen((v) => !v)}>
-                  <Avatar initial={initial} photo={user?.photo} alt={displayName} />
-                </button>
+                <div className="flex items-center gap-2">
+                  <NotificationBell />
+                  <button onClick={() => setDropdownOpen((v) => !v)}>
+                    <Avatar initial={initial} photo={user?.photo} alt={displayName} />
+                  </button>
+                </div>
 
                 <AnimatePresence>
                   {dropdownOpen && (
