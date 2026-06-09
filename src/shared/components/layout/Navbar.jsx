@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Search, User, LogIn, MessageSquare } from "lucide-react";
+import { Home, Search, User, LogIn, MessageSquare, Bell } from "lucide-react";
 import useAuthStore from "../../../store/authStore";
 import { logout as logoutService } from "../../../features/auth/services/authService";
 import ConfirmModal from "../ui/ConfirmModal";
@@ -258,6 +258,13 @@ export default function Navbar() {
                           Mensajes
                         </Link>
                         <Link
+                          to="/search/mis-busquedas"
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                        >
+                          <Bell size={16} className="text-slate-400" />
+                          Búsquedas Activas
+                        </Link>
+                        <Link
                           to="/solicitudes-recibidas"
                           className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
                         >
@@ -421,6 +428,13 @@ export default function Navbar() {
                             />
                           </svg>
                           Mis publicaciones
+                        </Link>
+                        <Link
+                          to="/search/mis-busquedas"
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                        >
+                          <Bell size={16} className="text-slate-400" />
+                          Búsquedas Activas
                         </Link>
                         <Link
                           to="/solicitudes-recibidas"
