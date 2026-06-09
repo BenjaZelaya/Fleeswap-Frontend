@@ -25,6 +25,8 @@ const SolicitudesRecibidas = lazy(() => import('../features/solicitudes/pages/So
 const SolicitudesEnviadas = lazy(() => import('../features/solicitudes/pages/SolicitudesEnviadas'))
 const ChatView        = lazy(() => import('../features/solicitudes/pages/ChatView'))
 const MensajeriaView  = lazy(() => import('../features/solicitudes/pages/MensajeriaView'))
+const CrearBusquedaActiva = lazy(() => import('../features/search/pages/CrearBusquedaActiva'))
+const MisBusquedasActivas = lazy(() => import('../features/search/pages/MisBusquedasActivas'))
 const AdminDashboard  = lazy(() => import('../features/admin/pages/AdminDashboard'))
 const AdminUsers = lazy(() => import('../features/admin/pages/AdminUsers'))
 const AdminReportes = lazy(() => import('../features/admin/pages/AdminReportes'))
@@ -67,6 +69,14 @@ function AnimatedRoutes() {
           <Route
             path="/solicitudes-enviadas"
             element={<ProtectedRoute><SolicitudesEnviadas /></ProtectedRoute>}
+          />
+          <Route
+            path="/search/crear"
+            element={<ProtectedRoute><CrearBusquedaActiva /></ProtectedRoute>}
+          />
+          <Route
+            path="/search/mis-busquedas"
+            element={<ProtectedRoute><MisBusquedasActivas /></ProtectedRoute>}
           />
           <Route
             path="/admin/dashboard"
