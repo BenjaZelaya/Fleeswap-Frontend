@@ -1,7 +1,15 @@
 {
   "rewrites": [
     {
-      "source": "/((?!assets|favicon|logo|icons|robots\\.txt|sitemap\\.xml).*)",
+      "source": "/api/:path*",
+      "destination": "https://fleeswap-backend.onrender.com/api/:path*"
+    },
+    {
+      "source": "/socket.io/:path*",
+      "destination": "https://fleeswap-backend.onrender.com/socket.io/:path*"
+    },
+    {
+      "source": "/((?!api|socket\\.io|assets|favicon|logo|icons|robots\\.txt|sitemap\\.xml).*)",
       "destination": "/index.html"
     }
   ],

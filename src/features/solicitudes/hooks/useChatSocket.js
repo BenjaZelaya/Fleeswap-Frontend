@@ -16,13 +16,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { io } from 'socket.io-client'
 import useAuthStore from '../../../store/authStore'
-
-// La URL base del backend SIN /api (Socket.IO corre en la raíz del httpServer)
-function getSocketURL() {
-  // En producción (Vercel): usar la variable directa al backend en Render para WebSockets
-  // En desarrollo: localhost
-  return import.meta.env.VITE_SOCKET_URL || import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || 'http://localhost:3000'
-}
+import { getSocketBaseUrl } from '../../../services/runtimeConfig'
 
 /**
  * exchangeId - ID del intercambio activo
@@ -42,7 +36,7 @@ export function useChatSocket(exchangeId, onMessage) {
       return
     }
 
-    const socketURL = getSocketURL()
+    const socketURL = getSocketBaseUrl()
 
     // Crear socket con autoConnect:false para controlar el ciclo de vida manualmente
     const socket = io(socketURL, {

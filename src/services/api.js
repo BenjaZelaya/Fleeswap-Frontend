@@ -18,9 +18,12 @@ import axios from 'axios'
 // Importamos el store directamente (fuera de un componente) para leer/escribir
 // el token sin necesidad de hooks. Zustand lo permite con .getState().
 import useAuthStore from '../store/authStore'
+import { getApiBaseUrl } from './runtimeConfig'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
+  // REST siempre debe apuntar a la version /api del backend.
+  // Los sockets se conectan a la raiz del servidor y no deben reutilizar esta URL.
+  baseURL: getApiBaseUrl(),
   withCredentials: true, // necesario para enviar/recibir la cookie del refresh token
   headers: {
     'Content-Type': 'application/json',
@@ -46,6 +49,11 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const original = error.config
+    // Si no hay response o config, normalmente estamos ante un problema de red,
+    // CORS o timeout. No intentamos refresh para no esconder el error real.
+    if (!original || !error.response) {
+      return Promise.reject(error)
+    }
 
     // Solo intentamos el refresh si:
     // - recibimos un 401

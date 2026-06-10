@@ -19,6 +19,8 @@ export default function CrearBusquedaActiva() {
     if (editId) {
       getMisBusquedas()
         .then(busquedas => {
+          // El servicio ya devuelve un arreglo normalizado aunque el backend
+          // cambie el envelope de respuesta.
           const busqueda = busquedas.find(b => b._id === editId)
           if (busqueda) {
             setInitialData(busqueda)
@@ -47,6 +49,8 @@ export default function CrearBusquedaActiva() {
       const status = err.response?.status
       const msg = err.response?.data?.message
 
+      // Diferenciar estos casos ayuda a no leer como "500" lo que en realidad
+      // puede ser conflicto de negocio o validacion.
       if (status === 409 || msg?.includes('duplicado') || msg?.includes('igual')) {
         toast.error('Ya existe una búsqueda con estos criterios')
         setError('Ya existe una búsqueda con estos criterios')
@@ -90,7 +94,7 @@ export default function CrearBusquedaActiva() {
             <p className="text-slate-500 text-sm mt-0.5">
               {editId
                 ? 'Actualiza tus criterios de búsqueda'
-                : 'Define qué objeto estás buscando para recibir alertas'}
+                : 'Definí qué objeto estás buscando para recibir alertas'}
             </p>
           </div>
         </div>
@@ -106,10 +110,10 @@ export default function CrearBusquedaActiva() {
         </div>
 
         {/* Hint */}
-        <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-xl">
-          <p className="text-sm text-blue-700">
-            <span className="font-semibold">Tip:</span> Puedes crear múltiples búsquedas con diferentes criterios.
-            Cuando alguien publique algo que coincida, recibirás una notificación.
+        <div className="mt-6 rounded-xl border border-brand/15 bg-brand/5 p-4">
+          <p className="text-sm text-slate-600">
+            <span className="font-semibold text-brand-accent">Tip:</span> Podés crear múltiples búsquedas con diferentes criterios.
+            Cuando alguien publique algo que coincida, vas a recibir una notificación.
           </p>
         </div>
       </div>

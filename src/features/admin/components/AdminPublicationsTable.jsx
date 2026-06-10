@@ -275,7 +275,7 @@ export default function AdminPublicationsTable() {
         title={confirmModal.type === 'suspend' ? 'Suspender Publicación' : 'Eliminar Publicación'}
         message={
           confirmModal.type === 'suspend'
-            ? 'La publicación será ocultada del público y marcada como suspendida. ¿Deseas continuar?'
+            ? 'La publicación será ocultada del público y marcada como suspendida. ¿Querés continuar?'
             : 'Esta acción borrará la publicación permanentemente y no se puede deshacer. ¿Estás seguro?'
         }
         variant={confirmModal.type === 'delete' ? 'danger' : 'default'}

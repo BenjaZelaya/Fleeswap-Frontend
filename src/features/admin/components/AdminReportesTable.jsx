@@ -420,7 +420,7 @@ export default function AdminReportesTable() {
         onConfirm={confirmAction}
         loading={resolving}
         title="Suspender publicación"
-        message="¿Estás seguro de que deseas suspender esta publicación? El contenido dejará de ser visible y el reporte quedará marcado como resuelto."
+        message="¿Estás seguro de que querés suspender esta publicación? El contenido dejará de ser visible y el reporte quedará marcado como resuelto."
         confirmLabel="Sí, suspender"
         cancelLabel="Cancelar"
         variant="danger"
@@ -433,7 +433,7 @@ export default function AdminReportesTable() {
         onConfirm={confirmAction}
         loading={resolving}
         title="Descartar reporte"
-        message="¿Deseas descartar este reporte? La publicación seguirá activa y sin restricciones."
+        message="¿Querés descartar este reporte? La publicación seguirá activa y sin restricciones."
         confirmLabel="Sí, descartar"
         cancelLabel="Cancelar"
         variant="default"

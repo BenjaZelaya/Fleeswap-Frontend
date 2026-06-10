@@ -82,7 +82,7 @@ export default function ConfirmModal({
                     disabled={loading || confirmDisabled}
                     className={`flex-1 disabled:opacity-50 text-white font-semibold py-2.5 rounded-xl transition-colors text-sm ${isDanger
                       ? 'bg-red-500 hover:bg-red-600'
-                      : 'bg-blue-600 hover:bg-blue-700'
+                      : 'bg-brand hover:bg-brand-light'
                       }`}
                   >
                     {loading ? 'Procesando...' : (confirmText || confirmLabel)}
