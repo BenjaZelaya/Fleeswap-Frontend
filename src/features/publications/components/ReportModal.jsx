@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
+import Select from 'react-select'
 import ConfirmModal from '../../../shared/components/ui/ConfirmModal'
-import SelectField from '../../../shared/components/SelectField'
 import { reportPublication } from '../services/publicationService'
 
 const REPORT_REASONS = [
@@ -14,6 +14,32 @@ const REPORT_REASONS = [
 ]
 
 const DETAILS_MAX = 500
+
+const SELECT_STYLES = {
+  control: (base, state) => ({
+    ...base,
+    borderRadius: '0.5rem',
+    borderColor: state.isFocused ? 'var(--color-brand, #1e3a5f)' : '#d1d5db',
+    boxShadow: 'none',
+    fontSize: '0.875rem',
+    minHeight: '46px',
+    backgroundColor: 'white',
+    '&:hover': { borderColor: '#9ca3af' },
+  }),
+  option: (base, state) => ({
+    ...base,
+    fontSize: '0.875rem',
+    backgroundColor: state.isSelected
+      ? 'var(--color-brand, #1e3a5f)'
+      : state.isFocused
+        ? '#e0e7ff'
+        : 'white',
+    color: state.isSelected ? 'white' : state.isFocused ? 'var(--color-brand, #1e3a5f)' : '#1e293b',
+    cursor: 'pointer'
+  }),
+  menuList: (base) => ({ ...base, maxHeight: '220px' }),
+  menu: (base) => ({ ...base, zIndex: 9999 })
+}
 
 export default function ReportModal({ open, onClose, onSuccess, onAlreadyReported, publicationId }) {
   const [reason, setReason] = useState('')
@@ -76,24 +102,31 @@ export default function ReportModal({ open, onClose, onSuccess, onAlreadyReporte
       size="md"
       descriptionAlign="left"
     >
-      <div className="space-y-4 w-full">
-        <SelectField
-          label="Motivo"
-          name="reason"
-          value={reason}
-          onChange={(e) => { setReason(e.target.value); setError('') }}
-          options={REPORT_REASONS}
-          placeholder="Elegí un motivo"
-          required
-        />
+      <div className="space-y-5 w-full mt-2">
+        <div className="relative z-20">
+          <label className="block text-[10px] font-light uppercase tracking-[0.2em] text-slate-400 mb-1.5">
+            Motivo <span className="text-red-500">*</span>
+          </label>
+          <Select
+            options={REPORT_REASONS}
+            value={REPORT_REASONS.find(r => r.value === reason) || null}
+            onChange={(opt) => {
+              setReason(opt ? opt.value : '')
+              setError('')
+            }}
+            placeholder="Elegí un motivo"
+            isSearchable={false}
+            classNamePrefix="rs"
+            styles={SELECT_STYLES}
+          />
+        </div>
 
-        <div className="space-y-1">
+        <div className="relative z-10">
           <label
             htmlFor="report-details"
-            className="block text-sm font-semibold text-dark-warm"
+            className="block text-[10px] font-light uppercase tracking-[0.2em] text-slate-400 mb-1.5"
           >
-            Detalles{' '}
-            <span className="font-normal text-slate-400">(opcional)</span>
+            Detalles <span className="font-normal lowercase">(opcional)</span>
           </label>
           <textarea
             id="report-details"
@@ -103,13 +136,15 @@ export default function ReportModal({ open, onClose, onSuccess, onAlreadyReporte
             maxLength={DETAILS_MAX}
             rows={3}
             placeholder="Agregá más detalles si querés (opcional)"
-            className="w-full px-4 py-2 border-2 rounded-lg text-sm font-medium transition focus:outline-none focus:ring-2 border-brand-light bg-white focus:border-brand focus:ring-brand-light/50 resize-y"
+            className={`w-full px-4 py-3 rounded-lg border bg-white text-sm text-gray-900 placeholder-gray-300 outline-none transition-colors focus:ring-0 resize-y ${
+              error ? 'border-red-400 focus:border-red-500' : 'border-gray-300 focus:border-brand hover:border-gray-400'
+            }`}
           />
           {details.length > 0 && (
             <p
               aria-live="polite"
               aria-atomic="true"
-              className={`text-xs text-right transition-colors ${counterColor}`}
+              className={`text-xs text-right transition-colors mt-1 ${counterColor}`}
             >
               {details.length}/{DETAILS_MAX}
             </p>

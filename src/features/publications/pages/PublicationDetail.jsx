@@ -12,6 +12,7 @@ import PageSpinner from '../../../shared/components/ui/PageSpinner'
 import { defaultSeo } from '../../../utils/seoConfig'
 import { logError } from '../../../utils/logger'
 import ModalIntercambio from '../../solicitudes/components/ModalIntercambio'
+import { enviarSolicitudCompra } from '../../solicitudes/services/solicitudService'
 
 function LoadingSpinner() {
   return <PageSpinner label="Cargando publicación" />
@@ -27,6 +28,8 @@ export default function PublicationDetail() {
   const [notFound, setNotFound] = useState(false)
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false)
+  const [isBuying, setIsBuying] = useState(false)
 
   // ── Guards de autenticación ────────────────────────────────────────────
   function handleIntercambiar() {
@@ -40,16 +43,38 @@ export default function PublicationDetail() {
     setIsModalOpen(true)
   }
 
-  function handleComprar() {
+  async function handleComprar() {
+    if (!token) {
+      navigate('/login', { state: { toast: 'Iniciá sesión para realizar una compra' } })
+      return
+    }
+    setIsBuying(true)
+    try {
+      const exchange = await enviarSolicitudCompra(id)
+      const exchangeId = exchange._id || exchange.id
+      toast.success('¡Propuesta enviada! Te llevamos al chat para coordinar.')
+      navigate(`/intercambios/${exchangeId}/chat`)
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Error al enviar la solicitud de compra'
+      if (err.response?.status === 409) {
+        toast.info('Ya tenés una solicitud activa para esta publicación')
+      } else {
+        toast.error(msg)
+      }
+    } finally {
+      setIsBuying(false)
+    }
+  }
+
+  function handleReportar() {
     if (!token) {
       navigate('/login',
         {
-          state: { toast: 'Iniciá sesión para realizar una compra' }
+          state: { toast: 'Iniciá sesión para reportar una publicación' }
         })
       return
     }
-    // TODO: lógica de compra
-    toast.info('La función de compra estará disponible próximamente.')
+    setIsReportModalOpen(true)
   }
 
   useEffect(() => {
@@ -293,16 +318,24 @@ export default function PublicationDetail() {
                 {(publication.type === 'venta' || publication.type === 'ambos') && (
                   <button
                     onClick={handleComprar}
-                    className="w-full py-3 bg-brand text-white font-semibold rounded-lg hover:bg-brand-light transition-colors flex items-center justify-center gap-2"
+                    disabled={isBuying}
+                    className="w-full py-3 bg-brand text-white font-semibold rounded-lg hover:bg-brand-light transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    Comprar ahora
+                    {isBuying ? (
+                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                      </svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                    )}
+                    {isBuying ? 'Enviando propuesta...' : 'Comprar ahora'}
                   </button>
                 )}
 
-                {/* Botón Intercambio — H3.1 */}
+                {/* Botón Intercambio */}
                 {(publication.type === 'trueque' || publication.type === 'ambos') && (
                   <button
                     id="btn-enviar-solicitud"
@@ -319,9 +352,20 @@ export default function PublicationDetail() {
                 {/* Si es solo intercambio, no hay precio */}
                 {publication.type === 'trueque' && (
                   <p className="text-xs text-center text-gray-400">
-                    Esta publicación es solo para intercambio — sin precio de venta.
+                    Esta publicación es solo para intercambio
                   </p>
                 )}
+
+                {/* Botón Reportar */}
+                <button
+                  onClick={handleReportar}
+                  className="w-full mt-4 flex items-center justify-center gap-2 py-2.5 text-sm text-red-500 bg-red-50/50 border border-red-100 hover:bg-red-50 hover:border-red-200 hover:text-red-600 font-semibold rounded-xl transition-all"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                  </svg>
+                  Reportar publicación
+                </button>
               </div>
             )}
 
@@ -412,6 +456,16 @@ export default function PublicationDetail() {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           publicacionDestino={publication}
+        />
+      )}
+
+      {/* ── Modal: Reporte ── */}
+      {publication && (
+        <ReportModal
+          open={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          publicationId={publication._id}
+          onAlreadyReported={() => toast.error('Ya enviaste un reporte para esta publicación.')}
         />
       )}
     </>

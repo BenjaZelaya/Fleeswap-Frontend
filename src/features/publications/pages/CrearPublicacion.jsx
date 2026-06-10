@@ -213,7 +213,7 @@ export default function CrearPublicacion() {
           />
           {errors.photos && <p className="text-[11px] text-red-500 mt-2">{errors.photos}</p>}
           <p className="text-[11px] text-gray-400 mt-3">
-            💡 Las fotos son muy importantes. Mostrá el objeto desde distintos ángulos.
+            Las fotos son muy importantes. Mostrá el objeto desde distintos ángulos.
           </p>
         </Section>
 

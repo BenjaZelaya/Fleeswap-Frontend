@@ -11,6 +11,7 @@ import ErrorBoundary from './shared/components/ErrorBoundary'
 import { refreshToken } from './features/auth/services/authService'
 import { getMyProfile } from './features/profile/services/profileService'
 import useAuthStore from './store/authStore'
+import useNotificationSocket from './features/notifications/hooks/useNotificationSocket'
 
 function App() {
   const [authReady, setAuthReady] = useState(false)
@@ -20,11 +21,15 @@ function App() {
     async function initAuth() {
       try {
         const { accessToken } = await refreshToken()
+        // getMyProfile usa el token que acabamos de setear para obtener el perfil completo y fresco
         useAuthStore.getState().setToken(accessToken)
         const user = await getMyProfile()
         setAuth(user, accessToken)
       } catch {
-        // No hay sesión activa o la cookie expiró.
+        // El refresh falló (sin cookie, o expirada).
+        // Solo limpiamos el token en memoria; el user de localStorage se limpia
+        // para no mostrar datos desactualizados de una sesión expirada.
+        useAuthStore.getState().logout()
       } finally {
         setAuthReady(true)
       }
@@ -69,10 +74,17 @@ function App() {
   return (
     <HelmetProvider>
       <ErrorBoundary>
+        <NotificationSocketInit />
         <AppRouter />
       </ErrorBoundary>
     </HelmetProvider>
   )
+}
+
+// Componente invisible que inicializa el socket de notificaciones
+function NotificationSocketInit() {
+  useNotificationSocket()
+  return null
 }
 
 export default App

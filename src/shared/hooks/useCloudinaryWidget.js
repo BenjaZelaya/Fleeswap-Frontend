@@ -21,6 +21,7 @@ export default function useCloudinaryWidget() {
   useEffect(() => {
     // Si el widget ya está disponible (otro componente lo cargó antes), no hacemos nada
     if (window.cloudinary) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setScriptReady(true)
       return
     }
