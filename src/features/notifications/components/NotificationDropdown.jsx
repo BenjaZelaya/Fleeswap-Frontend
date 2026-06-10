@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import useNotificationStore from '../store/notificationStore'
 import NotificationItem from './NotificationItem'
 
@@ -65,6 +65,17 @@ export default function NotificationDropdown({ isOpen, onClose }) {
               ))
             )}
           </div>
+
+          {/* Footer: Ver todas */}
+          {notifications.length > 0 && (
+            <Link
+              to="/mis-notificaciones"
+              onClick={onClose}
+              className="block text-center px-4 py-2.5 text-xs font-semibold text-brand-accent hover:text-brand hover:bg-slate-50 transition-colors border-t border-slate-100"
+            >
+              Ver todas las notificaciones
+            </Link>
+          )}
         </motion.div>
       )}
     </AnimatePresence>
