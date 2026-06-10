@@ -32,7 +32,6 @@ export default function ChatView({ exchangeId: propId, onBack, exchange: propExc
   const [sending,        setSending]        = useState(false)
   const [exchangeStatus, setExchangeStatus] = useState(null)
   const [exchange,       setExchange]       = useState(propExchange ?? null)
-  const [initialLoad,    setInitialLoad]    = useState(true)
 
   const bottomRef = useRef(null)
 
@@ -83,16 +82,13 @@ export default function ChatView({ exchangeId: propId, onBack, exchange: propExc
   }, [id, propExchange])
 
 
-  // ── Auto-scroll ────────────────────────────────────────────────────────────
+  // ── Auto-scroll al recibir mensajes nuevos (fallback suave) ─────────────
   useEffect(() => {
-    if (!isLoading && bottomRef.current) {
-      bottomRef.current.scrollIntoView({
-        behavior: initialLoad ? 'instant' : 'smooth',
-      })
-      if (initialLoad) setInitialLoad(false)
+    if (!isLoading && messages.length > 0 && bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' })
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messages.length, isLoading])
+  }, [messages.length])
 
   // ── Enviar mensaje ─────────────────────────────────────────────────────────
   const handleSend = async (inputRef) => {
@@ -144,7 +140,11 @@ export default function ChatView({ exchangeId: propId, onBack, exchange: propExc
       <ChatMessageList
         messages={messages}
         isLoading={isLoading}
-        error={error}
+        error={
+          error === 'No tenés permisos para ver este chat, o el intercambio no está activo.' && exchange?.status === 'pending'
+            ? 'esperando_vendedor'
+            : error
+        }
         retrying={retrying}
         chatEnabled={chatEnabled && !isContraparteDeleted}
         currentUserId={currentUserId}

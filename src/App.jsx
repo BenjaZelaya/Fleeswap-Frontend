@@ -11,6 +11,7 @@ import ErrorBoundary from './shared/components/ErrorBoundary'
 import { refreshToken } from './features/auth/services/authService'
 import { getMyProfile } from './features/profile/services/profileService'
 import useAuthStore from './store/authStore'
+import useNotificationSocket from './features/notifications/hooks/useNotificationSocket'
 
 function App() {
   const [authReady, setAuthReady] = useState(false)
@@ -73,10 +74,17 @@ function App() {
   return (
     <HelmetProvider>
       <ErrorBoundary>
+        <NotificationSocketInit />
         <AppRouter />
       </ErrorBoundary>
     </HelmetProvider>
   )
+}
+
+// Componente invisible que inicializa el socket de notificaciones
+function NotificationSocketInit() {
+  useNotificationSocket()
+  return null
 }
 
 export default App

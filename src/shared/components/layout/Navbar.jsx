@@ -2,10 +2,11 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Search, User, LogIn, MessageSquare } from "lucide-react";
+import { Home, Search, User, LogIn, MessageSquare, Bell } from "lucide-react";
 import useAuthStore from "../../../store/authStore";
 import { logout as logoutService } from "../../../features/auth/services/authService";
 import ConfirmModal from "../ui/ConfirmModal";
+import NotificationBell from "../../../features/notifications/components/NotificationBell";
 
 function WordMark({ className = "" }) {
   return (
@@ -125,10 +126,12 @@ export default function Navbar() {
           <div className="hidden lg:flex items-center gap-3">
             {isAuthenticated ? (
               <div className="relative" ref={desktopDropdownRef}>
-                <button
-                  onClick={() => setDropdownOpen((v) => !v)}
-                  className="flex items-center gap-2.5 hover:opacity-75 transition-opacity"
-                >
+                <div className="flex items-center gap-2.5 hover:opacity-75 transition-opacity">
+                  <NotificationBell />
+                  <button
+                    onClick={() => setDropdownOpen((v) => !v)}
+                    className="flex items-center gap-2.5"
+                  >
                   <motion.div whileHover={{ scale: 1.06 }}>
                     <Avatar initial={initial} photo={user?.photo} alt={displayName} />
                   </motion.div>
@@ -151,7 +154,8 @@ export default function Navbar() {
                       d="M19 9l-7 7-7-7"
                     />
                   </motion.svg>
-                </button>
+                  </button>
+                </div>
 
                 {/* Dropdown */}
                 <AnimatePresence>
@@ -211,26 +215,6 @@ export default function Navbar() {
                           Ver perfil
                         </Link>
                         <Link
-                          to="/edit-profile"
-                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-slate-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={1.75}
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            />
-                          </svg>
-                          Editar perfil
-                        </Link>
-                        <Link
                           to="/publications/create"
                           className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
                         >
@@ -276,6 +260,13 @@ export default function Navbar() {
                         >
                           <MessageSquare size={16} className="text-slate-400" />
                           Mensajes
+                        </Link>
+                        <Link
+                          to="/search/mis-busquedas"
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                        >
+                          <Bell size={16} className="text-slate-400" />
+                          Búsquedas Activas
                         </Link>
                         <Link
                           to="/solicitudes-recibidas"
@@ -365,9 +356,12 @@ export default function Navbar() {
           <div className="lg:hidden">
             {isAuthenticated ? (
               <div className="relative" ref={mobileDropdownRef}>
-                <button onClick={() => setDropdownOpen((v) => !v)}>
-                  <Avatar initial={initial} photo={user?.photo} alt={displayName} />
-                </button>
+                <div className="flex items-center gap-2">
+                  <NotificationBell />
+                  <button onClick={() => setDropdownOpen((v) => !v)}>
+                    <Avatar initial={initial} photo={user?.photo} alt={displayName} />
+                  </button>
+                </div>
 
                 <AnimatePresence>
                   {dropdownOpen && (
@@ -402,26 +396,6 @@ export default function Navbar() {
                             Panel Admin
                           </Link>
                         )}
-                        <Link
-                          to="/edit-profile"
-                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-slate-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={1.75}
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            />
-                          </svg>
-                          Editar perfil
-                        </Link>
                         <Link
                           to="/publications/create"
                           className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
@@ -461,6 +435,13 @@ export default function Navbar() {
                             />
                           </svg>
                           Mis publicaciones
+                        </Link>
+                        <Link
+                          to="/search/mis-busquedas"
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                        >
+                          <Bell size={16} className="text-slate-400" />
+                          Búsquedas Activas
                         </Link>
                         <Link
                           to="/solicitudes-recibidas"
