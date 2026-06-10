@@ -30,6 +30,7 @@ const MisBusquedasActivas = lazy(() => import('../features/search/pages/MisBusqu
 const AdminDashboard  = lazy(() => import('../features/admin/pages/AdminDashboard'))
 const AdminUsers = lazy(() => import('../features/admin/pages/AdminUsers'))
 const AdminReportes = lazy(() => import('../features/admin/pages/AdminReportes'))
+const MisNotificaciones = lazy(() => import('../features/notifications/pages/MisNotificaciones'))
 const NotFound        = lazy(() => import('../pages/NotFound'))
 
 function AnimatedRoutes() {
@@ -89,6 +90,10 @@ function AnimatedRoutes() {
           <Route
             path="/admin/reportes"
             element={<ProtectedRoute requireAdmin={true}><AdminReportes /></ProtectedRoute>}
+          />
+          <Route
+            path="/mis-notificaciones"
+            element={<ProtectedRoute><MisNotificaciones /></ProtectedRoute>}
           />
           {/* Catch-all: rutas no definidas */}
           <Route path="*" element={<NotFound />} />
