@@ -16,7 +16,7 @@ export default function MisBusquedasActivas() {
     setError(null)
     try {
       const data = await getMisBusquedas()
-      setBusquedas(Array.isArray(data) ? data : [])
+      setBusquedas(data)
     } catch (err) {
       const msg = err.response?.data?.message || 'Error al cargar las búsquedas'
       setError(msg)
@@ -135,9 +135,9 @@ export default function MisBusquedasActivas() {
 
         {/* Info card */}
         {busquedas.length > 0 && (
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-xl">
-            <p className="text-sm text-blue-700">
-              <span className="font-semibold">Tip:</span> Desactiva una búsqueda si no quieres recibir alertas temporalmente,
+          <div className="mt-6 rounded-xl border border-brand/15 bg-brand/5 p-4">
+            <p className="text-sm text-slate-600">
+              <span className="font-semibold text-brand-accent">Tip:</span> Desactivá una búsqueda si no querés recibir alertas temporalmente,
               sin perder tus criterios.
             </p>
           </div>

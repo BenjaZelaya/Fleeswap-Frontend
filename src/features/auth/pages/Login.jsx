@@ -40,7 +40,7 @@ export default function Login() {
     const errs = {}
     const emailError = validateEmail(form.email)
     if (emailError) errs.email = emailError
-    if (!form.password) errs.password = 'La contrasena es obligatoria'
+    if (!form.password) errs.password = 'La contraseña es obligatoria'
     return errs
   }
 
@@ -65,9 +65,9 @@ export default function Login() {
       if (!err.response) {
         setErrors({ general: 'No se pudo conectar con el servidor' })
       } else if (status === 401 || status === 400) {
-        setErrors({ general: 'Email o contrasena incorrectos' })
+        setErrors({ general: 'Email o contraseña incorrectos' })
       } else {
-        setErrors({ general: 'Ocurrio un error. Intenta de nuevo.' })
+        setErrors({ general: 'Ocurrió un error. Intentá de nuevo.' })
       }
     } finally {
       setLoading(false)
@@ -82,7 +82,7 @@ export default function Login() {
   const successMessage = location.state?.message
 
   return (
-    <AuthLayout title="Bienvenido de vuelta" subtitle="Inicia sesion para continuar">
+    <AuthLayout title="Bienvenido de vuelta" subtitle="Iniciá sesión para continuar">
       <Seo page="login" />
 
       {successMessage && (
@@ -117,11 +117,11 @@ export default function Login() {
 
         <div>
           <div className="mb-1.5 flex items-center justify-between">
-            <label htmlFor={passwordId} className="block text-xs font-semibold uppercase tracking-widest text-gray-400">
-              Contrasena
+            <label htmlFor={passwordId} className="block text-xs font-light uppercase tracking-[0.2em] text-slate-500">
+              Contraseña
             </label>
-            <Link to="/forgot-password" className="text-xs font-medium text-brand-accent transition-colors hover:text-brand">
-              Olvidaste tu contrasena?
+            <Link to="/forgot-password" className="text-xs font-medium text-brand transition-colors hover:text-brand-light">
+              ¿Olvidaste tu contraseña?
             </Link>
           </div>
           <PasswordInput
@@ -144,11 +144,11 @@ export default function Login() {
           )}
         </div>
 
-        <SubmitButton loading={loading} label="Iniciar sesion" loadingLabel="Ingresando..." />
+        <SubmitButton loading={loading} label="Iniciá sesión" loadingLabel="Ingresando..." />
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-400">
-        No tenes una cuenta?{' '}
+      <p className="mt-6 text-center text-sm text-slate-400">
+        ¿No tenés una cuenta?{' '}
         <Link to="/register" className="font-semibold text-brand transition-colors hover:text-brand-light">
           Registrate
         </Link>

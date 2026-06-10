@@ -4,15 +4,7 @@ import { toast } from 'sonner';
 import useAuthStore from '../../../store/authStore';
 import useNotificationStore from '../store/notificationStore';
 import MatchNotificationToast from '../components/MatchNotificationToast';
-
-function getSocketURL() {
-  return (
-    import.meta.env.VITE_SOCKET_URL ||
-    import.meta.env.VITE_BACKEND_URL ||
-    import.meta.env.VITE_API_URL ||
-    'http://localhost:3000'
-  );
-}
+import { getSocketBaseUrl } from '../../../services/runtimeConfig';
 
 export default function useNotificationSocket() {
   const token = useAuthStore((state) => state.token);
@@ -22,7 +14,7 @@ export default function useNotificationSocket() {
   useEffect(() => {
     if (!token) return;
 
-    const socket = io(getSocketURL(), {
+    const socket = io(getSocketBaseUrl(), {
       auth: { token },
       autoConnect: false,
       withCredentials: true,

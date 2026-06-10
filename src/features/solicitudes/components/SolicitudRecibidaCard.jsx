@@ -81,7 +81,7 @@ export default function SolicitudRecibidaCard({ solicitud, onUpdateSuccess }) {
       title: isPurchase ? '¿Cancelar venta?' : '¿Cancelar intercambio?',
       message: isPurchase
         ? '¿Cancelás esta venta? El producto volverá a estar disponible.'
-        : '¿Estás seguro de que deseas cancelar este intercambio? Los artículos volverán a estar disponibles.',
+        : '¿Estás seguro de que querés cancelar este intercambio? Los artículos volverán a estar disponibles.',
       confirmText: isPurchase ? 'Sí, cancelar venta' : 'Sí, cancelar',
       variant: 'danger',
       onConfirm: async () => {
@@ -145,7 +145,7 @@ export default function SolicitudRecibidaCard({ solicitud, onUpdateSuccess }) {
           {/* Badge de tipo (solo si no está finalizado) */}
           {(status === 'pending' || status === 'active') && (
             <span className={`hidden sm:inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${
-              isPurchase ? 'bg-brand/10 text-brand' : 'bg-blue-50 text-blue-600'
+              isPurchase ? 'bg-brand/10 text-brand' : 'bg-brand-accent/10 text-brand-accent'
             }`}>
               {isPurchase ? 'Compra' : 'Intercambio'}
             </span>
@@ -237,7 +237,7 @@ export default function SolicitudRecibidaCard({ solicitud, onUpdateSuccess }) {
 
               {/* Barra de estado */}
               <div className="flex items-center justify-between flex-wrap gap-2">
-                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border ${isPurchase ? 'text-brand bg-brand/5 border-brand/20' : 'text-blue-700 bg-blue-50 border-blue-100'}`}>
+                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border ${isPurchase ? 'text-brand bg-brand/5 border-brand/20' : 'text-brand-accent bg-brand-accent/10 border-brand-accent/20'}`}>
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     {isPurchase
                       ? <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />

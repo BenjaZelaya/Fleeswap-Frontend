@@ -19,7 +19,7 @@ export default function ResetPassword() {
 
   if (!token) {
     return (
-      <AuthLayout title="Link invalido" subtitle="Este link de recuperacion no es valido o ya expiro">
+      <AuthLayout title="Link inválido" subtitle="Este link de recuperación no es válido o ya expiró">
         <Seo page="resetPassword" />
         <div className="space-y-4 text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
@@ -27,7 +27,7 @@ export default function ResetPassword() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
-          <Link to="/forgot-password" className="block text-sm font-semibold text-brand-accent transition-colors hover:text-brand">
+          <Link to="/forgot-password" className="block text-sm font-semibold text-brand transition-colors hover:text-brand-light">
             Solicitar un nuevo link
           </Link>
         </div>
@@ -52,12 +52,12 @@ export default function ResetPassword() {
 
     try {
       await resetPassword(token, form.password, form.confirm)
-      navigate('/login', { state: { message: 'Contrasena restablecida. Ya podes iniciar sesion.' } })
+      navigate('/login', { state: { message: 'Contraseña restablecida. Ya podés iniciar sesión.' } })
     } catch (err) {
       if (err.response?.status === 400) {
-        setErrors({ general: 'El link expiro o ya fue utilizado. Solicita uno nuevo.' })
+        setErrors({ general: 'El link expiró o ya fue utilizado. Solicitá uno nuevo.' })
       } else {
-        setErrors({ general: 'Ocurrio un error. Intenta de nuevo.' })
+        setErrors({ general: 'Ocurrió un error. Intentá de nuevo.' })
       }
     } finally {
       setLoading(false)
@@ -70,7 +70,7 @@ export default function ResetPassword() {
   }
 
   return (
-    <AuthLayout title="Nueva contrasena" subtitle="Elige una contrasena segura para tu cuenta">
+    <AuthLayout title="Nueva contraseña" subtitle="Elegí una contraseña segura para tu cuenta">
       <Seo page="resetPassword" />
       {errors.general && (
         <p className="mb-5 flex items-center gap-2 rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-500">
@@ -82,7 +82,7 @@ export default function ResetPassword() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        <FormField label="Nueva contrasena" error={errors.password}>
+        <FormField label="Nueva contraseña" error={errors.password}>
           <PasswordInput
             name="password"
             value={form.password}
@@ -92,7 +92,7 @@ export default function ResetPassword() {
           />
         </FormField>
 
-        <FormField label="Confirmar contrasena" error={errors.confirm}>
+        <FormField label="Confirmar contraseña" error={errors.confirm}>
           <PasswordInput
             name="confirm"
             value={form.confirm}
@@ -102,7 +102,7 @@ export default function ResetPassword() {
           />
         </FormField>
 
-        <SubmitButton loading={loading} label="Restablecer contrasena" loadingLabel="Guardando..." />
+        <SubmitButton loading={loading} label="Restablecer contraseña" loadingLabel="Guardando..." />
       </form>
     </AuthLayout>
   )

@@ -73,9 +73,9 @@ export default function Register() {
       navigate(getSafeRedirectPath(location.state?.from?.pathname))
     } catch (err) {
       if (err.response?.status === 409) {
-        setErrors({ email: 'El email ya esta en uso' })
+        setErrors({ email: 'El email ya está en uso' })
       } else {
-        setErrors({ general: 'Ocurrio un error, intenta de nuevo' })
+        setErrors({ general: 'Ocurrió un error. Intentá de nuevo.' })
       }
     } finally {
       setLoading(false)
@@ -88,7 +88,7 @@ export default function Register() {
   }
 
   return (
-    <AuthLayout title="Crear cuenta" subtitle="Empeza a intercambiar hoy">
+    <AuthLayout title="Crear cuenta" subtitle="Empezá a intercambiar hoy">
       <Seo page="register" />
 
       {errors.general && (
@@ -119,7 +119,7 @@ export default function Register() {
               name="apellido"
               value={form.apellido}
               onChange={handleChange}
-              placeholder="Perez"
+              placeholder="Pérez"
               className={inputClass(errors.apellido)}
             />
           </FormField>
@@ -147,7 +147,7 @@ export default function Register() {
           />
         </FormField>
 
-        <FormField label="Contrasena" error={errors.password}>
+        <FormField label="Contraseña" error={errors.password}>
           <PasswordInput
             name="password"
             value={form.password}
@@ -157,7 +157,7 @@ export default function Register() {
           />
         </FormField>
 
-        <FormField label="Confirmar contrasena" error={errors.confirm}>
+        <FormField label="Confirmar contraseña" error={errors.confirm}>
           <PasswordInput
             name="confirm"
             value={form.confirm}
@@ -170,10 +170,10 @@ export default function Register() {
         <SubmitButton loading={loading} label="Crear cuenta" loadingLabel="Registrando..." />
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-400">
-        Ya tenes una cuenta?{' '}
-        <Link to="/login" className="font-semibold text-brand-accent transition-colors hover:text-brand">
-          Inicia sesion
+      <p className="mt-6 text-center text-sm text-slate-400">
+        ¿Ya tenés una cuenta?{' '}
+        <Link to="/login" className="font-semibold text-brand transition-colors hover:text-brand-light">
+          Iniciá sesión
         </Link>
       </p>
     </AuthLayout>
