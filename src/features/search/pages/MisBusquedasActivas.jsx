@@ -4,6 +4,7 @@ import { Plus, ChevronLeft } from 'lucide-react'
 import { toast } from 'sonner'
 import BusquedaItem from '../components/BusquedaItem'
 import { getMisBusquedas } from '../services/activeSearchService'
+import PageSpinner from '../../../shared/components/ui/PageSpinner'
 
 export default function MisBusquedasActivas() {
   const navigate = useNavigate()
@@ -35,13 +36,7 @@ export default function MisBusquedasActivas() {
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin">
-          <div className="w-12 h-12 rounded-full border-4 border-slate-200 border-t-brand" />
-        </div>
-      </div>
-    )
+    return <PageSpinner label="Cargando búsquedas..." />
   }
 
   return (
