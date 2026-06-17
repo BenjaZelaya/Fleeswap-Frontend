@@ -42,6 +42,8 @@ export default function SolicitudEnviadaCard({ solicitud, onUpdateSuccess }) {
   const fecha = createdAt ? new Date(createdAt).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' }) : ''
   const accent = CARD_ACCENT[status] ?? 'border-l-4 border-l-slate-200'
 
+  const pubSuspendida = requestedPublication?.status === 'suspended' || offeredPublication?.status === 'suspended'
+
   const handleConfirmar = () => {
     // Solo aplicable en intercambios (el comprador puede confirmar recepción)
     setModalConfig({
@@ -124,19 +126,26 @@ export default function SolicitudEnviadaCard({ solicitud, onUpdateSuccess }) {
             </p>
           </div>
         </Link>
-        <div className="flex items-center gap-2 shrink-0 ml-2">
-          {/* Badge de tipo (solo si no está finalizado) */}
-          {(status === 'pending' || status === 'active') && (
-            <span className={`hidden sm:inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${
-              isPurchase ? 'bg-brand/10 text-brand' : 'bg-brand-accent/10 text-brand-accent'
-            }`}>
-              {isPurchase ? 'Compra' : 'Intercambio'}
-            </span>
-          )}
-          {fecha && <span className="hidden sm:block text-[10px] font-light text-slate-400">{fecha}</span>}
-          {status !== 'active' && status !== 'completed' && status !== 'pending' && (
-            <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${BADGE[status] ?? 'bg-slate-100 text-slate-500'}`}>
-              {BADGE_LABELS[status] ?? status}
+        <div className="flex flex-col items-end gap-1.5 shrink-0 ml-2">
+          <div className="flex items-center gap-2">
+            {/* Badge de tipo (solo si no está finalizado) */}
+            {(status === 'pending' || status === 'active') && (
+              <span className={`hidden sm:inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${
+                isPurchase ? 'bg-brand/10 text-brand' : 'bg-brand-accent/10 text-brand-accent'
+              }`}>
+                {isPurchase ? 'Compra' : 'Intercambio'}
+              </span>
+            )}
+            {fecha && <span className="hidden sm:block text-[10px] font-light text-slate-400">{fecha}</span>}
+            {status !== 'active' && status !== 'completed' && status !== 'pending' && (
+              <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${BADGE[status] ?? 'bg-slate-100 text-slate-500'}`}>
+                {BADGE_LABELS[status] ?? status}
+              </span>
+            )}
+          </div>
+          {pubSuspendida && (
+            <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-amber-100 text-amber-800">
+              Artículo bajo revisión
             </span>
           )}
         </div>
