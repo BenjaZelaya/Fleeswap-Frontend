@@ -4,8 +4,22 @@ import ChatSkeleton    from './ChatSkeleton'
 import ChatError       from './ChatError'
 import ChatEmpty       from './ChatEmpty'
 import MessageBubble   from './MessageBubble'
-import { useEffect, useRef } from 'react'
 
+/**
+ * ChatMessageList.jsx — H4.2 / H6.4
+ *
+ * Renderiza la lista de mensajes del chat.
+ *
+ * H6.4: El ref del contenedor scrollable (chatContainerRef) y el handler de
+ * scroll (onScroll) se reciben desde ChatView para centralizar la lógica de
+ * paginación. El auto-scroll también es gestionado por ChatView.
+ *
+ * Props nuevas (H6.4):
+ *  - hasMore       : boolean — si hay mensajes más antiguos por cargar
+ *  - loadingOlder  : boolean — si se está cargando la página anterior
+ *  - chatContainerRef : ref del div scrollable
+ *  - onScroll      : handler de scroll (dispara carga de mensajes viejos)
+ */
 export default function ChatMessageList({
   messages,
   isLoading,
@@ -15,41 +29,22 @@ export default function ChatMessageList({
   currentUserId,
   bottomRef,
   onRetry,
+  // H6.4
+  hasMore,
+  loadingOlder,
+  chatContainerRef,
+  onScroll,
 }) {
-  // Ref interna para el contenedor de scroll
-  const scrollContainerRef = useRef(null)
-
-  // Referencia para saber si es la primera carga
-  const isFirstLoad = useRef(true)
-
-  // Auto-scroll al fondo cuando los mensajes cambian o terminan de cargar
-  useEffect(() => {
-    if (!isLoading && !error && messages.length > 0 && scrollContainerRef.current) {
-      requestAnimationFrame(() => {
-        const container = scrollContainerRef.current
-        if (container) {
-          if (isFirstLoad.current) {
-            // Primera carga: scroll instantáneo sin animación para no marear
-            container.scrollTop = container.scrollHeight
-            isFirstLoad.current = false
-          } else {
-            // Mensajes nuevos: transición suave y elegante
-            container.scrollTo({
-              top: container.scrollHeight,
-              behavior: 'smooth'
-            })
-          }
-        }
-      })
-    }
-  }, [messages.length, isLoading, error])
-
   return (
-    <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar">
+    <div
+      ref={chatContainerRef}
+      onScroll={onScroll}
+      className="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar"
+    >
       <div className="max-w-2xl mx-auto">
         <AnimatePresence mode="wait">
 
-          {/* Loading */}
+          {/* Loading inicial */}
           {isLoading && (
             <motion.div key="skeleton" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <ChatSkeleton />
@@ -88,16 +83,42 @@ export default function ChatMessageList({
               key="messages"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              onAnimationComplete={() => {
-                // Scroll al fondo cuando la animación de entrada termine
-                const container = scrollContainerRef.current
-                if (container) {
-                  container.scrollTop = container.scrollHeight
-                  isFirstLoad.current = false
+              onAnimationStart={() => {
+                // Se ejecuta apenas arranca la animación (opacity: 0)
+                // Salta al fondo instantáneamente mientras es invisible.
+                // Así cuando termina de aparecer, ya está abajo del todo limpiamente.
+                if (chatContainerRef.current) {
+                  chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
                 }
               }}
               className="flex flex-col gap-2 pb-2"
             >
+              {/* H6.4: Spinner de carga de mensajes más antiguos */}
+              {loadingOlder && (
+                <div className="flex justify-center items-center py-3">
+                  <svg
+                    className="animate-spin h-5 w-5 text-brand"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                  </svg>
+                </div>
+              )}
+
+              {/* H6.4: Banner de inicio de conversación */}
+              {!hasMore && !loadingOlder && (
+                <div className="flex items-center gap-3 my-4">
+                  <div className="flex-1 h-px bg-slate-200/70" />
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest whitespace-nowrap">
+                    Inicio de la conversación
+                  </span>
+                  <div className="flex-1 h-px bg-slate-200/70" />
+                </div>
+              )}
+
               {messages.map((msg, i) => {
                 const isOwn       = String(msg.sender?._id) === String(currentUserId)
                 const prevSender  = messages[i - 1]?.sender?._id
