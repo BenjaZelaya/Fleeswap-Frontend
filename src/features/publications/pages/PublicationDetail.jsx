@@ -145,6 +145,7 @@ export default function PublicationDetail() {
   const ownerFullName = [owner.nombre, owner.apellido].filter(Boolean).join(' ')
   const ownerInitial = owner.nombre?.[0]?.toUpperCase() ?? '?'
   const isOwner = authUser && String(authUser._id || authUser.id) === String(owner._id || owner.id)
+  const isSuspended = publication.status === 'suspended'
   const mainPhoto = publication.photos?.[0]
   const canonicalUrl = `${defaultSeo.siteUrl}/publications/${publication._id}`
   const image = publication.photos?.[selectedPhotoIndex] || mainPhoto || defaultSeo.image
@@ -266,13 +267,37 @@ export default function PublicationDetail() {
 
           {/* Right: Info y acciones */}
           <div className="space-y-6">
+            {/* Banner de Suspensión (Dueño) */}
+            {isOwner && isSuspended && (
+              <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg">
+                <div className="flex">
+                  <div className="shrink-0">
+                    <svg className="h-5 w-5 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-amber-800 font-medium">
+                      Tu publicación ha sido reportada y está siendo revisada por un administrador. Las interacciones han sido bloqueadas temporalmente.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Status Badge */}
             <div>
-              <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${publication.status === 'available'
-                ? 'bg-green-100 text-green-800'
-                : 'bg-gray-100 text-gray-800'
+              <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${isSuspended
+                  ? 'bg-amber-100 text-amber-800'
+                  : publication.status === 'available'
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-gray-100 text-gray-800'
                 }`}>
-                {publication.status === 'available' ? 'ACTIVO' : 'NO DISPONIBLE'}
+                {isSuspended
+                  ? 'BAJO REVISIÓN'
+                  : publication.status === 'available'
+                    ? 'ACTIVO'
+                    : 'NO DISPONIBLE'}
               </span>
             </div>
 
@@ -318,7 +343,7 @@ export default function PublicationDetail() {
                 {(publication.type === 'venta' || publication.type === 'ambos') && (
                   <button
                     onClick={handleComprar}
-                    disabled={isBuying}
+                    disabled={isBuying || isSuspended}
                     className="w-full py-3 bg-brand text-white font-semibold rounded-lg hover:bg-brand-light transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {isBuying ? (
@@ -331,7 +356,7 @@ export default function PublicationDetail() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                       </svg>
                     )}
-                    {isBuying ? 'Enviando propuesta...' : 'Comprar ahora'}
+                    {isSuspended ? 'Intercambio No Disponible' : (isBuying ? 'Enviando propuesta...' : 'Comprar ahora')}
                   </button>
                 )}
 
@@ -340,12 +365,13 @@ export default function PublicationDetail() {
                   <button
                     id="btn-enviar-solicitud"
                     onClick={handleIntercambiar}
-                    className="w-full py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                    disabled={isSuspended}
+                    className="w-full py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                     </svg>
-                    Me interesa (intercambio)
+                    {isSuspended ? 'Intercambio No Disponible' : 'Me interesa (intercambio)'}
                   </button>
                 )}
 
