@@ -11,9 +11,7 @@ import EstadisticasPerfil from '../components/EstadisticasPerfil'
 import ReputationSection from '../components/ReputationSection'
 import Seo from '../../../shared/components/Seo'
 import PageSpinner from '../../../shared/components/ui/PageSpinner'
-import { defaultSeo } from '../../../utils/seoConfig'
-
-
+import { defaultSeo } from '../../../shared/utils/seoConfig'
 
 // ─── Página ──────────────────────────────────────────────────────────────────
 export default function PublicProfile() {
@@ -205,24 +203,22 @@ export default function PublicProfile() {
         <div className="flex items-center gap-6 border-b border-gray-100 px-2 mt-8 mb-6">
           <button
             onClick={() => setActiveTab('publicaciones')}
-            className={`pb-3 text-sm font-bold transition-all relative ${
-              activeTab === 'publicaciones' ? 'text-brand' : 'text-slate-400 hover:text-slate-600'
-            }`}
+            className={`pb-3 text-sm font-bold transition-all relative ${activeTab === 'publicaciones' ? 'text-brand' : 'text-slate-400 hover:text-slate-600'
+              }`}
           >
             Publicaciones
             {activeTab === 'publicaciones' && (
-              <motion.div layoutId="profile-tab-indicator" className="absolute bottom-0 left-0 w-full h-[3px] bg-brand rounded-t-full" />
+              <motion.div layoutId="profile-tab-indicator" className="absolute bottom-0 left-0 w-full h-0.75 bg-brand rounded-t-full" />
             )}
           </button>
           <button
             onClick={() => setActiveTab('reputacion')}
-            className={`pb-3 text-sm font-bold transition-all relative ${
-              activeTab === 'reputacion' ? 'text-brand' : 'text-slate-400 hover:text-slate-600'
-            }`}
+            className={`pb-3 text-sm font-bold transition-all relative ${activeTab === 'reputacion' ? 'text-brand' : 'text-slate-400 hover:text-slate-600'
+              }`}
           >
             Reputación
             {activeTab === 'reputacion' && (
-              <motion.div layoutId="profile-tab-indicator" className="absolute bottom-0 left-0 w-full h-[3px] bg-brand rounded-t-full" />
+              <motion.div layoutId="profile-tab-indicator" className="absolute bottom-0 left-0 w-full h-0.75 bg-brand rounded-t-full" />
             )}
           </button>
         </div>

@@ -5,7 +5,7 @@ import AuthLayout from '../../../shared/components/layout/AuthLayout'
 import Seo from '../../../shared/components/Seo'
 import FormField, { inputClass } from '../../../shared/components/forms/FormField'
 import SubmitButton from '../../../shared/components/forms/SubmitButton'
-import { validateEmail } from '../../../utils/validators'
+import { validateEmail } from '../../../shared/utils/validators'
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('')

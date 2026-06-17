@@ -53,8 +53,8 @@ export default function MessageBubble({ message, isOwn, showAvatar }) {
         {/* Burbuja */}
         <div
           className={`px-4 py-2.5 text-sm leading-relaxed wrap-break-word shadow-sm ${isOwn
-              ? 'bg-brand text-white rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl rounded-br-sm'
-              : 'bg-white border border-slate-100 text-slate-800 rounded-tr-2xl rounded-tl-sm rounded-bl-2xl rounded-br-2xl'
+            ? 'bg-brand text-white rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl rounded-br-sm'
+            : 'bg-white border border-slate-100 text-slate-800 rounded-tr-2xl rounded-tl-sm rounded-bl-2xl rounded-br-2xl'
             }`}
           style={isOwn
             ? { boxShadow: '0 2px 12px rgba(27,54,93,0.18)' }

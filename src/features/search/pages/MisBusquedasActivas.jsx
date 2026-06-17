@@ -40,7 +40,7 @@ export default function MisBusquedasActivas() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 py-8 px-4">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">

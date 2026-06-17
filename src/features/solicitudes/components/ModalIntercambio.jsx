@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { enviarSolicitud, getMisPublicaciones } from '../services/solicitudService'
-import { PUBLICATION_TYPES } from '../../../utils/constants'
+import { PUBLICATION_TYPES } from '../../../shared/utils/constants'
 
 // ── Constantes de animación ────────────────────────────────────────────────
 const OVERLAY_VARIANTS = {
@@ -347,7 +347,7 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino, 
             </div>
 
             {/* Content Steps */}
-            <div className="relative min-h-[400px]">
+            <div className="relative min-h-100">
               <AnimatePresence mode="wait">
                 {step === 1 && renderStep1()}
                 {step === 2 && renderStep2()}

@@ -4,9 +4,9 @@ import Select from 'react-select'
 import { updateProfile } from '../services/profileService'
 import useAuthStore from '../../../store/authStore'
 import useCloudinaryWidget from '../../../shared/hooks/useCloudinaryWidget'
-import { validateBio } from '../../../utils/validators'
-import { BIO_MAX } from '../../../utils/constants'
-import { LOCALIDADES_TUCUMAN } from '../../../helpers/localidadesTucuman'
+import { validateBio } from '../../../shared/utils/validators'
+import { BIO_MAX } from '../../../shared/utils/constants'
+import { LOCALIDADES_TUCUMAN } from '../../../shared/utils/localidadesTucuman'
 
 const localOptions = LOCALIDADES_TUCUMAN.map((loc) => ({ value: loc, label: loc }))
 

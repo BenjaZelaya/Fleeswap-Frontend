@@ -13,7 +13,7 @@ import {
   validatePasswordMatch,
   validateName,
   validateBirthDate,
-} from '../../../utils/validators'
+} from '../../../shared/utils/validators'
 
 const MAX_BIRTH_DATE = (() => {
   const d = new Date()

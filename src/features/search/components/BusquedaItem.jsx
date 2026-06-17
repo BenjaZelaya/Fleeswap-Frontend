@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Edit2, Trash2, Bell, BellOff } from 'lucide-react'
 import { toast } from 'sonner'
-import { PUBLICATION_CATEGORIES } from '../../../utils/constants'
+import { PUBLICATION_CATEGORIES } from '../../../shared/utils/constants'
 import { toggleActiva, eliminar } from '../services/activeSearchService'
 import ConfirmModal from '../../../shared/components/ui/ConfirmModal'
 
@@ -74,9 +74,8 @@ export default function BusquedaItem({ busqueda, onUpdate, onDelete }) {
       />
 
       <div
-        className={`border-l-4 rounded-lg border border-slate-100 p-4 transition-all hover:shadow-md ${
-          TYPE_COLORS[busqueda.type]
-        } ${!busqueda.isActive ? 'opacity-60' : ''}`}
+        className={`border-l-4 rounded-lg border border-slate-100 p-4 transition-all hover:shadow-md ${TYPE_COLORS[busqueda.type]
+          } ${!busqueda.isActive ? 'opacity-60' : ''}`}
       >
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
@@ -120,11 +119,10 @@ export default function BusquedaItem({ busqueda, onUpdate, onDelete }) {
               onClick={handleToggle}
               disabled={toggling}
               title={busqueda.isActive ? 'Desactivar búsqueda' : 'Activar búsqueda'}
-              className={`p-2 rounded-lg transition-all disabled:opacity-50 ${
-                busqueda.isActive
+              className={`p-2 rounded-lg transition-all disabled:opacity-50 ${busqueda.isActive
                   ? 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200'
                   : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
-              }`}
+                }`}
             >
               {busqueda.isActive ? <Bell size={18} /> : <BellOff size={18} />}
             </button>

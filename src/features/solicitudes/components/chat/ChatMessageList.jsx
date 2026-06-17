@@ -1,25 +1,11 @@
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion'
-import ChatSkeleton    from './ChatSkeleton'
-import ChatError       from './ChatError'
-import ChatEmpty       from './ChatEmpty'
-import MessageBubble   from './MessageBubble'
+import ChatSkeleton from './ChatSkeleton'
+import ChatError from './ChatError'
+import ChatEmpty from './ChatEmpty'
+import MessageBubble from './MessageBubble'
 
-/**
- * ChatMessageList.jsx — H4.2 / H6.4
- *
- * Renderiza la lista de mensajes del chat.
- *
- * H6.4: El ref del contenedor scrollable (chatContainerRef) y el handler de
- * scroll (onScroll) se reciben desde ChatView para centralizar la lógica de
- * paginación. El auto-scroll también es gestionado por ChatView.
- *
- * Props nuevas (H6.4):
- *  - hasMore       : boolean — si hay mensajes más antiguos por cargar
- *  - loadingOlder  : boolean — si se está cargando la página anterior
- *  - chatContainerRef : ref del div scrollable
- *  - onScroll      : handler de scroll (dispara carga de mensajes viejos)
- */
+// Renderiza la lista de mensajes del chat.
 export default function ChatMessageList({
   messages,
   isLoading,
@@ -120,11 +106,11 @@ export default function ChatMessageList({
               )}
 
               {messages.map((msg, i) => {
-                const isOwn       = String(msg.sender?._id) === String(currentUserId)
-                const prevSender  = messages[i - 1]?.sender?._id
-                const showAvatar  = !isOwn && String(msg.sender?._id) !== String(prevSender)
-                const currDay     = msg.createdAt?.slice(0, 10)
-                const prevDay     = messages[i - 1]?.createdAt?.slice(0, 10)
+                const isOwn = String(msg.sender?._id) === String(currentUserId)
+                const prevSender = messages[i - 1]?.sender?._id
+                const showAvatar = !isOwn && String(msg.sender?._id) !== String(prevSender)
+                const currDay = msg.createdAt?.slice(0, 10)
+                const prevDay = messages[i - 1]?.createdAt?.slice(0, 10)
                 const showDivider = i === 0 || currDay !== prevDay
 
                 return (

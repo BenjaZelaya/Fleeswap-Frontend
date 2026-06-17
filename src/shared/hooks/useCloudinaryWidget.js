@@ -4,10 +4,6 @@
  * Centraliza:
  * - La carga del script externo (evita duplicados si el hook se monta varias veces)
  * - La configuración del widget (cloudName, uploadPreset, carpeta, formatos, tamaño)
- *
- * Uso:
- *   const { openWidget, scriptReady } = useCloudinaryWidget()
- *   <button onClick={() => openWidget(onSuccess, onError)}>Subir foto</button>
  */
 
 import { useEffect, useState } from 'react'
@@ -44,8 +40,6 @@ export default function useCloudinaryWidget() {
 
   /**
    * Abre el widget de Cloudinary.
-   * @param {(url: string) => void} onSuccess - Recibe la URL segura de la imagen subida
-   * @param {(error: any) => void} onError    - Recibe el error si la subida falla
    */
   function openWidget(onSuccess, onError) {
     if (!window.cloudinary) {

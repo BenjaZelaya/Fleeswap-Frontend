@@ -138,7 +138,7 @@ export default function AdminPublicationsTable() {
       <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/50 backdrop-blur-sm relative z-20">
         <h2 className="text-lg font-bold text-slate-800 tracking-tight">Moderación de Publicaciones</h2>
         <div className="flex items-center gap-3 relative z-30">
-          <div className="relative min-w-[220px] z-30">
+          <div className="relative min-w-55 z-30">
             <Select
               options={statusOptions}
               value={statusOptions.find(o => o.value === filterStatus) || statusOptions[0]}
@@ -151,7 +151,7 @@ export default function AdminPublicationsTable() {
         </div>
       </div>
 
-      <div className="flex-1 p-0 relative min-h-[400px]">
+      <div className="flex-1 p-0 relative min-h-100">
         {loading ? (
           <div className="p-6 space-y-4">
             {[...Array(5)].map((_, i) => (

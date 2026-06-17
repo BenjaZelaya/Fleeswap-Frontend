@@ -19,7 +19,7 @@ export default function ChatEmpty({ chatEnabled }) {
 
       <div className="space-y-2">
         <p className="text-slate-800 font-bold text-base tracking-tight">¡Rompan el hielo!</p>
-        <p className="text-slate-400 text-sm max-w-[240px] leading-relaxed">
+        <p className="text-slate-400 text-sm max-w-60 leading-relaxed">
           {chatEnabled
             ? 'Escribí el primer mensaje y coordiná el trueque.'
             : 'Conectando al chat en tiempo real...'}

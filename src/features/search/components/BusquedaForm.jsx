@@ -1,8 +1,9 @@
 import { useState, useCallback } from 'react'
 import Select from 'react-select'
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
-import { PUBLICATION_CATEGORIES, PUBLICATION_TYPES } from '../../../utils/constants'
+import { PUBLICATION_CATEGORIES, PUBLICATION_TYPES } from '../../../shared/utils/constants'
 
 const MAX_KEYWORDS = 10
 const MIN_KEYWORD_LENGTH = 2

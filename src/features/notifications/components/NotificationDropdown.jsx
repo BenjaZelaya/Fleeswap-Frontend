@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import { AnimatePresence, motion } from 'framer-motion'
 import { useNavigate, Link } from 'react-router-dom'
 import useNotificationStore from '../store/notificationStore'
@@ -24,7 +25,7 @@ export default function NotificationDropdown({ isOpen, onClose }) {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: -4 }}
           transition={{ duration: 0.15 }}
-          className="absolute right-0 top-full mt-2 w-[340px] bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden z-50"
+          className="absolute right-0 top-full mt-2 w-85 bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden z-50"
         >
           {/* Header */}
           <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">

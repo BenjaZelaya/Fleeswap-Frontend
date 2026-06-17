@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { Helmet } from 'react-helmet-async'
-import { seoConfig, defaultSeo, organizationSchema } from '../../utils/seoConfig'
+import { seoConfig, defaultSeo, organizationSchema } from '../utils/seoConfig'
 
 // Hook para manejar SEO en las páginas
 export const useSeo = (page, customData = {}) => {

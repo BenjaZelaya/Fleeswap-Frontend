@@ -273,8 +273,8 @@ export default function MisPublicaciones() {
                           <button
                             onClick={() => handleToggleAvailability(pub)}
                             className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-semibold transition-colors ${isUnavailable
-                                ? 'text-green-600 hover:bg-green-50 active:bg-green-100'
-                                : 'text-orange-600 hover:bg-orange-50 active:bg-orange-100'
+                              ? 'text-green-600 hover:bg-green-50 active:bg-green-100'
+                              : 'text-orange-600 hover:bg-orange-50 active:bg-orange-100'
                               }`}
                           >
                             {isUnavailable ? (
@@ -373,8 +373,8 @@ export default function MisPublicaciones() {
                               <button
                                 onClick={() => handleToggleAvailability(pub)}
                                 className={`p-2 rounded-lg transition-colors ${(pub.status === 'no_disponible' || pub.status === 'unavailable')
-                                    ? 'text-green-600 hover:bg-green-50'
-                                    : 'text-orange-600 hover:bg-orange-50'
+                                  ? 'text-green-600 hover:bg-green-50'
+                                  : 'text-orange-600 hover:bg-orange-50'
                                   }`}
                                 title={(pub.status === 'no_disponible' || pub.status === 'unavailable') ? 'Marcar como disponible' : 'Marcar como no disponible'}
                               >
