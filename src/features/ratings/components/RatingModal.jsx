@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion'
 import { Star, X, CheckCircle } from 'lucide-react'
 import { toast } from 'sonner'
@@ -96,11 +97,11 @@ export default function RatingModal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleClose}
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100]"
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-100"
           />
 
           {/* Contenedor del Modal */}
-          <div className="fixed inset-0 flex items-center justify-center p-4 z-[101] pointer-events-none">
+          <div className="fixed inset-0 flex items-center justify-center p-4 z-101 pointer-events-none">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -163,11 +164,10 @@ export default function RatingModal({
                         >
                           <Star
                             size={40}
-                            className={`transition-colors duration-200 ${
-                              active
-                                ? 'fill-brand text-brand'
-                                : 'fill-transparent text-slate-200 hover:text-slate-300'
-                            }`}
+                            className={`transition-colors duration-200 ${active
+                              ? 'fill-brand text-brand'
+                              : 'fill-transparent text-slate-200 hover:text-slate-300'
+                              }`}
                           />
                         </button>
                       )

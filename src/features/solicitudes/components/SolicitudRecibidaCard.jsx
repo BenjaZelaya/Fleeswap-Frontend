@@ -42,6 +42,8 @@ export default function SolicitudRecibidaCard({ solicitud, onUpdateSuccess }) {
   const fecha = createdAt ? new Date(createdAt).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' }) : ''
   const accent = CARD_ACCENT[status] ?? 'border-l-4 border-l-slate-200'
 
+  const pubSuspendida = requestedPublication?.status === 'suspended' || offeredPublication?.status === 'suspended'
+
   const BADGE_LABELS = isPurchase ? BADGE_LABEL_PURCHASE : BADGE_LABEL_EXCHANGE
 
   const executeDecision = async (decision) => {
@@ -217,35 +219,42 @@ export default function SolicitudRecibidaCard({ solicitud, onUpdateSuccess }) {
       <div className="px-5 py-4 border-t border-slate-100 bg-slate-50/30">
         <AnimatePresence mode="wait">
           {status === 'pending' ? (
-            <motion.div key="botones" exit={{ opacity: 0, scale: 0.95 }} className="flex gap-3 w-full sm:w-auto">
-              <button
-                onClick={() => handleDecision('rejected')}
-                disabled={isUpdating}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 bg-white border border-slate-200 text-slate-600 font-semibold py-2 px-5 rounded-xl hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed group"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-400 group-hover:text-red-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                Rechazar
-              </button>
-              <button
-                onClick={() => handleDecision('accepted')}
-                disabled={isUpdating}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 bg-emerald-500 text-white font-bold py-2 px-5 rounded-xl hover:bg-emerald-600 transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.23)] hover:-translate-y-0.5"
-              >
-                {isUpdating ? (
-                  <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+            <div className="flex flex-col gap-2">
+              <motion.div key="botones" exit={{ opacity: 0, scale: 0.95 }} className="flex gap-3 w-full sm:w-auto">
+                <button
+                  onClick={() => handleDecision('rejected')}
+                  disabled={isUpdating}
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 bg-white border border-slate-200 text-slate-600 font-semibold py-2 px-5 rounded-xl hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed group"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-400 group-hover:text-red-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-                {isPurchase ? 'Aceptar compra' : 'Aceptar'}
-              </button>
-            </motion.div>
+                  Rechazar
+                </button>
+                <button
+                  onClick={() => handleDecision('accepted')}
+                  disabled={isUpdating || pubSuspendida}
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 bg-emerald-500 text-white font-bold py-2 px-5 rounded-xl hover:bg-emerald-600 transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.23)] hover:-translate-y-0.5"
+                >
+                  {isUpdating ? (
+                    <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                  {isPurchase ? 'Aceptar compra' : 'Aceptar'}
+                </button>
+              </motion.div>
+              {pubSuspendida && (
+                <p className="text-xs text-amber-600 font-medium text-center bg-amber-50 rounded-lg py-1.5 px-3 border border-amber-200 mt-1">
+                  Acciones bloqueadas por revisión de moderación
+                </p>
+              )}
+            </div>
 
           ) : status === 'active' ? (
             <motion.div key="active-actions" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="w-full space-y-3">

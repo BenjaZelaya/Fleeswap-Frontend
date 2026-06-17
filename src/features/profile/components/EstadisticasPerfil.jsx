@@ -4,31 +4,33 @@ import { getReputacionUsuario } from '../services/reputationService'
 import StarRating from '../../ratings/components/StarRating'
 
 export default function EstadisticasPerfil({ profile }) {
-  if (!profile) return null
-
-  const completados = profile.intercambiosCompletados ?? profile.successfulExchanges ?? 0
-  const compras = profile.comprasCompletadas ?? 0
-  const ventas = profile.ventasCompletadas ?? 0
-
   const [ratingReal, setRatingReal] = useState(0)
 
   useEffect(() => {
     let active = true
     async function fetchReputation() {
+      if (!profile) return
       try {
         const data = await getReputacionUsuario(profile._id || profile.id)
         if (active && data) {
           setRatingReal(data.ratingPromedio || 0)
         }
-      } catch (err) {
+      } catch {
         // Fallback silencioso si falla
       }
     }
-    if (profile._id || profile.id) {
+    
+    if (profile?._id || profile?.id) {
       fetchReputation()
     }
     return () => { active = false }
-  }, [profile._id, profile.id])
+  }, [profile?._id, profile?.id])
+
+  if (!profile) return null
+
+  const completados = profile.intercambiosCompletados ?? profile.successfulExchanges ?? 0
+  const compras = profile.comprasCompletadas ?? 0
+  const ventas = profile.ventasCompletadas ?? 0
 
   return (
     <div className="space-y-4 w-full sm:max-w-md">
@@ -39,7 +41,6 @@ export default function EstadisticasPerfil({ profile }) {
             {Number(ratingReal).toFixed(1)}
           </span>
           <StarRating rating={ratingReal} size={14} />
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider ml-1">Promedio</span>
         </div>
       ) : (
         <div className="flex items-center gap-1.5 w-fit px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-100 shadow-sm">

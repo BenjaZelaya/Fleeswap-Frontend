@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom'
 
-
 function Avatar({ photo, nombre, isDeleted }) {
   if (isDeleted) {
     return (
@@ -83,8 +82,8 @@ export default function ChatListItem({ exchange, currentUserId, isSelected }) {
     <button
       onClick={() => navigate(`/chats/${exchange._id}`)}
       className={`w-full text-left px-4 py-3 flex items-center gap-3 transition-all duration-150 border-l-2 hover:bg-slate-50 ${isSelected
-          ? 'bg-brand/5 border-brand'
-          : 'border-transparent'
+        ? 'bg-brand/5 border-brand'
+        : 'border-transparent'
         }`}
     >
       {/* Avatar contraparte */}

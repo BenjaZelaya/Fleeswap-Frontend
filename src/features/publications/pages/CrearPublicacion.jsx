@@ -12,16 +12,16 @@ import {
   validatePublicationType,
   validatePhotos,
   validatePrice,
-} from '../../../utils/validators'
+} from '../../../shared/utils/validators'
 import {
   PUBLICATION_CATEGORIES,
   PUBLICATION_CONDITIONS,
   PUBLICATION_TYPES,
-} from '../../../utils/constants'
-import { LOCALIDADES_TUCUMAN } from '../../../helpers/localidadesTucuman'
+} from '../../../shared/utils/constants'
+import { LOCALIDADES_TUCUMAN } from '../../../shared/utils/localidadesTucuman'
 import { createPublication } from '../services/publicationService'
 import ImageUpload from '../../../shared/components/ImageUpload'
-import { logError } from '../../../utils/logger'
+import { logError } from '../../../shared/utils/logger'
 
 const LOC_OPTIONS = LOCALIDADES_TUCUMAN.map((l) => ({ value: l, label: l }))
 

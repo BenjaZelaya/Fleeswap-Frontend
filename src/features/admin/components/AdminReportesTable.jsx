@@ -357,7 +357,7 @@ export default function AdminReportesTable() {
       )}
 
       {/* Lista */}
-      <div className="flex-1 relative min-h-[400px]">
+      <div className="flex-1 relative min-h-100">
         {loading ? (
           <div className="p-6 space-y-4">
             {[...Array(5)].map((_, i) => (

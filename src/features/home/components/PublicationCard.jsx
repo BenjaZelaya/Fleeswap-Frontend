@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion'
-import { PUBLICATION_CATEGORIES } from '../../../utils/constants'
+import { PUBLICATION_CATEGORIES } from '../../../shared/utils/constants'
 
 function TypeBadge({ type }) {
   if (type === 'trueque')
@@ -28,7 +28,7 @@ function getCategoryLabel(category) {
   return cat?.label || category
 }
 
-export default function HomePublicationCard({ pub, compact = false, onIntercambiar, onComprar, isBuying }) {
+export default function CarouselPublicationCard({ pub, compact = false, onIntercambiar, onComprar, isBuying }) {
   const ownerInitial = pub.owner?.nombre?.[0]?.toUpperCase() ?? '?'
   const ownerName = [pub.owner?.nombre, pub.owner?.apellido].filter(Boolean).join(' ')
 

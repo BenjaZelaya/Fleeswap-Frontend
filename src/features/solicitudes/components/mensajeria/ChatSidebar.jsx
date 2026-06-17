@@ -5,9 +5,9 @@ import useAuthStore from '../../../../store/authStore'
 import ChatListItem from './ChatListItem'
 
 const FILTERS = [
-  { value: 'all',       label: 'Todos' },
-  { value: 'exchange',  label: 'Intercambios' },
-  { value: 'purchase',  label: 'Compras' },
+  { value: 'all', label: 'Todos' },
+  { value: 'exchange', label: 'Intercambios' },
+  { value: 'purchase', label: 'Compras' },
 ]
 
 function SkeletonItem() {
@@ -55,11 +55,10 @@ export default function ChatSidebar({ chats, selectedId, loading }) {
             <button
               key={f.value}
               onClick={() => setActiveFilter(f.value)}
-              className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full transition-all border ${
-                activeFilter === f.value
+              className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full transition-all border ${activeFilter === f.value
                   ? 'bg-brand text-white border-brand shadow-sm'
                   : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'
-              }`}
+                }`}
             >
               {f.label}
             </button>

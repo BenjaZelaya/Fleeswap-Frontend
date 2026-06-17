@@ -1,9 +1,3 @@
-/**
- * Componente raíz de la aplicación.
- *
- * Responsabilidad principal: rehidratar la sesión al cargar la app.
- */
-
 import { useEffect, useState } from 'react'
 import { HelmetProvider } from 'react-helmet-async'
 import AppRouter from './routes/AppRouter'

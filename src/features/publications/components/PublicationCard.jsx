@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion'
-import { PUBLICATION_TYPES, PUBLICATION_CONDITIONS } from '../../../utils/constants'
+import { PUBLICATION_TYPES, PUBLICATION_CONDITIONS } from '../../../shared/utils/constants'
 
 export default function PublicationCard({ publication, isOwner, onDelete }) {
   if (!publication) return null
@@ -31,7 +31,7 @@ export default function PublicationCard({ publication, isOwner, onDelete }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ 
+      transition={{
         type: 'spring',
         stiffness: 260,
         damping: 25,

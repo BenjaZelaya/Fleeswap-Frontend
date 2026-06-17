@@ -27,7 +27,7 @@ import api from '../../../services/api'
 export async function getHistorialMensajes(intercambioId, { before, limit } = {}) {
   const params = {}
   if (before) params.before = before
-  if (limit)  params.limit  = limit
+  if (limit) params.limit = limit
   const response = await api.get(`/exchanges/${intercambioId}/messages`, { params })
   return response.data // { messages, hasMore, exchangeStatus }
 }

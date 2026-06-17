@@ -135,17 +135,17 @@ export function validatePhotos(photos) {
 export function validatePrice(value, type) {
   // Precio es opcional solo si es trueque puro
   if (type === 'trueque') return ''
-  
+
   const trimmed = value?.trim() ?? ''
-  
+
   // Para venta o ambos, el precio es obligatorio
   if (!trimmed) return 'El precio es obligatorio'
-  
+
   const price = parseFloat(trimmed)
   if (isNaN(price)) return 'El precio debe ser un número válido'
   if (price < 0) return 'El precio no puede ser negativo'
   if (price === 0) return 'El precio debe ser mayor a 0'
-  
+
   return ''
 }
 
