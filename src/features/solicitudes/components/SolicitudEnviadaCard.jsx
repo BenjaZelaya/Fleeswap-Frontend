@@ -7,6 +7,9 @@ import { confirmarIntercambio, cancelarIntercambio } from '../services/solicitud
 import { BADGE, CARD_ACCENT, BADGE_LABEL_PURCHASE, BADGE_LABEL_EXCHANGE, cardVariants } from '../utils/constants'
 import ProductMini from './ProductMini'
 import ConfirmModal from '../../../shared/components/ui/ConfirmModal'
+import RatingModal from '../../ratings/components/RatingModal'
+import { Star } from 'lucide-react'
+import useAuthStore from '../../../store/authStore'
 
 export default function SolicitudEnviadaCard({ solicitud, onUpdateSuccess }) {
   const {
@@ -22,6 +25,17 @@ export default function SolicitudEnviadaCard({ solicitud, onUpdateSuccess }) {
   const [isConfirming, setIsConfirming] = useState(false)
   const [isCanceling, setIsCanceling] = useState(false)
   const [modalConfig, setModalConfig] = useState(null)
+  const user = useAuthStore(state => state.user)
+  const [showRatingModal, setShowRatingModal] = useState(false)
+  const [hasRatedLocally, setHasRatedLocally] = useState(() => {
+    if (!user) return false
+    const rated = localStorage.getItem(`rated_exchanges_${user.id || user._id}`)
+    if (rated) {
+      const parsed = JSON.parse(rated)
+      return parsed.includes(solicitud._id || solicitud.id)
+    }
+    return false
+  })
 
   const initial = owner?.nombre?.[0]?.toUpperCase() ?? '?'
   const name = [owner?.nombre, owner?.apellido].filter(Boolean).join(' ') || 'Usuario'
@@ -42,6 +56,7 @@ export default function SolicitudEnviadaCard({ solicitud, onUpdateSuccess }) {
           const respuesta = await confirmarIntercambio(solicitud._id || solicitud.id)
           if (respuesta.status === 'completed') {
             toast.success('¡Excelente! El intercambio se ha completado.')
+            setShowRatingModal(true)
           } else {
             toast.info('Confirmación registrada. Esperando a la otra parte.')
           }
@@ -302,13 +317,27 @@ export default function SolicitudEnviadaCard({ solicitud, onUpdateSuccess }) {
             </motion.div>
 
           ) : status === 'completed' ? (
-            <motion.div key="badge-completed" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full">
-              <div className="w-full flex items-center justify-center gap-2 text-[13px] font-bold uppercase tracking-wider px-4 py-3 rounded-xl bg-purple-100 text-purple-800 border border-purple-200">
+            <motion.div key="badge-completed" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full flex flex-col sm:flex-row items-center gap-3">
+              <div className="w-full sm:w-auto flex-1 flex items-center justify-center gap-2 text-[13px] font-bold uppercase tracking-wider px-4 py-3 rounded-xl bg-purple-100 text-purple-800 border border-purple-200">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 {isPurchase ? 'Compra completada' : 'Intercambio completado'}
               </div>
+              
+              {!hasRatedLocally ? (
+                <button
+                  onClick={() => setShowRatingModal(true)}
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-brand text-white font-bold py-3 px-5 rounded-xl transition-all shadow-sm hover:-translate-y-0.5 hover:shadow-md active:scale-95 text-sm shrink-0"
+                >
+                  <Star size={16} className="fill-white" />
+                  Dejar Calificación
+                </button>
+              ) : (
+                <div className="w-full sm:w-auto text-center text-xs font-semibold text-slate-400 bg-slate-50 px-4 py-3 rounded-xl border border-slate-100 shrink-0">
+                  Ya calificaste a este usuario
+                </div>
+              )}
             </motion.div>
 
           ) : null}
@@ -324,6 +353,22 @@ export default function SolicitudEnviadaCard({ solicitud, onUpdateSuccess }) {
         confirmText={modalConfig?.confirmText}
         variant={modalConfig?.variant}
         loading={isConfirming || isCanceling}
+      />
+      
+      <RatingModal
+        isOpen={showRatingModal}
+        onClose={() => setShowRatingModal(false)}
+        exchangeId={solicitud._id || solicitud.id}
+        otherUserName={name}
+        itemName={requestedPublication?.title || 'Artículo'}
+        onSuccess={() => {
+          setHasRatedLocally(true)
+          if (!user) return
+          const cacheKey = `rated_exchanges_${user.id || user._id}`
+          const rated = JSON.parse(localStorage.getItem(cacheKey) || '[]')
+          rated.push(solicitud._id || solicitud.id)
+          localStorage.setItem(cacheKey, JSON.stringify(rated))
+        }}
       />
     </motion.div>
   )
