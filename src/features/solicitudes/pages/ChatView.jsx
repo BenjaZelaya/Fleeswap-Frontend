@@ -27,6 +27,7 @@ export default function ChatView({ exchangeId: propId, onBack, exchange: propExc
   const [sending, setSending] = useState(false)
   const [exchangeStatus, setExchangeStatus] = useState(null)
   const [exchange, setExchange] = useState(propExchange ?? null)
+  const [chatBlocked, setChatBlocked] = useState(false)
 
   // ── Estado de paginación ─────────────────────────────────────────────
   const [hasMore, setHasMore] = useState(false)
@@ -71,6 +72,7 @@ export default function ChatView({ exchangeId: propId, onBack, exchange: propExc
       setMessages(msgs)
       setHasMore(data.hasMore ?? false)
       setExchangeStatus(data.exchangeStatus ?? null)
+      setChatBlocked(data.chatBlocked ?? false)
       // Cursor inicial = _id del mensaje más antiguo de la primera página
       if (msgs.length > 0) {
         oldestIdRef.current = msgs[0]._id
@@ -274,6 +276,8 @@ export default function ChatView({ exchangeId: propId, onBack, exchange: propExc
               sending={sending}
               canSend={canSend}
             />
+          ) : chatBlocked ? (
+            <ChatClosedBanner exchangeStatus="suspended" />
           ) : (
             exchangeStatus && <ChatClosedBanner exchangeStatus={exchangeStatus} />
           )
