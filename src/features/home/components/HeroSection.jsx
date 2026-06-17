@@ -22,7 +22,7 @@ export default function HeroSection({
         <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-7">
           <motion.div variants={fadeUp} transition={{ duration: 0.5 }}>
             <span className="inline-flex items-center gap-2 text-[10px] font-light tracking-[0.2em] uppercase text-slate-500 border border-slate-200 px-4 py-1.5 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-brand-accent" />
+              
               Intercambios & Ventas de segunda mano
             </span>
           </motion.div>

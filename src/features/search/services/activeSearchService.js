@@ -10,12 +10,22 @@
 
 import api from '../../../services/api'
 
+function normalizeActiveSearchList(data) {
+  if (Array.isArray(data)) return data
+  if (Array.isArray(data?.searches)) return data.searches
+  if (Array.isArray(data?.items)) return data.items
+  if (Array.isArray(data?.data)) return data.data
+  return []
+}
+
 /**
  * Obtiene todas las búsquedas activas del usuario autenticado
  */
 export async function getMisBusquedas() {
   const response = await api.get('/active-searches')
-  return response.data
+  // El listado de busquedas es consumido por mas de una pantalla.
+  // Normalizar aca evita que cada una asuma envelopes distintos.
+  return normalizeActiveSearchList(response.data)
 }
 
 /**

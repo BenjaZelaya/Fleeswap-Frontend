@@ -97,7 +97,7 @@ export default function EditPublication() {
       const pub = await getPublicationById(id)
 
       if (String(authUser?.id) !== String(pub.owner?._id || pub.owner)) {
-        toast.error('No tienes permiso para editar esta publicación')
+        toast.error('No tenés permiso para editar esta publicación')
         navigate(`/profile/${pub.owner?._id || pub.owner}`)
         return
       }
