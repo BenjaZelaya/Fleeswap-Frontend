@@ -1,4 +1,7 @@
+import { useState, useEffect } from 'react'
 import { StatCard } from './StatCard'
+import { getReputacionUsuario } from '../services/reputationService'
+import StarRating from '../../ratings/components/StarRating'
 
 export default function EstadisticasPerfil({ profile }) {
   if (!profile) return null
@@ -7,20 +10,42 @@ export default function EstadisticasPerfil({ profile }) {
   const compras = profile.comprasCompletadas ?? 0
   const ventas = profile.ventasCompletadas ?? 0
 
+  const [ratingReal, setRatingReal] = useState(0)
+
+  useEffect(() => {
+    let active = true
+    async function fetchReputation() {
+      try {
+        const data = await getReputacionUsuario(profile._id || profile.id)
+        if (active && data) {
+          setRatingReal(data.ratingPromedio || 0)
+        }
+      } catch (err) {
+        // Fallback silencioso si falla
+      }
+    }
+    if (profile._id || profile.id) {
+      fetchReputation()
+    }
+    return () => { active = false }
+  }, [profile._id, profile.id])
+
   return (
     <div className="space-y-4 w-full sm:max-w-md">
-      {/* Rating Pill */}
-      <div className="flex items-center gap-1.5 w-fit px-2.5 py-1 rounded-lg bg-yellow-50 border border-yellow-100 shadow-sm">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-yellow-500" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-        </svg>
-        <span className="text-xs font-bold text-yellow-700">
-          {(profile.calificacionPromedio ?? profile.averageRating ?? 0) > 0
-            ? (profile.calificacionPromedio ?? profile.averageRating ?? 0).toFixed(1)
-            : '4.5'} {/* Default placeholder if no rating */}
-        </span>
-        <span className="text-[10px] text-yellow-600/70 font-medium">Calificación</span>
-      </div>
+      {/* Rating Pill Dinámico con StarRating */}
+      {ratingReal > 0 ? (
+        <div className="flex items-center gap-2 w-fit px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-100 shadow-sm">
+          <span className="text-sm font-extrabold text-slate-800">
+            {Number(ratingReal).toFixed(1)}
+          </span>
+          <StarRating rating={ratingReal} size={14} />
+          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider ml-1">Promedio</span>
+        </div>
+      ) : (
+        <div className="flex items-center gap-1.5 w-fit px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-100 shadow-sm">
+          <span className="text-[11px] font-medium text-slate-500">Nuevo usuario</span>
+        </div>
+      )}
 
       <div className="grid grid-cols-3 gap-3">
         {/* Intercambios */}
