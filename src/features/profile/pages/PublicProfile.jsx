@@ -8,6 +8,7 @@ import { getPublications } from '../../publications/services/publicationService'
 import PublicationGrid from '../../../shared/components/PublicationGrid'
 import ModalIntercambio from '../../solicitudes/components/ModalIntercambio'
 import EstadisticasPerfil from '../components/EstadisticasPerfil'
+import ReputationSection from '../components/ReputationSection'
 import Seo from '../../../shared/components/Seo'
 import PageSpinner from '../../../shared/components/ui/PageSpinner'
 import { defaultSeo } from '../../../utils/seoConfig'
@@ -24,6 +25,7 @@ export default function PublicProfile() {
   const [publications, setPublications] = useState([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const [activeTab, setActiveTab] = useState('publicaciones')
 
   // Modales
   const [showIntercambio, setShowIntercambio] = useState(false)
@@ -199,23 +201,70 @@ export default function PublicProfile() {
           </div>
         )}
 
-        {/* Publicaciones */}
-        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-[10px] font-light uppercase tracking-[0.2em] text-slate-400">
-            Publicaciones activas
-          </h2>
-          <PublicationGrid
-            publications={publications}
-            emptyTitle={isOwnProfile ? 'Aún no tenés publicaciones' : 'Sin publicaciones activas'}
-            emptyDescription={
-              isOwnProfile
-                ? '¡Animáte a subir tu primer objeto para intercambiar o vender!'
-                : 'Cuando este usuario publique artículos disponibles, van a aparecer acá.'
-            }
-            showCreateButton={isOwnProfile}
-            className="xl:grid-cols-2"
-          />
+        {/* Tabs Navigation */}
+        <div className="flex items-center gap-6 border-b border-gray-100 px-2 mt-8 mb-6">
+          <button
+            onClick={() => setActiveTab('publicaciones')}
+            className={`pb-3 text-sm font-bold transition-all relative ${
+              activeTab === 'publicaciones' ? 'text-brand' : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            Publicaciones
+            {activeTab === 'publicaciones' && (
+              <motion.div layoutId="profile-tab-indicator" className="absolute bottom-0 left-0 w-full h-[3px] bg-brand rounded-t-full" />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('reputacion')}
+            className={`pb-3 text-sm font-bold transition-all relative ${
+              activeTab === 'reputacion' ? 'text-brand' : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            Reputación
+            {activeTab === 'reputacion' && (
+              <motion.div layoutId="profile-tab-indicator" className="absolute bottom-0 left-0 w-full h-[3px] bg-brand rounded-t-full" />
+            )}
+          </button>
         </div>
+
+        {/* Tab Content */}
+        <AnimatePresence mode="wait">
+          {activeTab === 'publicaciones' ? (
+            <motion.div
+              key="tab-pubs"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm"
+            >
+              <h2 className="mb-4 text-[10px] font-light uppercase tracking-[0.2em] text-slate-400">
+                Publicaciones activas
+              </h2>
+              <PublicationGrid
+                publications={publications}
+                emptyTitle={isOwnProfile ? 'Aún no tenés publicaciones' : 'Sin publicaciones activas'}
+                emptyDescription={
+                  isOwnProfile
+                    ? '¡Animáte a subir tu primer objeto para intercambiar o vender!'
+                    : 'Cuando este usuario publique artículos disponibles, van a aparecer acá.'
+                }
+                showCreateButton={isOwnProfile}
+                className="xl:grid-cols-2"
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="tab-rep"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <ReputationSection userId={profile._id || profile.id} isOwnProfile={isOwnProfile} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
     </>
   )
