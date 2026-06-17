@@ -7,9 +7,9 @@ import { getMyProfile, updateProfile, deleteAccount } from '../services/profileS
 import useAuthStore from '../../../store/authStore'
 import { logout as logoutService } from '../../auth/services/authService'
 import useCloudinaryWidget from '../../../shared/hooks/useCloudinaryWidget'
-import { LOCALIDADES_TUCUMAN } from '../../../helpers/localidadesTucuman'
-import { BIO_MAX } from '../../../utils/constants'
-import { validateBio } from '../../../utils/validators'
+import { LOCALIDADES_TUCUMAN } from '../../../shared/utils/localidadesTucuman'
+import { BIO_MAX } from '../../../shared/utils/constants'
+import { validateBio } from '../../../shared/utils/validators'
 import PasswordInput from '../../../shared/components/forms/PasswordInput'
 import ConfirmModal from '../../../shared/components/ui/ConfirmModal'
 

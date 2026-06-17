@@ -1,4 +1,4 @@
-import { PUBLICATION_CATEGORIES, PUBLICATION_CONDITIONS } from '../../utils/constants'
+import { PUBLICATION_CATEGORIES, PUBLICATION_CONDITIONS } from '../utils/constants'
 
 const TYPE_OPTIONS = [
   { value: 'ambos', label: 'Ambos' },

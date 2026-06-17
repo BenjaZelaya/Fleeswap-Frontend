@@ -33,7 +33,7 @@ export default function ChatError({ message, onRetry, retrying }) {
         </p>
       </div>
 
-      <div className="flex flex-col gap-2 w-full max-w-[220px]">
+      <div className="flex flex-col gap-2 w-full max-w-55">
         {!isPermission && !isPending && (
           <button
             onClick={onRetry}

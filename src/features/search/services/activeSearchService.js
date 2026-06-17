@@ -30,7 +30,6 @@ export async function getMisBusquedas() {
 
 /**
  * Crea una nueva búsqueda activa
- * @param {Object} data - { category, keywords: [], type }
  */
 export async function crear(data) {
   const response = await api.post('/active-searches', data)
@@ -39,8 +38,6 @@ export async function crear(data) {
 
 /**
  * Edita una búsqueda existente
- * @param {string} id - ID de la búsqueda
- * @param {Object} data - Campos a actualizar
  */
 export async function editar(id, data) {
   const response = await api.patch(`/active-searches/${id}`, data)
@@ -58,8 +55,6 @@ export async function eliminar(id) {
 
 /**
  * Activa/desactiva una búsqueda
- * @param {string} id - ID de la búsqueda
- * @param {boolean} isActive - Estado deseado
  */
 export async function toggleActiva(id, isActive) {
   const response = await api.patch(`/active-searches/${id}`, { isActive })

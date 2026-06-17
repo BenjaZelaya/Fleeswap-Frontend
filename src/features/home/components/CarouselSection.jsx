@@ -98,9 +98,9 @@ export default function RecommendedCarouselSection({
                   key={pub._id}
                   className="snap-center shrink-0 w-full sm:w-[calc(50%-10px)] lg:w-[calc(33.333%-14px)]"
                 >
-                  <PublicationCard 
-                    pub={pub} 
-                    onIntercambiar={handleIntercambiar} 
+                  <PublicationCard
+                    pub={pub}
+                    onIntercambiar={handleIntercambiar}
                     onComprar={handleComprar}
                     isBuying={buyingPubId === pub._id}
                   />

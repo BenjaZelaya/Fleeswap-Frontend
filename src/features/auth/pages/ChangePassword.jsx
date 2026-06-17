@@ -5,7 +5,7 @@ import Seo from '../../../shared/components/Seo'
 import FormField from '../../../shared/components/forms/FormField'
 import PasswordInput from '../../../shared/components/forms/PasswordInput'
 import SubmitButton from '../../../shared/components/forms/SubmitButton'
-import { validatePassword, validatePasswordMatch } from '../../../utils/validators'
+import { validatePassword, validatePasswordMatch } from '../../../shared/utils/validators'
 
 export default function ChangePassword() {
   const navigate = useNavigate()

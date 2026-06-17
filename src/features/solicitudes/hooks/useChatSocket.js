@@ -1,18 +1,4 @@
-/**
- * useChatSocket.js — H4.2
- *
- * Hook que gestiona la conexión Socket.IO para el chat de un intercambio.
- *
- * Contrato del backend (verificado en src/sockets/chat.socket.js):
- *  - Auth handshake : socket.handshake.auth.token  (JWT access token)
- *  - Evento join    : "chat:join"   payload { exchangeId }  → ack { ok, error? }
- *  - Evento send    : "chat:message" payload { exchangeId, content }
- *  - Evento receive : "chat:message" payload { _id, content, sender, createdAt }
- *  - Evento enabled : "chat:enabled" — confirmación de sala unida
- *
- * La URL del socket es la RAÍZ del backend (sin /api).
- */
-
+// Hook que gestiona la conexión Socket.IO para el chat de un intercambio.
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { io } from 'socket.io-client'
 import useAuthStore from '../../../store/authStore'
@@ -27,9 +13,9 @@ export function useChatSocket(exchangeId, onMessage) {
   const socketRef = useRef(null)
 
   // Estados de conexión para la UI
-  const [connected,    setConnected]    = useState(false)
-  const [chatEnabled,  setChatEnabled]  = useState(false)
-  const [connError,    setConnError]    = useState(null)
+  const [connected, setConnected] = useState(false)
+  const [chatEnabled, setChatEnabled] = useState(false)
+  const [connError, setConnError] = useState(null)
 
   useEffect(() => {
     if (!exchangeId || !token || token === 'undefined' || token === 'null' || typeof token !== 'string' || !token.trim()) {
@@ -109,8 +95,8 @@ export function useChatSocket(exchangeId, onMessage) {
       setChatEnabled(false)
       setConnError(null)
     }
-  // onMessage se pasa como referencia estable via useCallback en ChatView
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // onMessage se pasa como referencia estable via useCallback en ChatView
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [exchangeId, token])
 
   // ── Función de envío ───────────────────────────────────────────────────────

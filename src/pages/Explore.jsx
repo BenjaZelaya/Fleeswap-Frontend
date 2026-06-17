@@ -1,70 +1,14 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion'
-import SearchBar from '../shared/components/SearchBar'
-import FilterPanel from '../shared/components/FilterPanel'
+
+import { useExplore } from '../features/publications/hooks/useExplore'
+import { PUBLICATION_CATEGORIES } from '../shared/utils/constants'
+import { defaultSeo } from '../shared/utils/seoConfig'
+import SearchBar       from '../shared/components/SearchBar'
+import FilterPanel     from '../shared/components/FilterPanel'
 import PublicationGrid from '../shared/components/PublicationGrid'
-import { getPublications } from '../features/publications/services/publicationService'
-import { PUBLICATION_CATEGORIES } from '../utils/constants'
-import Seo from '../shared/components/Seo'
-import { defaultSeo } from '../utils/seoConfig'
-import { logError } from '../utils/logger'
-
-const DEFAULT_FILTERS = {
-  search: '',
-  category: '',
-  condition: '',
-  type: 'ambos',
-  maxPrice: '',
-  page: 1,
-  limit: 9,
-}
-
-function getFiltersFromParams(searchParams) {
-  const page = Number(searchParams.get('page') || DEFAULT_FILTERS.page)
-  const limit = Number(searchParams.get('limit') || DEFAULT_FILTERS.limit)
-
-  return {
-    search: searchParams.get('search') || '',
-    category: searchParams.get('category') || '',
-    condition: searchParams.get('condition') || '',
-    type: searchParams.get('type') || DEFAULT_FILTERS.type,
-    maxPrice: searchParams.get('maxPrice') || '',
-    page: Number.isNaN(page) || page < 1 ? DEFAULT_FILTERS.page : page,
-    limit: Number.isNaN(limit) || limit < 1 ? DEFAULT_FILTERS.limit : limit,
-  }
-}
-
-function buildSearchParams(filters) {
-  const nextParams = new URLSearchParams()
-
-  if (filters.search) nextParams.set('search', filters.search)
-  if (filters.category) nextParams.set('category', filters.category)
-  if (filters.condition) nextParams.set('condition', filters.condition)
-  if (filters.type && filters.type !== DEFAULT_FILTERS.type) nextParams.set('type', filters.type)
-  if (filters.maxPrice) nextParams.set('maxPrice', filters.maxPrice)
-  if (filters.page > 1) nextParams.set('page', String(filters.page))
-  if (filters.limit !== DEFAULT_FILTERS.limit) nextParams.set('limit', String(filters.limit))
-
-  return nextParams
-}
-
-function normalizeResponse(data, fallbackPage) {
-  const publications = data?.publications || data?.items || data?.data || []
-  const pagination = data?.pagination || {}
-  
-  const total = pagination.total ?? data?.total ?? data?.count ?? publications.length
-  const page = pagination.page ?? data?.page ?? data?.currentPage ?? fallbackPage
-  const totalPages = pagination.totalPages ?? data?.totalPages ?? Math.max(1, Math.ceil(total / (pagination.limit || data?.limit || DEFAULT_FILTERS.limit)))
-
-  return {
-    publications,
-    total,
-    totalPages,
-    page,
-  }
-}
+import Seo             from '../shared/components/Seo'
 
 function CategoryShortcut({ category }) {
   return (
@@ -78,84 +22,17 @@ function CategoryShortcut({ category }) {
 }
 
 export default function Explore() {
-  const [searchParams, setSearchParams] = useSearchParams()
-  const filters = useMemo(() => getFiltersFromParams(searchParams), [searchParams])
-  const [searchInput, setSearchInput] = useState(filters.search)
-  const [results, setResults] = useState({
-    publications: [],
-    total: 0,
-    totalPages: 1,
-    page: 1,
-  })
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    setSearchInput(filters.search)
-  }, [filters.search])
-
-  useEffect(() => {
-    let active = true
-
-    async function fetchPublications() {
-      setLoading(true)
-
-      try {
-        const params = {
-          page: filters.page,
-          limit: filters.limit,
-          ...(filters.category && { category: filters.category }),
-          ...(filters.condition && { condition: filters.condition }),
-          ...(filters.search && { search: filters.search }),
-          ...(filters.maxPrice && { maxPrice: filters.maxPrice }),
-          ...(filters.type !== 'ambos' && { type: filters.type }),
-        }
-
-        const data = await getPublications(params)
-        if (!active) return
-        setResults(normalizeResponse(data, filters.page))
-      } catch (error) {
-        logError('Error cargando publicaciones para explore:', error)
-        if (!active) return
-        setResults({
-          publications: [],
-          total: 0,
-          totalPages: 1,
-          page: filters.page,
-        })
-      } finally {
-        if (active) setLoading(false)
-      }
-    }
-
-    fetchPublications()
-
-    return () => {
-      active = false
-    }
-  }, [filters])
-
-  function updateFilters(patch) {
-    const nextFilters = {
-      ...filters,
-      ...patch,
-    }
-
-    if (!Object.prototype.hasOwnProperty.call(patch, 'page')) {
-      nextFilters.page = 1
-    }
-
-    setSearchParams(buildSearchParams(nextFilters))
-  }
-
-  function handleSearchSubmit(event) {
-    event.preventDefault()
-    updateFilters({ search: searchInput.trim() })
-  }
-
-  function handleClear() {
-    setSearchInput('')
-    setSearchParams(buildSearchParams(DEFAULT_FILTERS))
-  }
+  const {
+    filters,
+    searchParams,
+    searchInput,
+    setSearchInput,
+    results,
+    loading,
+    updateFilters,
+    handleSearchSubmit,
+    handleClear,
+  } = useExplore()
 
   return (
     <motion.div
@@ -169,6 +46,7 @@ export default function Explore() {
         page="explore"
         url={`${defaultSeo.siteUrl}/explore${searchParams.toString() ? `?${searchParams.toString()}` : ''}`}
       />
+
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
           <motion.div

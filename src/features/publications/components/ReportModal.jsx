@@ -136,9 +136,8 @@ export default function ReportModal({ open, onClose, onSuccess, onAlreadyReporte
             maxLength={DETAILS_MAX}
             rows={3}
             placeholder="Agregá más detalles si querés (opcional)"
-            className={`w-full px-4 py-3 rounded-lg border bg-white text-sm text-gray-900 placeholder-gray-300 outline-none transition-colors focus:ring-0 resize-y ${
-              error ? 'border-red-400 focus:border-red-500' : 'border-gray-300 focus:border-brand hover:border-gray-400'
-            }`}
+            className={`w-full px-4 py-3 rounded-lg border bg-white text-sm text-gray-900 placeholder-gray-300 outline-none transition-colors focus:ring-0 resize-y ${error ? 'border-red-400 focus:border-red-500' : 'border-gray-300 focus:border-brand hover:border-gray-400'
+              }`}
           />
           {details.length > 0 && (
             <p

@@ -98,11 +98,10 @@ function NotificationRow({ notification, onClick }) {
     <motion.button
       layout
       onClick={() => onClick(notification)}
-      className={`w-full text-left flex items-start gap-4 px-5 py-4 transition-colors duration-300 cursor-pointer border-b border-slate-50 last:border-0 ${
-        notification.isRead
+      className={`w-full text-left flex items-start gap-4 px-5 py-4 transition-colors duration-300 cursor-pointer border-b border-slate-50 last:border-0 ${notification.isRead
           ? 'bg-white hover:bg-slate-50/60'
-          : 'bg-brand/[0.03] hover:bg-brand/[0.06]'
-      }`}
+          : 'bg-brand/3 hover:bg-brand/6'
+        }`}
     >
       {/* Indicador de no leída */}
       <div className="pt-4 shrink-0 w-2.5 flex justify-center">

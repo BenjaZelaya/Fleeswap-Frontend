@@ -1,29 +1,16 @@
-/**
- * ChatView.jsx — H4.2 / H4.3 / H6.4
- *
- * Orquestador delgado: solo lógica de estado y composición.
- * Toda la UI vive en src/features/solicitudes/components/chat/
- *
- * H6.4: Paginación por cursor (before=<_id>) para carga incremental del historial.
- *   - fetchMessages: carga los 20 mensajes más recientes al abrir el chat.
- *   - cargarMensajesAntiguos: hace prepend al llegar al tope del scroll.
- *   - useLayoutEffect: preserva la posición del scroll después del prepend.
- *   - handleScroll: dispara la carga y rastrea si el usuario está en el fondo.
- */
-
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import useAuthStore from '../../../store/authStore'
 import { getHistorialMensajes } from '../services/chatService'
-import { getIntercambio }       from '../services/solicitudService'
-import { useChatSocket }        from '../hooks/useChatSocket'
+import { getIntercambio } from '../services/solicitudService'
+import { useChatSocket } from '../hooks/useChatSocket'
 
-import ChatHeader       from '../components/chat/ChatHeader'
-import ReconnectBanner  from '../components/chat/ReconnectBanner'
-import ChatMessageList  from '../components/chat/ChatMessageList'
-import ChatInput        from '../components/chat/ChatInput'
+import ChatHeader from '../components/chat/ChatHeader'
+import ReconnectBanner from '../components/chat/ReconnectBanner'
+import ChatMessageList from '../components/chat/ChatMessageList'
+import ChatInput from '../components/chat/ChatInput'
 import ChatClosedBanner from '../components/chat/ChatClosedBanner'
 
 export default function ChatView({ exchangeId: propId, onBack, exchange: propExchange } = {}) {
@@ -32,29 +19,29 @@ export default function ChatView({ exchangeId: propId, onBack, exchange: propExc
   const { user, token } = useAuthStore()
 
   // ── Estado de mensajes ─────────────────────────────────────────────────────
-  const [messages,       setMessages]       = useState([])
-  const [isLoading,      setIsLoading]      = useState(true)
-  const [error,          setError]          = useState(null)
-  const [retrying,       setRetrying]       = useState(false)
-  const [inputText,      setInputText]      = useState('')
-  const [sending,        setSending]        = useState(false)
+  const [messages, setMessages] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [retrying, setRetrying] = useState(false)
+  const [inputText, setInputText] = useState('')
+  const [sending, setSending] = useState(false)
   const [exchangeStatus, setExchangeStatus] = useState(null)
-  const [exchange,       setExchange]       = useState(propExchange ?? null)
+  const [exchange, setExchange] = useState(propExchange ?? null)
 
-  // ── H6.4: Estado de paginación ─────────────────────────────────────────────
-  const [hasMore,       setHasMore]       = useState(false)
-  const [loadingOlder,  setLoadingOlder]  = useState(false)
+  // ── Estado de paginación ─────────────────────────────────────────────
+  const [hasMore, setHasMore] = useState(false)
+  const [loadingOlder, setLoadingOlder] = useState(false)
 
   // ── Refs ───────────────────────────────────────────────────────────────────
-  const bottomRef          = useRef(null)
+  const bottomRef = useRef(null)
   // Ref al div scrollable del chat — lo maneja ChatMessageList vía prop
-  const chatContainerRef   = useRef(null)
+  const chatContainerRef = useRef(null)
   // Cursor: _id del mensaje más antiguo ya cargado
-  const oldestIdRef        = useRef(null)
+  const oldestIdRef = useRef(null)
   // Guardamos scrollHeight antes del prepend para restaurar la posición
   const prevScrollHeightRef = useRef(null)
   // Rastrea si el usuario está en el fondo del scroll
-  const isAtBottomRef      = useRef(true)
+  const isAtBottomRef = useRef(true)
 
   // El chat solo acepta mensajes si el intercambio está activo
   const isChatActive = exchangeStatus === 'active'
@@ -90,9 +77,9 @@ export default function ChatView({ exchangeId: propId, onBack, exchange: propExc
       }
     } catch (err) {
       const status = err.response?.status
-      if (status === 403)      setError('No tenés permisos para ver este chat, o el intercambio no está activo.')
+      if (status === 403) setError('No tenés permisos para ver este chat, o el intercambio no está activo.')
       else if (status === 404) setError('Este intercambio no existe.')
-      else                     setError('No se pudo cargar el chat. Verificá tu conexión e intentá de nuevo.')
+      else setError('No se pudo cargar el chat. Verificá tu conexión e intentá de nuevo.')
     } finally {
       setIsLoading(false)
     }
@@ -106,7 +93,7 @@ export default function ChatView({ exchangeId: propId, onBack, exchange: propExc
     if (propExchange) {
       setExchange(propExchange)
     } else if (id) {
-      getIntercambio(id).then(setExchange).catch(() => {})
+      getIntercambio(id).then(setExchange).catch(() => { })
     }
   }, [id, propExchange])
 
@@ -140,7 +127,7 @@ export default function ChatView({ exchangeId: propId, onBack, exchange: propExc
     }
   }, [id, loadingOlder, hasMore])
 
-  // ── H6.4: Preservar posición del scroll después del prepend ───────────────
+  // ── Preservar posición del scroll después del prepend ───────────────
   // useLayoutEffect corre de forma sincrónica DESPUÉS de que React actualizó el DOM
   // pero ANTES de que el navegador pinte — momento exacto para ajustar scrollTop.
   useLayoutEffect(() => {
@@ -151,7 +138,7 @@ export default function ChatView({ exchangeId: propId, onBack, exchange: propExc
     }
   }, [messages])
 
-  // ── H6.4: Manejar scroll — disparar carga y rastrear posición ──────────────
+  // ── Manejar scroll — disparar carga y rastrear posición ──────────────
   const handleScroll = useCallback((e) => {
     const { scrollTop, scrollHeight, clientHeight } = e.target
     // El usuario está "en el fondo" si le quedan menos de 50px para el final
@@ -172,11 +159,11 @@ export default function ChatView({ exchangeId: propId, onBack, exchange: propExc
   useEffect(() => {
     if (!isLoading && messages.length > 0) {
       const currentLastId = messages[messages.length - 1]._id
-      
+
       if (lastMessageIdRef.current !== currentLastId) {
         const isInitialLoad = lastMessageIdRef.current === null
         lastMessageIdRef.current = currentLastId
-        
+
         // Solo hacemos auto-scroll suave para mensajes NUEVOS.
         // La carga inicial (isInitialLoad) se maneja en ChatMessageList con onAnimationStart
         if (!isInitialLoad) {

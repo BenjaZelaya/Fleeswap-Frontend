@@ -32,7 +32,7 @@ export async function updatePublicationStatus(id, newStatus) {
     'disponible': 'available',
     'no_disponible': 'unavailable'
   }
-  
+
   const backendStatus = statusMap[newStatus] || newStatus
   const response = await api.patch(`/publications/${id}/status`, { status: backendStatus })
   return response.data

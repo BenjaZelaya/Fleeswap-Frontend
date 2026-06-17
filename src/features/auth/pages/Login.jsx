@@ -8,7 +8,7 @@ import Seo from '../../../shared/components/Seo'
 import FormField, { inputClass } from '../../../shared/components/forms/FormField'
 import PasswordInput from '../../../shared/components/forms/PasswordInput'
 import SubmitButton from '../../../shared/components/forms/SubmitButton'
-import { validateEmail } from '../../../utils/validators'
+import { validateEmail } from '../../../shared/utils/validators'
 
 function getSafeRedirectPath(pathname) {
   return typeof pathname === 'string' && pathname.startsWith('/') ? pathname : '/'

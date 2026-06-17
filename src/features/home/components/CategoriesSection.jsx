@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion'
-import { PUBLICATION_CATEGORIES } from '../../../utils/constants'
+import { PUBLICATION_CATEGORIES } from '../../../shared/utils/constants'
 
 export default function CategoriesSection() {
   return (
