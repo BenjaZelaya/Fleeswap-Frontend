@@ -21,7 +21,9 @@ export default function NotificationItem({ notification, onSelect }) {
     <button
       type="button"
       onClick={() => onSelect(notification)}
-      className="w-full text-left px-4 py-3 flex items-start gap-3 hover:bg-slate-50 transition-colors cursor-pointer"
+      className={`w-full text-left px-4 py-3 flex items-start gap-3 transition-colors cursor-pointer ${
+        !isRead ? 'bg-brand/5 hover:bg-brand/10' : 'bg-white hover:bg-slate-100'
+      }`}
     >
       {/* Unread dot */}
       <div className="pt-3.5 shrink-0 w-2">
