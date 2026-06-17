@@ -47,16 +47,12 @@ export default function ReputationSection({ userId, isOwnProfile }) {
     )
   }
 
-  const { ratingPromedio = 0, totalCompletados = 0, totalCancelados = 0, reseñas = [] } = reputacion
-  const promedioFormateado = Number(ratingPromedio).toFixed(1)
+  const { totalCompletados = 0, reseñas = [] } = reputacion
 
   // Empty State
   if (totalCompletados === 0 && reseñas.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-        <div className="w-24 h-24 mb-4 bg-slate-50 rounded-full flex items-center justify-center">
-          <span className="text-4xl">🌱</span>
-        </div>
         <h3 className="text-lg font-bold text-slate-800 mb-2">
           {isOwnProfile ? 'Aún no tenés calificaciones' : 'Este usuario es nuevo'}
         </h3>
@@ -79,24 +75,6 @@ export default function ReputationSection({ userId, isOwnProfile }) {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
     >
-      {/* Panel de Estadísticas (Hero Stats) */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 flex flex-col items-center justify-center text-center">
-          <span className="text-4xl font-extrabold text-slate-900 mb-2">{promedioFormateado}</span>
-          <StarRating rating={ratingPromedio} size={20} />
-          <span className="text-xs font-semibold text-slate-400 mt-2 uppercase tracking-wider">Promedio</span>
-        </div>
-
-        <div className="bg-emerald-50/50 p-6 rounded-2xl border border-emerald-100 flex flex-col items-center justify-center text-center">
-          <span className="text-4xl font-extrabold text-emerald-600 mb-2">{totalCompletados}</span>
-          <span className="text-xs font-semibold text-emerald-700 uppercase tracking-wider">Trueques exitosos</span>
-        </div>
-
-        <div className="bg-red-50/50 p-6 rounded-2xl border border-red-50 flex flex-col items-center justify-center text-center">
-          <span className="text-4xl font-extrabold text-red-400 mb-2">{totalCancelados}</span>
-          <span className="text-xs font-semibold text-red-500 uppercase tracking-wider">Cancelados</span>
-        </div>
-      </div>
 
       {/* Historial de Reseñas */}
       <div className="pt-4">

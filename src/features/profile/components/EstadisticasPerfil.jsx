@@ -41,7 +41,6 @@ export default function EstadisticasPerfil({ profile }) {
             {Number(ratingReal).toFixed(1)}
           </span>
           <StarRating rating={ratingReal} size={14} />
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider ml-1">Promedio</span>
         </div>
       ) : (
         <div className="flex items-center gap-1.5 w-fit px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-100 shadow-sm">
