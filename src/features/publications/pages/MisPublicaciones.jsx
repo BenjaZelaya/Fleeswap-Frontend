@@ -315,7 +315,7 @@ export default function MisPublicaciones() {
                   <tr>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ARTÍCULO</th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ESTADO</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">VALOR EST.</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">PRECIO</th>
                     <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">ACCIONES</th>
                   </tr>
                 </thead>
@@ -344,7 +344,7 @@ export default function MisPublicaciones() {
                       </td>
                       <td className="px-6 py-4">
                         {pub.price ? (
-                          <p className="font-semibold text-gray-900">{pub.price.toLocaleString('es-AR')} €</p>
+                          <p className="font-semibold text-gray-900">${pub.price.toLocaleString('es-AR')}</p>
                         ) : (
                           <p className="text-gray-500">-</p>
                         )}
