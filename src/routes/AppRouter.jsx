@@ -22,8 +22,7 @@ const CrearPublicacion = lazy(() => import('../features/publications/pages/Crear
 const MisPublicaciones = lazy(() => import('../features/publications/pages/MisPublicaciones'))
 const EditPublication = lazy(() => import('../features/publications/pages/EditPublication'))
 const PublicationDetail = lazy(() => import('../features/publications/pages/PublicationDetail'))
-const SolicitudesRecibidas = lazy(() => import('../features/solicitudes/pages/SolicitudesRecibidas'))
-const SolicitudesEnviadas = lazy(() => import('../features/solicitudes/pages/SolicitudesEnviadas'))
+
 const ChatView = lazy(() => import('../features/solicitudes/pages/ChatView'))
 const MensajeriaView = lazy(() => import('../features/solicitudes/pages/MensajeriaView'))
 const CrearBusquedaActiva = lazy(() => import('../features/search/pages/CrearBusquedaActiva'))
@@ -32,6 +31,7 @@ const AdminDashboard = lazy(() => import('../features/admin/pages/AdminDashboard
 const AdminUsers = lazy(() => import('../features/admin/pages/AdminUsers'))
 const AdminReportes = lazy(() => import('../features/admin/pages/AdminReportes'))
 const MisNotificaciones = lazy(() => import('../features/notifications/pages/MisNotificaciones'))
+const MisIntercambios = lazy(() => import('../features/solicitudes/pages/MisIntercambios'))
 const NotFound = lazy(() => import('../pages/NotFound'))
 
 function AnimatedRoutes() {
@@ -82,14 +82,7 @@ function AnimatedRoutes() {
             path="/publications/:id/edit"
             element={<ProtectedRoute><EditPublication /></ProtectedRoute>}
           />
-          <Route
-            path="/solicitudes-recibidas"
-            element={<ProtectedRoute><SolicitudesRecibidas /></ProtectedRoute>}
-          />
-          <Route
-            path="/solicitudes-enviadas"
-            element={<ProtectedRoute><SolicitudesEnviadas /></ProtectedRoute>}
-          />
+
           <Route
             path="/search/crear"
             element={<ProtectedRoute><CrearBusquedaActiva /></ProtectedRoute>}
@@ -101,6 +94,10 @@ function AnimatedRoutes() {
           <Route
             path="/search/mis-busquedas"
             element={<ProtectedRoute><MisBusquedasActivas /></ProtectedRoute>}
+          />
+          <Route
+            path="/mis-intercambios"
+            element={<ProtectedRoute><MisIntercambios /></ProtectedRoute>}
           />
         </Route>
 
