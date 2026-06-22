@@ -40,9 +40,18 @@ export default function ReputationSection({ userId, isOwnProfile }) {
   }
 
   if (error || !reputacion) {
+    // Si el endpoint falla (ej: backend no deployado aún), mostrar estado vacío
+    // en lugar de un error que confunde al usuario
     return (
-      <div className="text-center py-10 text-slate-500">
-        <p>{error || 'No se pudo obtener la información.'}</p>
+      <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+        <h3 className="text-lg font-bold text-slate-800 mb-2">
+          {isOwnProfile ? 'Aún no tenés calificaciones' : 'Este usuario es nuevo'}
+        </h3>
+        <p className="text-sm text-slate-500 max-w-md mx-auto">
+          {isOwnProfile
+            ? '¡Realizá tu primer trueque exitoso para empezar a construir tu reputación!'
+            : 'Este usuario aún no tiene calificaciones en la comunidad.'}
+        </p>
       </div>
     )
   }
