@@ -1,9 +1,3 @@
-/**
- * Componente raíz de la aplicación.
- *
- * Responsabilidad principal: rehidratar la sesión al cargar la app.
- */
-
 import { useEffect, useState } from 'react'
 import { HelmetProvider } from 'react-helmet-async'
 import AppRouter from './routes/AppRouter'
@@ -13,30 +7,45 @@ import { getMyProfile } from './features/profile/services/profileService'
 import useAuthStore from './store/authStore'
 import useNotificationSocket from './features/notifications/hooks/useNotificationSocket'
 
-function App() {
-  const [authReady, setAuthReady] = useState(false)
-  const setAuth = useAuthStore((s) => s.setAuth)
+let authBootstrapPromise = null
 
-  useEffect(() => {
-    async function initAuth() {
+function bootstrapAuth() {
+  if (!authBootstrapPromise) {
+    authBootstrapPromise = (async () => {
       try {
         const { accessToken } = await refreshToken()
-        // getMyProfile usa el token que acabamos de setear para obtener el perfil completo y fresco
         useAuthStore.getState().setToken(accessToken)
         const user = await getMyProfile()
-        setAuth(user, accessToken)
+        useAuthStore.getState().setAuth(user, accessToken)
       } catch {
-        // El refresh falló (sin cookie, o expirada).
-        // Solo limpiamos el token en memoria; el user de localStorage se limpia
-        // para no mostrar datos desactualizados de una sesión expirada.
-        useAuthStore.getState().logout()
-      } finally {
-        setAuthReady(true)
+        // El refresh falló (sin cookie, expirada o inválida).
+        // Solo limpiamos el token en memoria. El user persistido se conserva
+        // hasta que el usuario cierre sesión explícitamente.
+        useAuthStore.getState().clearToken()
       }
-    }
+    })()
+  }
 
-    initAuth()
-  }, [setAuth])
+  return authBootstrapPromise
+}
+
+function App() {
+  const [authReady, setAuthReady] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+
+    bootstrapAuth()
+      .finally(() => {
+        if (!cancelled) {
+          setAuthReady(true)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   if (!authReady) {
     return (

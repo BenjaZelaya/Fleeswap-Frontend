@@ -16,15 +16,15 @@ import {
   validateCondition,
   validatePublicationType,
   validatePrice,
-} from '../../../utils/validators'
+} from '../../../shared/utils/validators'
 import {
   PUBLICATION_CATEGORIES,
   PUBLICATION_CONDITIONS,
   PUBLICATION_TYPES,
-} from '../../../utils/constants'
-import { LOCALIDADES_TUCUMAN } from '../../../helpers/localidadesTucuman'
+} from '../../../shared/utils/constants'
+import { LOCALIDADES_TUCUMAN } from '../../../shared/utils/localidadesTucuman'
 import ImageUpload from '../../../shared/components/ImageUpload'
-import { logError, logInfo } from '../../../utils/logger'
+import { logError, logInfo } from '../../../shared/utils/logger'
 
 const LOC_OPTIONS = LOCALIDADES_TUCUMAN.map((l) => ({ value: l, label: l }))
 
@@ -97,7 +97,7 @@ export default function EditPublication() {
       const pub = await getPublicationById(id)
 
       if (String(authUser?.id) !== String(pub.owner?._id || pub.owner)) {
-        toast.error('No tienes permiso para editar esta publicación')
+        toast.error('No tenés permiso para editar esta publicación')
         navigate(`/profile/${pub.owner?._id || pub.owner}`)
         return
       }

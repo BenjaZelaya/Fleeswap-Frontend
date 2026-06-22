@@ -357,7 +357,7 @@ export default function AdminReportesTable() {
       )}
 
       {/* Lista */}
-      <div className="flex-1 relative min-h-[400px]">
+      <div className="flex-1 relative min-h-100">
         {loading ? (
           <div className="p-6 space-y-4">
             {[...Array(5)].map((_, i) => (
@@ -420,7 +420,7 @@ export default function AdminReportesTable() {
         onConfirm={confirmAction}
         loading={resolving}
         title="Suspender publicación"
-        message="¿Estás seguro de que deseas suspender esta publicación? El contenido dejará de ser visible y el reporte quedará marcado como resuelto."
+        message="¿Estás seguro de que querés suspender esta publicación? El contenido dejará de ser visible y el reporte quedará marcado como resuelto."
         confirmLabel="Sí, suspender"
         cancelLabel="Cancelar"
         variant="danger"
@@ -433,7 +433,7 @@ export default function AdminReportesTable() {
         onConfirm={confirmAction}
         loading={resolving}
         title="Descartar reporte"
-        message="¿Deseas descartar este reporte? La publicación seguirá activa y sin restricciones."
+        message="¿Querés descartar este reporte? La publicación seguirá activa y sin restricciones."
         confirmLabel="Sí, descartar"
         cancelLabel="Cancelar"
         variant="default"

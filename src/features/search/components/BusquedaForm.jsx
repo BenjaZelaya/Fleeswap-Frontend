@@ -1,10 +1,12 @@
 import { useState, useCallback } from 'react'
 import Select from 'react-select'
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
-import { PUBLICATION_CATEGORIES, PUBLICATION_TYPES } from '../../../utils/constants'
+import { PUBLICATION_CATEGORIES, PUBLICATION_TYPES } from '../../../shared/utils/constants'
 
 const MAX_KEYWORDS = 10
+const MIN_KEYWORD_LENGTH = 2
 const MAX_KEYWORD_LENGTH = 50
 
 // Custom Select styles (reusable)
@@ -53,7 +55,14 @@ export default function BusquedaForm({
   // Agregar keyword
   const addKeyword = useCallback((keyword) => {
     const trimmed = keyword.trim().toLowerCase()
-    if (!trimmed || trimmed.length > MAX_KEYWORD_LENGTH) return
+    if (!trimmed) return
+    if (trimmed.length < MIN_KEYWORD_LENGTH || trimmed.length > MAX_KEYWORD_LENGTH) {
+      setErrors(prev => ({
+        ...prev,
+        keywords: `Cada palabra clave debe tener entre ${MIN_KEYWORD_LENGTH} y ${MAX_KEYWORD_LENGTH} caracteres`,
+      }))
+      return
+    }
 
     if (!form.keywords.includes(trimmed)) {
       const updated = [...form.keywords, trimmed].slice(0, MAX_KEYWORDS)
@@ -74,7 +83,9 @@ export default function BusquedaForm({
   const validate = () => {
     const newErrors = {}
     if (!form.category) newErrors.category = 'Categoría es requerida'
-    if (form.keywords.length === 0) newErrors.keywords = 'Al menos una palabra clave es recomendada'
+    if (form.keywords.some(keyword => keyword.trim().length < MIN_KEYWORD_LENGTH)) {
+      newErrors.keywords = `Cada palabra clave debe tener entre ${MIN_KEYWORD_LENGTH} y ${MAX_KEYWORD_LENGTH} caracteres`
+    }
     if (!form.type) newErrors.type = 'Tipo es requerido'
     return newErrors
   }

@@ -3,20 +3,17 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { io } from 'socket.io-client'
 import useAuthStore from '../../../store/authStore'
 import { getMisChats } from '../services/solicitudService'
-import ChatSidebar   from '../components/mensajeria/ChatSidebar'
+import ChatSidebar from '../components/mensajeria/ChatSidebar'
 import ChatEmptyState from '../components/mensajeria/ChatEmptyState'
-import ChatView       from './ChatView'
-
-function getSocketURL() {
-  return import.meta.env.VITE_SOCKET_URL || import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || 'http://localhost:3000'
-}
+import ChatView from './ChatView'
+import { getSocketBaseUrl } from '../../../services/runtimeConfig'
 
 export default function MensajeriaView() {
   const { intercambioId } = useParams()
-  const navigate          = useNavigate()
-  const { token }         = useAuthStore()
+  const navigate = useNavigate()
+  const { token } = useAuthStore()
 
-  const [chats,   setChats]   = useState([])
+  const [chats, setChats] = useState([])
   const [loading, setLoading] = useState(true)
 
   const fetchChats = useCallback(async () => {
@@ -38,7 +35,7 @@ export default function MensajeriaView() {
   useEffect(() => {
     if (!token || token === 'undefined' || token === 'null') return
 
-    const socket = io(getSocketURL(), {
+    const socket = io(getSocketBaseUrl(), {
       auth: { token },
       autoConnect: false,
       withCredentials: true,
@@ -58,7 +55,7 @@ export default function MensajeriaView() {
     })
 
     // Cuando llega un mensaje, mover ese chat al tope del sidebar
-    socket.on('chat:message', (msg) => {
+    socket.on('chat:message', () => {
       setChats(prev => {
         // Encontrar el chat al que pertenece este mensaje
         // y actualizar su updatedAt para que suba al tope
@@ -81,7 +78,7 @@ export default function MensajeriaView() {
       socket.off('chat:message')
       socket.disconnect()
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, chats.length])
 
   return (

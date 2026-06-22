@@ -114,7 +114,7 @@ export default function Navbar() {
     <>
       {/* ══ NAVBAR TOP ══════════════════════════════════════════════ */}
       <nav
-        className="sticky top-0 z-40 border-b border-slate-100 backdrop-blur-md"
+        className="sticky top-0 z-[100] border-b border-slate-100 backdrop-blur-md"
         style={{ backgroundColor: "rgba(249,247,244,0.92)" }}
       >
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
@@ -123,39 +123,38 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop nav */}
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-4">
             {isAuthenticated ? (
-              <div className="relative" ref={desktopDropdownRef}>
-                <div className="flex items-center gap-2.5 hover:opacity-75 transition-opacity">
-                  <NotificationBell />
+              <>
+                <NotificationBell />
+                <div className="relative" ref={desktopDropdownRef}>
                   <button
                     onClick={() => setDropdownOpen((v) => !v)}
-                    className="flex items-center gap-2.5"
+                    className="flex items-center gap-2.5 hover:opacity-75 transition-opacity"
                   >
-                  <motion.div whileHover={{ scale: 1.06 }}>
-                    <Avatar initial={initial} photo={user?.photo} alt={displayName} />
-                  </motion.div>
-                  <span className="text-sm font-medium text-slate-700">
-                    {displayName}
-                  </span>
-                  <motion.svg
-                    animate={{ rotate: dropdownOpen ? 180 : 0 }}
-                    transition={{ duration: 0.2 }}
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-3.5 w-3.5 text-slate-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2.5}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </motion.svg>
+                    <motion.div whileHover={{ scale: 1.06 }}>
+                      <Avatar initial={initial} photo={user?.photo} alt={displayName} />
+                    </motion.div>
+                    <span className="text-sm font-medium text-slate-700">
+                      {displayName}
+                    </span>
+                    <motion.svg
+                      animate={{ rotate: dropdownOpen ? 180 : 0 }}
+                      transition={{ duration: 0.2 }}
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-3.5 w-3.5 text-slate-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2.5}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </motion.svg>
                   </button>
-                </div>
 
                 {/* Dropdown */}
                 <AnimatePresence>
@@ -331,7 +330,8 @@ export default function Navbar() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
+                </div>
+              </>
             ) : (
               <>
                 <Link
@@ -520,7 +520,7 @@ export default function Navbar() {
 
       {/* ══ BOTTOM TAB BAR — solo mobile ════════════════════════════ */}
       <div
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-slate-100 backdrop-blur-md"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-[100] border-t border-slate-100 backdrop-blur-md"
         style={{ backgroundColor: "rgba(249,247,244,0.96)" }}
       >
         <div className="relative flex h-20 items-center">

@@ -122,7 +122,7 @@ export default function AdminUsersTable() {
               placeholder="Buscar por nombre o correo..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-0 focus:border-brand hover:border-gray-400 transition-colors h-[38px]"
+              className="w-full pl-11 pr-4 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-0 focus:border-brand hover:border-gray-400 transition-colors h-9.5"
             />
           </div>
 
@@ -182,7 +182,7 @@ export default function AdminUsersTable() {
           </button>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col min-h-[400px]">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col min-h-100">
           <div className="hidden md:grid grid-cols-12 gap-4 p-4 bg-slate-50/80 border-b border-slate-100 text-xs font-bold text-slate-500 uppercase tracking-wider">
             <div className="col-span-5 pl-2">Usuario</div>
             <div className="col-span-3">Rol</div>

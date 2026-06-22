@@ -5,7 +5,7 @@ import Seo from '../../../shared/components/Seo'
 import FormField from '../../../shared/components/forms/FormField'
 import PasswordInput from '../../../shared/components/forms/PasswordInput'
 import SubmitButton from '../../../shared/components/forms/SubmitButton'
-import { validatePassword, validatePasswordMatch } from '../../../utils/validators'
+import { validatePassword, validatePasswordMatch } from '../../../shared/utils/validators'
 
 export default function ChangePassword() {
   const navigate = useNavigate()
@@ -17,7 +17,7 @@ export default function ChangePassword() {
 
   function validate() {
     const errs = {}
-    if (!form.passwordActual) errs.passwordActual = 'La contrasena actual es obligatoria'
+    if (!form.passwordActual) errs.passwordActual = 'La contraseña actual es obligatoria'
     errs.passwordNueva = validatePassword(form.passwordNueva)
     errs.confirm = validatePasswordMatch(form.passwordNueva, form.confirm)
     return errs
@@ -37,9 +37,9 @@ export default function ChangePassword() {
       setForm({ passwordActual: '', passwordNueva: '', confirm: '' })
     } catch (err) {
       if (err.response?.status === 401) {
-        setErrors({ passwordActual: 'La contrasena actual es incorrecta' })
+        setErrors({ passwordActual: 'La contraseña actual es incorrecta' })
       } else {
-        setErrors({ general: 'Ocurrio un error. Intenta de nuevo.' })
+        setErrors({ general: 'Ocurrió un error. Intentá de nuevo.' })
       }
     } finally {
       setLoading(false)
@@ -56,10 +56,10 @@ export default function ChangePassword() {
     <div className="max-w-lg mx-auto px-4 py-8 space-y-4">
       <Seo page="changePassword" />
       <div className="flex items-center justify-between py-2">
-        <h1 className="text-xl font-bold text-slate-900 tracking-tight">Cambiar contrasena</h1>
+        <h1 className="text-xl font-bold text-slate-900 tracking-tight">Cambiar contraseña</h1>
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-1 text-sm text-gray-400 transition-colors hover:text-gray-600"
+          className="flex items-center gap-1 text-sm text-slate-400 transition-colors hover:text-slate-700"
         >
           <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -68,7 +68,7 @@ export default function ChangePassword() {
         </button>
       </div>
 
-      <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+      <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
         {errors.general && (
           <p className="mb-5 flex items-center gap-2 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-500">
             <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
@@ -82,12 +82,12 @@ export default function ChangePassword() {
             <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
-            Contrasena actualizada correctamente.
+            Contraseña actualizada correctamente.
           </p>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          <FormField label="Contrasena actual" error={errors.passwordActual}>
+          <FormField label="Contraseña actual" error={errors.passwordActual}>
             <PasswordInput
               name="passwordActual"
               value={form.passwordActual}
@@ -97,9 +97,9 @@ export default function ChangePassword() {
             />
           </FormField>
 
-          <div className="h-px bg-gray-100" />
+          <div className="h-px bg-slate-100" />
 
-          <FormField label="Nueva contrasena" error={errors.passwordNueva}>
+          <FormField label="Nueva contraseña" error={errors.passwordNueva}>
             <PasswordInput
               name="passwordNueva"
               value={form.passwordNueva}
@@ -109,7 +109,7 @@ export default function ChangePassword() {
             />
           </FormField>
 
-          <FormField label="Confirmar nueva contrasena" error={errors.confirm}>
+          <FormField label="Confirmar nueva contraseña" error={errors.confirm}>
             <PasswordInput
               name="confirm"
               value={form.confirm}
@@ -119,7 +119,7 @@ export default function ChangePassword() {
             />
           </FormField>
 
-          <SubmitButton loading={loading} label="Actualizar contrasena" loadingLabel="Guardando..." />
+          <SubmitButton loading={loading} label="Actualizar contraseña" loadingLabel="Guardando..." />
         </form>
       </div>
     </div>

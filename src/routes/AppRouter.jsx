@@ -4,6 +4,7 @@ import { AnimatePresence } from 'framer-motion'
 import ScrollToTop from '../shared/components/ScrollToTop'
 import MainLayout from '../shared/components/layout/MainLayout'
 import ChatLayout from '../shared/components/layout/ChatLayout'
+import NoFooterLayout from '../shared/components/layout/NoFooterLayout'
 import PageSpinner from '../shared/components/ui/PageSpinner'
 import ProtectedRoute from './ProtectedRoute'
 
@@ -23,14 +24,15 @@ const EditPublication = lazy(() => import('../features/publications/pages/EditPu
 const PublicationDetail = lazy(() => import('../features/publications/pages/PublicationDetail'))
 const SolicitudesRecibidas = lazy(() => import('../features/solicitudes/pages/SolicitudesRecibidas'))
 const SolicitudesEnviadas = lazy(() => import('../features/solicitudes/pages/SolicitudesEnviadas'))
-const ChatView        = lazy(() => import('../features/solicitudes/pages/ChatView'))
-const MensajeriaView  = lazy(() => import('../features/solicitudes/pages/MensajeriaView'))
+const ChatView = lazy(() => import('../features/solicitudes/pages/ChatView'))
+const MensajeriaView = lazy(() => import('../features/solicitudes/pages/MensajeriaView'))
 const CrearBusquedaActiva = lazy(() => import('../features/search/pages/CrearBusquedaActiva'))
 const MisBusquedasActivas = lazy(() => import('../features/search/pages/MisBusquedasActivas'))
-const AdminDashboard  = lazy(() => import('../features/admin/pages/AdminDashboard'))
+const AdminDashboard = lazy(() => import('../features/admin/pages/AdminDashboard'))
 const AdminUsers = lazy(() => import('../features/admin/pages/AdminUsers'))
 const AdminReportes = lazy(() => import('../features/admin/pages/AdminReportes'))
-const NotFound        = lazy(() => import('../pages/NotFound'))
+const MisNotificaciones = lazy(() => import('../features/notifications/pages/MisNotificaciones'))
+const NotFound = lazy(() => import('../pages/NotFound'))
 
 function AnimatedRoutes() {
   const location = useLocation()
@@ -43,40 +45,12 @@ function AnimatedRoutes() {
           <Route path="/profile/:id" element={<PublicProfile />} />
           <Route path="/publications/:id" element={<PublicationDetail />} />
           <Route
-            path="/publications/create"
-            element={<ProtectedRoute><CrearPublicacion /></ProtectedRoute>}
-          />
-          <Route
             path="/my-publications"
             element={<ProtectedRoute><MisPublicaciones /></ProtectedRoute>}
           />
           <Route
-            path="/publications/:id/edit"
-            element={<ProtectedRoute><EditPublication /></ProtectedRoute>}
-          />
-          <Route
-            path="/edit-profile"
-            element={<ProtectedRoute><EditProfile /></ProtectedRoute>}
-          />
-          <Route
             path="/change-password"
             element={<ProtectedRoute><ChangePassword /></ProtectedRoute>}
-          />
-          <Route
-            path="/solicitudes-recibidas"
-            element={<ProtectedRoute><SolicitudesRecibidas /></ProtectedRoute>}
-          />
-          <Route
-            path="/solicitudes-enviadas"
-            element={<ProtectedRoute><SolicitudesEnviadas /></ProtectedRoute>}
-          />
-          <Route
-            path="/search/crear"
-            element={<ProtectedRoute><CrearBusquedaActiva /></ProtectedRoute>}
-          />
-          <Route
-            path="/search/mis-busquedas"
-            element={<ProtectedRoute><MisBusquedasActivas /></ProtectedRoute>}
           />
           <Route
             path="/admin/dashboard"
@@ -92,6 +66,42 @@ function AnimatedRoutes() {
           />
           {/* Catch-all: rutas no definidas */}
           <Route path="*" element={<NotFound />} />
+        </Route>
+
+        {/* ── Layout sin footer ────────────────────────────────────── */}
+        <Route element={<NoFooterLayout />}>
+          <Route
+            path="/edit-profile"
+            element={<ProtectedRoute><EditProfile /></ProtectedRoute>}
+          />
+          <Route
+            path="/publications/create"
+            element={<ProtectedRoute><CrearPublicacion /></ProtectedRoute>}
+          />
+          <Route
+            path="/publications/:id/edit"
+            element={<ProtectedRoute><EditPublication /></ProtectedRoute>}
+          />
+          <Route
+            path="/solicitudes-recibidas"
+            element={<ProtectedRoute><SolicitudesRecibidas /></ProtectedRoute>}
+          />
+          <Route
+            path="/solicitudes-enviadas"
+            element={<ProtectedRoute><SolicitudesEnviadas /></ProtectedRoute>}
+          />
+          <Route
+            path="/search/crear"
+            element={<ProtectedRoute><CrearBusquedaActiva /></ProtectedRoute>}
+          />
+          <Route
+            path="/mis-notificaciones"
+            element={<ProtectedRoute><MisNotificaciones /></ProtectedRoute>}
+          />
+          <Route
+            path="/search/mis-busquedas"
+            element={<ProtectedRoute><MisBusquedasActivas /></ProtectedRoute>}
+          />
         </Route>
 
         {/* ── Chat: layout propio sin footer ni bottom bar ─────────── */}

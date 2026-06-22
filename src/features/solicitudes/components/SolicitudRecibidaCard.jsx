@@ -7,6 +7,9 @@ import { aceptarSolicitud, rechazarSolicitud, confirmarIntercambio, cancelarInte
 import { BADGE, CARD_ACCENT, BADGE_LABEL_PURCHASE, BADGE_LABEL_EXCHANGE, cardVariants } from '../utils/constants'
 import ProductMini from './ProductMini'
 import ConfirmModal from '../../../shared/components/ui/ConfirmModal'
+import RatingModal from '../../ratings/components/RatingModal'
+import { Star } from 'lucide-react'
+import useAuthStore from '../../../store/authStore'
 
 export default function SolicitudRecibidaCard({ solicitud, onUpdateSuccess }) {
   const {
@@ -22,11 +25,24 @@ export default function SolicitudRecibidaCard({ solicitud, onUpdateSuccess }) {
   const [isConfirming, setIsConfirming] = useState(false)
   const [isCanceling, setIsCanceling] = useState(false)
   const [modalConfig, setModalConfig] = useState(null)
+  const user = useAuthStore(state => state.user)
+  const [showRatingModal, setShowRatingModal] = useState(false)
+  const [hasRatedLocally, setHasRatedLocally] = useState(() => {
+    if (!user) return false
+    const rated = localStorage.getItem(`rated_exchanges_${user.id || user._id}`)
+    if (rated) {
+      const parsed = JSON.parse(rated)
+      return parsed.includes(solicitud._id || solicitud.id)
+    }
+    return false
+  })
 
   const initial = requester?.nombre?.[0]?.toUpperCase() ?? '?'
   const name = [requester?.nombre, requester?.apellido].filter(Boolean).join(' ') || 'Usuario'
   const fecha = createdAt ? new Date(createdAt).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' }) : ''
   const accent = CARD_ACCENT[status] ?? 'border-l-4 border-l-slate-200'
+
+  const pubSuspendida = requestedPublication?.status === 'suspended' || offeredPublication?.status === 'suspended'
 
   const BADGE_LABELS = isPurchase ? BADGE_LABEL_PURCHASE : BADGE_LABEL_EXCHANGE
 
@@ -63,6 +79,7 @@ export default function SolicitudRecibidaCard({ solicitud, onUpdateSuccess }) {
           const respuesta = await confirmarIntercambio(solicitud._id || solicitud.id)
           if (respuesta.status === 'completed') {
             toast.success(isPurchase ? '¡Venta completada! El producto fue marcado como vendido.' : '¡Excelente! El intercambio se ha completado.')
+            setShowRatingModal(true)
           } else {
             toast.info('Confirmación registrada. Esperando a la otra parte.')
           }
@@ -81,7 +98,7 @@ export default function SolicitudRecibidaCard({ solicitud, onUpdateSuccess }) {
       title: isPurchase ? '¿Cancelar venta?' : '¿Cancelar intercambio?',
       message: isPurchase
         ? '¿Cancelás esta venta? El producto volverá a estar disponible.'
-        : '¿Estás seguro de que deseas cancelar este intercambio? Los artículos volverán a estar disponibles.',
+        : '¿Estás seguro de que querés cancelar este intercambio? Los artículos volverán a estar disponibles.',
       confirmText: isPurchase ? 'Sí, cancelar venta' : 'Sí, cancelar',
       variant: 'danger',
       onConfirm: async () => {
@@ -145,7 +162,7 @@ export default function SolicitudRecibidaCard({ solicitud, onUpdateSuccess }) {
           {/* Badge de tipo (solo si no está finalizado) */}
           {(status === 'pending' || status === 'active') && (
             <span className={`hidden sm:inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${
-              isPurchase ? 'bg-brand/10 text-brand' : 'bg-blue-50 text-blue-600'
+              isPurchase ? 'bg-brand/10 text-brand' : 'bg-brand-accent/10 text-brand-accent'
             }`}>
               {isPurchase ? 'Compra' : 'Intercambio'}
             </span>
@@ -202,42 +219,49 @@ export default function SolicitudRecibidaCard({ solicitud, onUpdateSuccess }) {
       <div className="px-5 py-4 border-t border-slate-100 bg-slate-50/30">
         <AnimatePresence mode="wait">
           {status === 'pending' ? (
-            <motion.div key="botones" exit={{ opacity: 0, scale: 0.95 }} className="flex gap-3 w-full sm:w-auto">
-              <button
-                onClick={() => handleDecision('rejected')}
-                disabled={isUpdating}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 bg-white border border-slate-200 text-slate-600 font-semibold py-2 px-5 rounded-xl hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed group"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-400 group-hover:text-red-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                Rechazar
-              </button>
-              <button
-                onClick={() => handleDecision('accepted')}
-                disabled={isUpdating}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 bg-emerald-500 text-white font-bold py-2 px-5 rounded-xl hover:bg-emerald-600 transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.23)] hover:-translate-y-0.5"
-              >
-                {isUpdating ? (
-                  <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+            <div className="flex flex-col gap-2">
+              <motion.div key="botones" exit={{ opacity: 0, scale: 0.95 }} className="flex gap-3 w-full sm:w-auto">
+                <button
+                  onClick={() => handleDecision('rejected')}
+                  disabled={isUpdating}
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 bg-white border border-slate-200 text-slate-600 font-semibold py-2 px-5 rounded-xl hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed group"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-400 group-hover:text-red-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-                {isPurchase ? 'Aceptar compra' : 'Aceptar'}
-              </button>
-            </motion.div>
+                  Rechazar
+                </button>
+                <button
+                  onClick={() => handleDecision('accepted')}
+                  disabled={isUpdating || pubSuspendida}
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 bg-emerald-500 text-white font-bold py-2 px-5 rounded-xl hover:bg-emerald-600 transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.23)] hover:-translate-y-0.5"
+                >
+                  {isUpdating ? (
+                    <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                  {isPurchase ? 'Aceptar compra' : 'Aceptar'}
+                </button>
+              </motion.div>
+              {pubSuspendida && (
+                <p className="text-xs text-amber-600 font-medium text-center bg-amber-50 rounded-lg py-1.5 px-3 border border-amber-200 mt-1">
+                  Acciones bloqueadas por revisión de moderación
+                </p>
+              )}
+            </div>
 
           ) : status === 'active' ? (
             <motion.div key="active-actions" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="w-full space-y-3">
 
               {/* Barra de estado */}
               <div className="flex items-center justify-between flex-wrap gap-2">
-                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border ${isPurchase ? 'text-brand bg-brand/5 border-brand/20' : 'text-blue-700 bg-blue-50 border-blue-100'}`}>
+                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border ${isPurchase ? 'text-brand bg-brand/5 border-brand/20' : 'text-brand-accent bg-brand-accent/10 border-brand-accent/20'}`}>
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     {isPurchase
                       ? <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -324,17 +348,33 @@ export default function SolicitudRecibidaCard({ solicitud, onUpdateSuccess }) {
               </div>
             </motion.div>
 
+          ) : status === 'completed' ? (
+            <motion.div key="badge-completed" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full flex flex-col sm:flex-row items-center gap-3">
+              <div className={`w-full sm:w-auto flex-1 flex items-center justify-center gap-2 text-[13px] font-bold uppercase tracking-wider px-4 py-3 rounded-xl ${BADGE[status] ?? 'bg-slate-100 text-slate-500'}`}>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {BADGE_LABELS.completed}
+              </div>
+              
+              {!hasRatedLocally ? (
+                <button
+                  onClick={() => setShowRatingModal(true)}
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-brand text-white font-bold py-3 px-5 rounded-xl transition-all shadow-sm hover:-translate-y-0.5 hover:shadow-md active:scale-95 text-sm shrink-0"
+                >
+                  <Star size={16} className="fill-white" />
+                  Dejar Calificación
+                </button>
+              ) : (
+                <div className="w-full sm:w-auto text-center text-xs font-semibold text-slate-400 bg-slate-50 px-4 py-3 rounded-xl border border-slate-100 shrink-0">
+                  Ya calificaste a este usuario
+                </div>
+              )}
+            </motion.div>
           ) : (
             <motion.div key="badge" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full">
               <div className={`w-full flex items-center justify-center gap-2 text-[13px] font-bold uppercase tracking-wider px-4 py-3 rounded-xl ${BADGE[status] ?? 'bg-slate-100 text-slate-500'}`}>
-                {status === 'completed' ? (
-                  <>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    {BADGE_LABELS.completed}
-                  </>
-                ) : status === 'rejected' ? (
+                {status === 'rejected' ? (
                   <>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -359,6 +399,22 @@ export default function SolicitudRecibidaCard({ solicitud, onUpdateSuccess }) {
         confirmText={modalConfig?.confirmText}
         variant={modalConfig?.variant}
         loading={isUpdating || isConfirming || isCanceling}
+      />
+
+      <RatingModal
+        isOpen={showRatingModal}
+        onClose={() => setShowRatingModal(false)}
+        exchangeId={solicitud._id || solicitud.id}
+        otherUserName={name}
+        itemName={requestedPublication?.title || 'Artículo'}
+        onSuccess={() => {
+          setHasRatedLocally(true)
+          if (!user) return
+          const cacheKey = `rated_exchanges_${user.id || user._id}`
+          const rated = JSON.parse(localStorage.getItem(cacheKey) || '[]')
+          rated.push(solicitud._id || solicitud.id)
+          localStorage.setItem(cacheKey, JSON.stringify(rated))
+        }}
       />
     </motion.div>
   )

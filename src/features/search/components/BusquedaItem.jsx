@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Edit2, Trash2, Bell, BellOff, AlertTriangle } from 'lucide-react'
+import { Edit2, Trash2, Bell, BellOff } from 'lucide-react'
 import { toast } from 'sonner'
-import { PUBLICATION_CATEGORIES } from '../../../utils/constants'
+import { PUBLICATION_CATEGORIES } from '../../../shared/utils/constants'
 import { toggleActiva, eliminar } from '../services/activeSearchService'
+import ConfirmModal from '../../../shared/components/ui/ConfirmModal'
 
 const TYPE_COLORS = {
   trueque: 'border-l-emerald-400 bg-emerald-50/50',
@@ -21,39 +22,6 @@ const TYPE_LABELS = {
   trueque: 'Trueque',
   venta: 'Venta',
   ambos: 'Ambos',
-}
-
-function ConfirmModal({ onConfirm, onCancel }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-      <div className="absolute inset-0 bg-black/40" onClick={onCancel} />
-      <div className="relative bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full">
-        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mx-auto mb-4">
-          <AlertTriangle size={22} className="text-red-500" />
-        </div>
-        <h3 className="text-base font-semibold text-slate-900 text-center mb-1">
-          ¿Eliminar búsqueda?
-        </h3>
-        <p className="text-sm text-slate-500 text-center mb-6">
-          Esta acción no se puede deshacer.
-        </p>
-        <div className="flex gap-3">
-          <button
-            onClick={onCancel}
-            className="flex-1 py-2.5 px-4 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all"
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={onConfirm}
-            className="flex-1 py-2.5 px-4 rounded-xl bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition-all"
-          >
-            Eliminar
-          </button>
-        </div>
-      </div>
-    </div>
-  )
 }
 
 export default function BusquedaItem({ busqueda, onUpdate, onDelete }) {
@@ -95,20 +63,21 @@ export default function BusquedaItem({ busqueda, onUpdate, onDelete }) {
 
   return (
     <>
-      {showConfirm && (
-        <ConfirmModal
-          onConfirm={handleDeleteConfirm}
-          onCancel={() => setShowConfirm(false)}
-        />
-      )}
+      <ConfirmModal
+        open={showConfirm}
+        onConfirm={handleDeleteConfirm}
+        onClose={() => setShowConfirm(false)}
+        title="¿Eliminar búsqueda?"
+        message="Esta acción no se puede deshacer."
+        confirmText="Eliminar"
+        variant="danger"
+      />
 
       <div
-        className={`border-l-4 rounded-lg border border-slate-100 p-4 transition-all hover:shadow-md ${
-          TYPE_COLORS[busqueda.type]
-        } ${!busqueda.isActive ? 'opacity-60' : ''}`}
+        className={`border-l-4 rounded-lg border border-slate-100 p-4 transition-all hover:shadow-md ${TYPE_COLORS[busqueda.type]
+          } ${!busqueda.isActive ? 'opacity-60' : ''}`}
       >
         <div className="flex items-start justify-between gap-4">
-          {/* Contenido principal */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-sm font-semibold text-slate-700">{categoryLabel}</span>
@@ -145,17 +114,15 @@ export default function BusquedaItem({ busqueda, onUpdate, onDelete }) {
             </p>
           </div>
 
-          {/* Acciones */}
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={handleToggle}
               disabled={toggling}
               title={busqueda.isActive ? 'Desactivar búsqueda' : 'Activar búsqueda'}
-              className={`p-2 rounded-lg transition-all disabled:opacity-50 ${
-                busqueda.isActive
+              className={`p-2 rounded-lg transition-all disabled:opacity-50 ${busqueda.isActive
                   ? 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200'
                   : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
-              }`}
+                }`}
             >
               {busqueda.isActive ? <Bell size={18} /> : <BellOff size={18} />}
             </button>

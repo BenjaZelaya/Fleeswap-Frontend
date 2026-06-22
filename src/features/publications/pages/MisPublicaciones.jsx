@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getMyPublications, deletePublication, updatePublicationStatus } from '../services/publicationService'
 import { toast } from 'sonner'
+import ConfirmModal from '../../../shared/components/ui/ConfirmModal'
 
 export default function MisPublicaciones() {
   const [publications, setPublications] = useState([])
@@ -194,7 +195,7 @@ export default function MisPublicaciones() {
                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
               />
             </svg>
-            <h3 className="mt-4 text-lg font-medium text-gray-900">No tienes publicaciones disponibles</h3>
+            <h3 className="mt-4 text-lg font-medium text-gray-900">No tenés publicaciones disponibles</h3>
             <p className="text-gray-600 mt-2">Comienza a crear publicaciones para vender o intercambiar</p>
           </div>
         ) : (
@@ -272,8 +273,8 @@ export default function MisPublicaciones() {
                           <button
                             onClick={() => handleToggleAvailability(pub)}
                             className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-semibold transition-colors ${isUnavailable
-                                ? 'text-green-600 hover:bg-green-50 active:bg-green-100'
-                                : 'text-orange-600 hover:bg-orange-50 active:bg-orange-100'
+                              ? 'text-green-600 hover:bg-green-50 active:bg-green-100'
+                              : 'text-orange-600 hover:bg-orange-50 active:bg-orange-100'
                               }`}
                           >
                             {isUnavailable ? (
@@ -372,8 +373,8 @@ export default function MisPublicaciones() {
                               <button
                                 onClick={() => handleToggleAvailability(pub)}
                                 className={`p-2 rounded-lg transition-colors ${(pub.status === 'no_disponible' || pub.status === 'unavailable')
-                                    ? 'text-green-600 hover:bg-green-50'
-                                    : 'text-orange-600 hover:bg-orange-50'
+                                  ? 'text-green-600 hover:bg-green-50'
+                                  : 'text-orange-600 hover:bg-orange-50'
                                   }`}
                                 title={(pub.status === 'no_disponible' || pub.status === 'unavailable') ? 'Marcar como disponible' : 'Marcar como no disponible'}
                               >
@@ -428,82 +429,29 @@ export default function MisPublicaciones() {
       </div>
 
       {/* Modal de confirmación de eliminación */}
-      {confirmDelete && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 animate-in">
-            {/* Icono de advertencia */}
-            <div className="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-
-            {/* Título y mensaje */}
-            <h3 className="text-lg font-bold text-gray-900 text-center">¿Eliminar publicación?</h3>
-            <p className="text-sm text-gray-600 text-center mt-2">
-              Esta acción no se puede deshacer. La publicación será eliminada de la plataforma de forma permanente.
-            </p>
-
-            {/* Botones */}
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => setConfirmDelete(null)}
-                className="flex-1 border border-gray-200 text-gray-700 hover:bg-gray-50 font-semibold py-2.5 rounded-xl transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleConfirmDelete}
-                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-2.5 rounded-xl transition-colors"
-              >
-                Eliminar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmModal
+        open={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={handleConfirmDelete}
+        title="¿Eliminar publicación?"
+        message="Esta acción no se puede deshacer. La publicación será eliminada de la plataforma de forma permanente."
+        confirmText="Eliminar"
+        variant="danger"
+      />
 
       {/* Modal de cambio de disponibilidad */}
-      {statusChange && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 animate-in">
-            {/* Icono de info */}
-            <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-
-            {/* Título y mensaje */}
-            <h3 className="text-lg font-bold text-gray-900 text-center">
-              {statusChange.newStatus === 'no_disponible'
-                ? '¿Marcar como no disponible?'
-                : '¿Marcar como disponible?'}
-            </h3>
-            <p className="text-sm text-gray-600 text-center mt-2">
-              {statusChange.newStatus === 'no_disponible'
-                ? 'Tu publicación no aparecerá en los listados activos, pero permanecerá en tu historial.'
-                : 'Tu publicación vuelva a ser visible para otros usuarios.'}
-            </p>
-
-            {/* Botones */}
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => setStatusChange(null)}
-                className="flex-1 border border-gray-200 text-gray-700 hover:bg-gray-50 font-semibold py-2.5 rounded-xl transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleConfirmStatusChange}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl transition-colors"
-              >
-                Confirmar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmModal
+        open={!!statusChange}
+        onClose={() => setStatusChange(null)}
+        onConfirm={handleConfirmStatusChange}
+        title={statusChange?.newStatus === 'no_disponible'
+          ? '¿Marcar como no disponible?'
+          : '¿Marcar como disponible?'}
+        message={statusChange?.newStatus === 'no_disponible'
+          ? 'Tu publicación no aparecerá en los listados activos, pero permanecerá en tu historial.'
+          : 'Tu publicación volverá a ser visible para otros usuarios.'}
+        confirmText="Confirmar"
+      />
     </motion.div>
   )
 }
