@@ -13,7 +13,7 @@ export default function NotificationDropdown({ isOpen, onClose }) {
     if (!notification.isRead) {
       markOneAsRead(notification._id)
     }
-    navigate(`/publications/${notification.publication}`)
+    navigate(`/mis-intercambios`)
     onClose()
   }
 
