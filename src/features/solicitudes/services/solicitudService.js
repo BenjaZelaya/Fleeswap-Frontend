@@ -124,3 +124,13 @@ export async function getMisChats() {
       return dateB - dateA
     })
 }
+
+/**
+ * Obtiene el historial completo de intercambios del usuario (H6.3).
+ * El endpoint devuelve shape simplificado: { id, type, status, role, object, counterpart, createdAt, updatedAt }
+ * Filtros opcionales: { status, page, limit }
+ */
+export async function getHistorial(params = {}) {
+  const response = await api.get('/exchanges/history', { params })
+  return response.data
+}

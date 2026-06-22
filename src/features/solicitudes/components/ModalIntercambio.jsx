@@ -129,6 +129,19 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino, 
   const nextStep = () => setStep(s => s + 1)
   const prevStep = () => setStep(s => s - 1)
 
+  // Autocalcular diferencia si ambos productos tienen precio (tipo 'ambos' o 'venta')
+  useEffect(() => {
+    if (activeDestinoPub && selectedPub) {
+      const pDestino = activeDestinoPub.price || activeDestinoPub.precio || 0
+      const pMio = selectedPub.price || selectedPub.precio || 0
+      
+      if (pDestino > 0 && pMio > 0) {
+        const diff = Math.abs(pDestino - pMio)
+        setMonto(diff.toString())
+      }
+    }
+  }, [activeDestinoPub, selectedPub])
+
   async function handleSubmit(e) {
     if (e) e.preventDefault()
     if (!selectedId || (!publicacionDestino && !selectedDestinoId)) return
@@ -259,6 +272,9 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino, 
              <img src={activeDestinoPub?.photos?.[0]} alt="" className="w-full h-full object-cover" />
           </div>
           <p className="text-[10px] font-bold text-slate-800 truncate">{activeDestinoPub?.title}</p>
+          {(activeDestinoPub?.price || activeDestinoPub?.precio) > 0 && (
+            <p className="text-[11px] font-black text-emerald-600">${(activeDestinoPub.price || activeDestinoPub.precio).toLocaleString('es-AR')}</p>
+          )}
           <span className="text-[9px] text-slate-400 uppercase font-bold tracking-tighter">Recibís</span>
         </div>
 
@@ -273,6 +289,9 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino, 
              <img src={selectedPub?.photos?.[0]} alt="" className="w-full h-full object-cover" />
           </div>
           <p className="text-[10px] font-bold text-slate-800 truncate">{selectedPub?.title}</p>
+          {(selectedPub?.price || selectedPub?.precio) > 0 && (
+            <p className="text-[11px] font-black text-emerald-600">${(selectedPub.price || selectedPub.precio).toLocaleString('es-AR')}</p>
+          )}
           <span className="text-[9px] text-brand uppercase font-bold tracking-tighter">Entregás</span>
         </div>
       </div>

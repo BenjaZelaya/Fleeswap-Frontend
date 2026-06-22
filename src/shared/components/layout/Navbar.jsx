@@ -114,7 +114,7 @@ export default function Navbar() {
     <>
       {/* ══ NAVBAR TOP ══════════════════════════════════════════════ */}
       <nav
-        className="sticky top-0 z-40 border-b border-slate-100 backdrop-blur-md"
+        className="sticky top-0 z-[100] border-b border-slate-100 backdrop-blur-md"
         style={{ backgroundColor: "rgba(249,247,244,0.92)" }}
       >
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
@@ -123,14 +123,14 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop nav */}
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-4">
             {isAuthenticated ? (
-              <div className="relative" ref={desktopDropdownRef}>
-                <div className="flex items-center gap-2.5 hover:opacity-75 transition-opacity">
-                  <NotificationBell />
+              <>
+                <NotificationBell />
+                <div className="relative" ref={desktopDropdownRef}>
                   <button
                     onClick={() => setDropdownOpen((v) => !v)}
-                    className="flex items-center gap-2.5"
+                    className="flex items-center gap-2.5 hover:opacity-75 transition-opacity"
                   >
                     <motion.div whileHover={{ scale: 1.06 }}>
                       <Avatar initial={initial} photo={user?.photo} alt={displayName} />
@@ -155,7 +155,6 @@ export default function Navbar() {
                       />
                     </motion.svg>
                   </button>
-                </div>
 
                 {/* Dropdown */}
                 <AnimatePresence>
@@ -268,37 +267,15 @@ export default function Navbar() {
                           <Bell size={16} className="text-slate-400" />
                           Búsquedas Activas
                         </Link>
+
                         <Link
-                          to="/solicitudes-recibidas"
+                          to="/mis-intercambios"
                           className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-slate-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={1.75}
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                           </svg>
-                          Recibidas
-                        </Link>
-                        <Link
-                          to="/solicitudes-enviadas"
-                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-slate-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={1.75}
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                          </svg>
-                          Enviadas
+                          Mis intercambios
                         </Link>
                       </div>
 
@@ -331,7 +308,8 @@ export default function Navbar() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
+                </div>
+              </>
             ) : (
               <>
                 <Link
@@ -443,37 +421,15 @@ export default function Navbar() {
                           <Bell size={16} className="text-slate-400" />
                           Búsquedas Activas
                         </Link>
+
                         <Link
-                          to="/solicitudes-recibidas"
+                          to="/mis-intercambios"
                           className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-slate-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={1.75}
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                           </svg>
-                          Recibidas
-                        </Link>
-                        <Link
-                          to="/solicitudes-enviadas"
-                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-slate-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={1.75}
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                          </svg>
-                          Enviadas
+                          Mis intercambios
                         </Link>
                       </div>
                       <div className="border-t border-slate-100 py-1">
@@ -520,7 +476,7 @@ export default function Navbar() {
 
       {/* ══ BOTTOM TAB BAR — solo mobile ════════════════════════════ */}
       <div
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-slate-100 backdrop-blur-md"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-[100] border-t border-slate-100 backdrop-blur-md"
         style={{ backgroundColor: "rgba(249,247,244,0.96)" }}
       >
         <div className="relative flex h-20 items-center">
