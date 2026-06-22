@@ -26,15 +26,14 @@ const STEP_VARIANTS = {
 // ── Sub-componente: Tarjeta Seleccionable ──────────────────────────────────
 function SelectableCard({ pub, isSelected, onSelect }) {
   const typeLabel = PUBLICATION_TYPES.find(t => t.value === pub.type)?.label || pub.type
-  
+
   return (
     <div
       onClick={() => onSelect(pub._id || pub.id)}
-      className={`relative cursor-pointer group rounded-xl border-2 transition-all duration-200 overflow-hidden ${
-        isSelected 
-          ? 'border-brand bg-brand/5 ring-4 ring-brand/10' 
+      className={`relative cursor-pointer group rounded-xl border-2 transition-all duration-200 overflow-hidden ${isSelected
+          ? 'border-brand bg-brand/5 ring-4 ring-brand/10'
           : 'border-slate-100 bg-white hover:border-brand/30'
-      }`}
+        }`}
     >
       <div className="aspect-square bg-slate-50 relative">
         {pub.photos?.[0] ? (
@@ -56,9 +55,8 @@ function SelectableCard({ pub, isSelected, onSelect }) {
       </div>
       <div className="p-2.5">
         <p className="text-[11px] font-bold text-gray-900 truncate leading-tight mb-1">{pub.title}</p>
-        <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
-          pub.type === 'trueque' ? 'bg-blue-100 text-blue-600' : 'bg-purple-100 text-purple-600'
-        }`}>
+        <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${pub.type === 'trueque' ? 'bg-blue-100 text-blue-600' : 'bg-purple-100 text-purple-600'
+          }`}>
           {typeLabel}
         </span>
       </div>
@@ -97,7 +95,7 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino, 
     setSelectedDestinoId('')
     setSelectedId('')
     setMonto('')
-    
+
     // Si ya viene con destino, empezamos en el paso 2
     if (publicacionDestino) {
       setStep(2)
@@ -134,7 +132,7 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino, 
     if (activeDestinoPub && selectedPub) {
       const pDestino = activeDestinoPub.price || activeDestinoPub.precio || 0
       const pMio = selectedPub.price || selectedPub.precio || 0
-      
+
       if (pDestino > 0 && pMio > 0) {
         const diff = Math.abs(pDestino - pMio)
         setMonto(diff.toString())
@@ -167,26 +165,26 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino, 
   }
 
   // ── Render Steps ───────────────────────────────────────────────────────
-  
+
   const renderStep1 = () => (
     <motion.div variants={STEP_VARIANTS} initial="hidden" animate="visible" exit="exit" className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold text-slate-800">1. Elegí qué querés obtener</h3>
         <span className="text-[10px] font-bold text-slate-400">PASO 1 DE 3</span>
       </div>
-      
+
       {pubsDestinoFiltradas.length === 0 ? (
         <div className="py-10 text-center space-y-2">
           <p className="text-sm text-slate-500">Este usuario no tiene otros artículos para trueque.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[320px] overflow-y-auto pr-1 custom-scrollbar">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-80 overflow-y-auto pr-1 custom-scrollbar">
           {pubsDestinoFiltradas.map((pub) => (
-            <SelectableCard 
-              key={pub._id || pub.id} 
-              pub={pub} 
-              isSelected={selectedDestinoId === (pub._id || pub.id)} 
-              onSelect={setSelectedDestinoId} 
+            <SelectableCard
+              key={pub._id || pub.id}
+              pub={pub}
+              isSelected={selectedDestinoId === (pub._id || pub.id)}
+              onSelect={setSelectedDestinoId}
             />
           ))}
         </div>
@@ -226,13 +224,13 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino, 
           <button onClick={onClose} className="text-xs font-bold text-brand hover:underline">Ir a crear una</button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[320px] overflow-y-auto pr-1 custom-scrollbar">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-80 overflow-y-auto pr-1 custom-scrollbar">
           {misPublicaciones.map((pub) => (
-            <SelectableCard 
-              key={pub._id || pub.id} 
-              pub={pub} 
-              isSelected={selectedId === (pub._id || pub.id)} 
-              onSelect={setSelectedId} 
+            <SelectableCard
+              key={pub._id || pub.id}
+              pub={pub}
+              isSelected={selectedId === (pub._id || pub.id)}
+              onSelect={setSelectedId}
             />
           ))}
         </div>
@@ -269,7 +267,7 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino, 
       <div className="flex items-center justify-between gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 relative">
         <div className="flex-1 text-center space-y-2">
           <div className="w-16 h-16 mx-auto rounded-xl overflow-hidden shadow-sm border-2 border-white">
-             <img src={activeDestinoPub?.photos?.[0]} alt="" className="w-full h-full object-cover" />
+            <img src={activeDestinoPub?.photos?.[0]} alt="" className="w-full h-full object-cover" />
           </div>
           <p className="text-[10px] font-bold text-slate-800 truncate">{activeDestinoPub?.title}</p>
           {(activeDestinoPub?.price || activeDestinoPub?.precio) > 0 && (
@@ -286,7 +284,7 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino, 
 
         <div className="flex-1 text-center space-y-2">
           <div className="w-16 h-16 mx-auto rounded-xl overflow-hidden shadow-sm border-2 border-brand/30">
-             <img src={selectedPub?.photos?.[0]} alt="" className="w-full h-full object-cover" />
+            <img src={selectedPub?.photos?.[0]} alt="" className="w-full h-full object-cover" />
           </div>
           <p className="text-[10px] font-bold text-slate-800 truncate">{selectedPub?.title}</p>
           {(selectedPub?.price || selectedPub?.precio) > 0 && (
@@ -301,7 +299,7 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino, 
         <label className="text-xs font-bold text-slate-600 block">Dinero adicional a tu favor o en contra</label>
         <div className="relative">
           <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">$</span>
-          <input 
+          <input
             type="number"
             value={monto}
             onChange={(e) => setMonto(e.target.value)}
