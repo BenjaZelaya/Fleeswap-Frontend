@@ -130,6 +130,7 @@ export default function Navbar() {
                 <div className="relative" ref={desktopDropdownRef}>
                   <button
                     onClick={() => setDropdownOpen((v) => !v)}
+                    data-testid="avatar-menu-trigger"
                     className="flex items-center gap-2.5 hover:opacity-75 transition-opacity"
                   >
                     <motion.div whileHover={{ scale: 1.06 }}>

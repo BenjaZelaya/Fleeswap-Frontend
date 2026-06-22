@@ -29,3 +29,9 @@ npm-debug.log*
 # OS
 .DS_Store
 Thumbs.db
+
+# Cypress
+cypress/videos
+cypress/screenshots
+cypress/downloads
+cypress.env.json
