@@ -149,7 +149,7 @@ export default function Login() {
 
       <p className="mt-6 text-center text-sm text-slate-400">
         ¿No tenés una cuenta?{' '}
-        <Link to="/register" className="font-semibold text-brand transition-colors hover:text-brand-light">
+        <Link to="/register" state={location.state} className="font-semibold text-brand transition-colors hover:text-brand-light">
           Registrate
         </Link>
       </p>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { toast } from 'sonner'
 import { register } from '../services/authService'
 import useAuthStore from '../../../store/authStore'
 import AuthLayout from '../../../shared/components/layout/AuthLayout'
@@ -22,7 +23,10 @@ const MAX_BIRTH_DATE = (() => {
 })()
 
 function getSafeRedirectPath(pathname) {
-  return typeof pathname === 'string' && pathname.startsWith('/') ? pathname : '/'
+  if (typeof pathname === 'string' && pathname.startsWith('/') && pathname !== '/login' && pathname !== '/register') {
+    return pathname
+  }
+  return '/'
 }
 
 export default function Register() {
@@ -69,7 +73,12 @@ export default function Register() {
         password: form.password,
         confirmPassword: form.confirm,
       })
+      
+      // Limpiar cualquier sesión anterior por seguridad
+      useAuthStore.getState().logout()
+      
       setAuth(data.user, data.accessToken)
+      toast.success('¡Cuenta creada con éxito! Bienvenido a Fleeswap.')
       navigate(getSafeRedirectPath(location.state?.from?.pathname))
     } catch (err) {
       if (err.response?.status === 409) {
