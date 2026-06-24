@@ -7,7 +7,7 @@ import ExchangeStatusBadge from './exchange-card/ExchangeStatusBadge'
 import ExchangeProductMini from './exchange-card/ExchangeProductMini'
 import ExchangeActions from './exchange-card/ExchangeActions'
 
-export default function UnifiedExchangeCard({ exchange, onUpdateSuccess }) {
+export default function UnifiedExchangeCard({ exchange, onUpdateSuccess, onCalificar }) {
   const navigate = useNavigate()
 
   const { source, type, status, complementaryAmount = 0 } = exchange
@@ -44,11 +44,20 @@ export default function UnifiedExchangeCard({ exchange, onUpdateSuccess }) {
 
   // Generamos la etiqueta superior
   let headerLabel = ''
-  if (isCompleted) {
-    headerLabel = isPurchase ? 'COMPRA COMPLETADA' : 'INTERCAMBIO COMPLETADO'
+  if (isPurchase) {
+    const action = amIRequester ? 'COMPRA' : 'VENTA'
+    if (status === 'completed') {
+      headerLabel = `${action} COMPLETADA`
+    } else if (status === 'cancelled' || status === 'rejected') {
+      headerLabel = `${action} CANCELADA`
+    } else {
+      headerLabel = amIRequester ? 'COMPRA EN CURSO' : `VENTA (${userName.toUpperCase()} ESTÁ INTERESADO)`
+    }
   } else {
-    if (isPurchase) {
-      headerLabel = amIRequester ? 'COMPRA (YO INTERESADO)' : `COMPRA (${userName.toUpperCase()} INTERESADO)`
+    if (status === 'completed') {
+      headerLabel = 'INTERCAMBIO COMPLETADO'
+    } else if (status === 'cancelled' || status === 'rejected') {
+      headerLabel = 'INTERCAMBIO CANCELADO'
     } else {
       headerLabel = amIRequester ? 'INTERCAMBIO (ENVIADO)' : 'INTERCAMBIO (RECIBIDO)'
     }
@@ -71,7 +80,9 @@ export default function UnifiedExchangeCard({ exchange, onUpdateSuccess }) {
         <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 w-full">
           {isPurchase ? (
             <div className="flex-1 w-full">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">PRODUCTO</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                {amIRequester ? 'PRODUCTO A COMPRAR' : 'PRODUCTO A VENDER'}
+              </p>
               <ExchangeProductMini pub={productoComprado} fallbackText="Producto eliminado" />
             </div>
           ) : (
@@ -138,6 +149,7 @@ export default function UnifiedExchangeCard({ exchange, onUpdateSuccess }) {
             user={user}
             onUpdateSuccess={onUpdateSuccess}
             onNavigate={navigate}
+            onCalificar={onCalificar}
           />
         </div>
       </div>

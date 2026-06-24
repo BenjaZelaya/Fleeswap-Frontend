@@ -14,7 +14,8 @@ export default function ExchangeActions({
   otherUser,
   user,
   onUpdateSuccess,
-  onNavigate
+  onNavigate,
+  onCalificar
 }) {
   const { _id, id, status, confirmedByOwner, confirmedByRequester } = exchange
   const exchangeId = _id || id
@@ -98,7 +99,11 @@ export default function ExchangeActions({
           const respuesta = await confirmarIntercambio(exchangeId)
           if (respuesta.status === 'completed') {
             toast.success(isPurchase ? '¡Venta completada! El producto fue marcado como vendido.' : '¡Excelente! El intercambio se ha completado.')
-            setShowRatingModal(true)
+            if (onCalificar) {
+              onCalificar(exchange)
+            } else {
+              setShowRatingModal(true)
+            }
           } else {
             toast.info('Confirmación registrada. Esperando a la otra parte.')
           }
@@ -113,6 +118,19 @@ export default function ExchangeActions({
   }
 
   const handleCancelar = () => {
+    // Verificación preventiva para evitar error 500 del backend si un producto fue eliminado
+    if (isPurchase) {
+      if (!exchange.requestedPublication) {
+        toast.error('No podés cancelar esta venta porque el artículo original fue eliminado.')
+        return
+      }
+    } else {
+      if (!exchange.offeredPublication || !exchange.requestedPublication) {
+        toast.error('No podés cancelar este intercambio porque uno de los artículos fue eliminado.')
+        return
+      }
+    }
+
     setModalConfig({
       title: isPurchase ? '¿Cancelar venta?' : '¿Cancelar intercambio?',
       message: isPurchase
@@ -223,10 +241,12 @@ export default function ExchangeActions({
           <>
             {!(exchange.hasRated || hasRatedLocally) && (
               <button
-                onClick={() => setShowRatingModal(true)}
+                onClick={() => {
+                  if (onCalificar) onCalificar(exchange)
+                  else setShowRatingModal(true)
+                }}
                 className="flex-1 sm:flex-none px-4 py-2 text-sm font-bold text-white bg-amber-500 rounded-xl hover:bg-amber-600 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20"
               >
-                <Star size={16} className="fill-current" />
                 Calificar Usuario
               </button>
             )}
@@ -265,7 +285,7 @@ export default function ExchangeActions({
       />
 
       <RatingModal
-        open={showRatingModal}
+        isOpen={showRatingModal}
         onClose={() => setShowRatingModal(false)}
         onSuccess={handleRatingSuccess}
         exchangeId={exchangeId}
