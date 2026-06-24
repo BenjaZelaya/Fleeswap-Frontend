@@ -80,11 +80,11 @@ function getRedirectPath(notification) {
     case 'active_search_match':
       return `/publications/${notification.publication}`
     case 'exchange_request_received':
-      return '/solicitudes-recibidas'
+      return '/mis-intercambios#recibidas'
     case 'exchange_request_accepted':
-      return notification.exchange ? `/chats/${notification.exchange}` : '/solicitudes-enviadas'
+      return notification.exchange ? `/chats/${notification.exchange}` : '/mis-intercambios#enviadas'
     case 'exchange_request_rejected':
-      return '/solicitudes-enviadas'
+      return '/mis-intercambios#enviadas'
     default:
       return notification.publication ? `/publications/${notification.publication}` : '/'
   }

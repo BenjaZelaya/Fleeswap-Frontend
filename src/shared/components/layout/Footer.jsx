@@ -107,8 +107,8 @@ export default function Footer() {
               {isAuthenticated ? (
                 <>
                   <FooterLink to="/my-publications" icon={LayoutDashboard}>Mis publicaciones</FooterLink>
-                  <FooterLink to="/solicitudes-recibidas" icon={Inbox}>Solicitudes recibidas</FooterLink>
-                  <FooterLink to="/solicitudes-enviadas" icon={Send}>Solicitudes enviadas</FooterLink>
+                  <FooterLink to="/mis-intercambios#recibidas" icon={Inbox}>Solicitudes recibidas</FooterLink>
+                  <FooterLink to="/mis-intercambios#enviadas" icon={Send}>Solicitudes enviadas</FooterLink>
                   <FooterLink to={`/profile/${user?.id}`} icon={User}>Mi perfil</FooterLink>
                   <FooterLink to="/publications/create" icon={PlusCircle} primary>Nueva publicación</FooterLink>
                 </>
