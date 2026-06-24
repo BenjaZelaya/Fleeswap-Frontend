@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { io } from 'socket.io-client'
 import useAuthStore from '../../../store/authStore'
@@ -32,6 +32,8 @@ export default function MensajeriaView() {
   useEffect(() => { fetchChats() }, [fetchChats])
 
   // ── Socket global para escuchar mensajes y reordenar el sidebar ──────────
+  const socketRef = useRef(null)
+
   useEffect(() => {
     if (!token || token === 'undefined' || token === 'null') return
 
@@ -45,41 +47,36 @@ export default function MensajeriaView() {
       reconnectionDelay: 1500,
     })
 
-    // Unirse a todos los chats activos para escuchar mensajes
-    socket.on('connect', () => {
-      chats.forEach(chat => {
-        if (chat.status === 'active') {
-          socket.emit('chat:join', { exchangeId: chat._id })
-        }
-      })
-    })
-
-    // Cuando llega un mensaje, mover ese chat al tope del sidebar
-    socket.on('chat:message', () => {
-      setChats(prev => {
-        // Encontrar el chat al que pertenece este mensaje
-        // y actualizar su updatedAt para que suba al tope
-        const updated = prev.map(chat => {
-          // El mensaje llegó por el socket de la room `chat:${exchangeId}`
-          // Como no sabemos el exchangeId del mensaje directamente,
-          // necesitamos comparar — pero podemos simplemente re-fetch
-          return chat
-        })
-        return updated
-      })
-      // Re-fetch para obtener el orden correcto desde el servidor
-      fetchChats()
-    })
-
     socket.connect()
+    socketRef.current = socket
 
     return () => {
-      socket.off('connect')
-      socket.off('chat:message')
       socket.disconnect()
+      socketRef.current = null
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, chats.length])
+  }, [token])
+
+  useEffect(() => {
+    const socket = socketRef.current
+    if (!socket || chats.length === 0) return
+
+    // Unirse a todos los chats activos para escuchar mensajes
+    chats.forEach(chat => {
+      if (chat.status === 'active') {
+        socket.emit('chat:join', { exchangeId: chat._id })
+      }
+    })
+
+    const onMessage = () => {
+      fetchChats()
+    }
+
+    socket.on('chat:message', onMessage)
+
+    return () => {
+      socket.off('chat:message', onMessage)
+    }
+  }, [chats, fetchChats])
 
   return (
     <div className="flex h-full overflow-hidden bg-white">
