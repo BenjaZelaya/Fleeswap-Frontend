@@ -8,6 +8,45 @@
 import api from '../../../services/api'
 
 /**
+ * Helper: Si una publicación fue eliminada de la base de datos (llega como null),
+ * forzamos el estado a "cancelled" puramente en el frontend para que la UI
+ * la trate como cancelada, sin tocar el backend.
+ */
+const applyAutoCancel = (exchange) => {
+  if (!exchange) return exchange
+  if (['completed', 'cancelled', 'rejected'].includes(exchange.status)) return exchange
+
+  let shouldCancel = false
+
+  // Forma de historial (H6.3)
+  if (exchange.hasOwnProperty('object')) {
+    if (!exchange.object) shouldCancel = true
+  } 
+  // Forma normal
+  else if (exchange.type === 'purchase') {
+    if (!exchange.requestedPublication) shouldCancel = true
+  } else {
+    if (!exchange.requestedPublication || !exchange.offeredPublication) shouldCancel = true
+  }
+
+  if (shouldCancel) {
+    return { ...exchange, status: 'cancelled' }
+  }
+  return exchange
+}
+
+const mapExchanges = (data) => {
+  if (!data) return data
+  if (data.exchanges && Array.isArray(data.exchanges)) {
+    return { ...data, exchanges: data.exchanges.map(applyAutoCancel) }
+  }
+  if (Array.isArray(data)) {
+    return data.map(applyAutoCancel)
+  }
+  return data
+}
+
+/**
  * Envía una nueva solicitud de intercambio.
  *
  * requestedPublicationId - ID de la publicación que quiero obtener.
@@ -53,7 +92,7 @@ export async function getMisPublicaciones() {
  */
 export async function getSolicitudesRecibidas(params = {}) {
   const response = await api.get('/exchanges/received', { params })
-  return response.data
+  return mapExchanges(response.data)
 }
 
 /**
@@ -63,7 +102,7 @@ export async function getSolicitudesRecibidas(params = {}) {
  */
 export async function getSolicitudesEnviadas(params = {}) {
   const response = await api.get('/exchanges/sent', { params })
-  return response.data
+  return mapExchanges(response.data)
 }
 
 /**
@@ -102,7 +141,7 @@ export async function cancelarIntercambio(id) {
  */
 export async function getIntercambio(id) {
   const response = await api.get(`/exchanges/${id}`)
-  return response.data
+  return applyAutoCancel(response.data)
 }
 
 /**
@@ -132,5 +171,5 @@ export async function getMisChats() {
  */
 export async function getHistorial(params = {}) {
   const response = await api.get('/exchanges/history', { params })
-  return response.data
+  return mapExchanges(response.data)
 }
