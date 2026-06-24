@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect, useMemo, useCallback } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion'
 import { getSolicitudesRecibidas, getSolicitudesEnviadas } from '../services/solicitudService'
@@ -84,42 +84,48 @@ export default function MisIntercambios() {
   const [intercambios, setIntercambios] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [tabActivo, setTabActivo] = useState('recibidas')
+  const location = useLocation()
+  const initialTab = location.hash ? location.hash.replace('#', '') : 'recibidas'
+  const [tabActivo, setTabActivo] = useState(initialTab)
+
+  // Actualizar el tab si la URL cambia (por ej. click en notificación estando ya en la página)
+  useEffect(() => {
+    if (location.hash) {
+      setTabActivo(location.hash.replace('#', ''))
+    }
+  }, [location.hash])
 
   // Rating modal
   const [ratingData, setRatingData] = useState(null) // { exchangeId, otherUserName, itemName }
 
-  useEffect(() => {
-    let active = true
-    async function fetchAll() {
-      setLoading(true)
-      setError(null)
-      try {
-        const [rec, env] = await Promise.all([
-          getSolicitudesRecibidas(),
-          getSolicitudesEnviadas()
-        ])
-        
-        if (!active) return
+  const fetchAll = useCallback(async (showLoading = true) => {
+    if (showLoading) setLoading(true)
+    setError(null)
+    try {
+      const [rec, env] = await Promise.all([
+        getSolicitudesRecibidas(),
+        getSolicitudesEnviadas()
+      ])
+      
+      const normalize = (data) => Array.isArray(data) ? data : (data?.exchanges ?? [])
+      const recibidas = normalize(rec).map(x => ({ ...x, source: 'received' }))
+      const enviadas = normalize(env).map(x => ({ ...x, source: 'sent' }))
 
-        const normalize = (data) => Array.isArray(data) ? data : (data?.exchanges ?? [])
-        const recibidas = normalize(rec).map(x => ({ ...x, source: 'received' }))
-        const enviadas = normalize(env).map(x => ({ ...x, source: 'sent' }))
+      const all = [...recibidas, ...enviadas].sort((a, b) => {
+        return new Date(b.createdAt) - new Date(a.createdAt)
+      })
 
-        const all = [...recibidas, ...enviadas].sort((a, b) => {
-          return new Date(b.createdAt) - new Date(a.createdAt)
-        })
-
-        setIntercambios(all)
-      } catch (err) {
-        if (active) setError(err.response?.data?.message || 'Error al cargar los intercambios')
-      } finally {
-        if (active) setLoading(false)
-      }
+      setIntercambios(all)
+    } catch (err) {
+      setError(err.response?.data?.message || 'Error al cargar los intercambios')
+    } finally {
+      if (showLoading) setLoading(false)
     }
-    fetchAll()
-    return () => { active = false }
   }, [])
+
+  useEffect(() => {
+    fetchAll()
+  }, [fetchAll])
 
   // ─── Filtrado ──────────────────────────────────────────────────────────────
   const lists = useMemo(() => {
@@ -134,9 +140,8 @@ export default function MisIntercambios() {
         return
       }
 
-      // Omitimos rechazados y cancelados en la vista simplificada para que no molesten
-      // (a menos que el usuario lo requiera, los mantenemos ocultos en esta UI limpia)
-      if (['rejected', 'cancelled'].includes(exchange.status)) return
+      // Omitimos solo rechazados (los cancelados ahora se muestran a pedido del usuario)
+      if (['rejected'].includes(exchange.status)) return
 
       // Pendientes y Activos
       if (exchange.source === 'received') {
@@ -247,6 +252,7 @@ export default function MisIntercambios() {
                     <UnifiedExchangeCard
                       key={intercambio._id || intercambio.id}
                       exchange={intercambio}
+                      onUpdateSuccess={() => fetchAll(false)}
                       onCalificar={handleCalificar}
                     />
                   ))}
