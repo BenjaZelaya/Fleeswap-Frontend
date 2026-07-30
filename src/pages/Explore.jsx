@@ -5,10 +5,10 @@ import { motion } from 'framer-motion'
 import { useExplore } from '../features/publications/hooks/useExplore'
 import { PUBLICATION_CATEGORIES } from '../shared/utils/constants'
 import { defaultSeo } from '../shared/utils/seoConfig'
-import SearchBar       from '../shared/components/SearchBar'
-import FilterPanel     from '../shared/components/FilterPanel'
+import SearchBar from '../shared/components/SearchBar'
+import FilterPanel from '../shared/components/FilterPanel'
 import PublicationGrid from '../shared/components/PublicationGrid'
-import Seo             from '../shared/components/Seo'
+import Seo from '../shared/components/Seo'
 
 function CategoryShortcut({ category }) {
   return (

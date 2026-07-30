@@ -2,7 +2,7 @@
 import { motion } from 'framer-motion'
 import { useNavigate, Link } from 'react-router-dom'
 import { ArrowRightLeft } from 'lucide-react'
-import useAuthStore from '../../../store/authStore'
+import { formatCurrency } from '../../../shared/utils/formatters'
 import ExchangeStatusBadge from './exchange-card/ExchangeStatusBadge'
 import ExchangeProductMini from './exchange-card/ExchangeProductMini'
 import ExchangeActions from './exchange-card/ExchangeActions'
@@ -12,10 +12,7 @@ export default function UnifiedExchangeCard({ exchange, onUpdateSuccess, onCalif
 
   const { source, type, status, complementaryAmount = 0 } = exchange
   const isPurchase = type === 'purchase'
-  const isCompleted = status === 'completed'
   const amIRequester = source === 'sent'
-
-  const user = useAuthStore(state => state.user)
 
   // Determinamos el usuario contraparte
   const otherUser = amIRequester ? exchange.owner : exchange.requester
@@ -106,7 +103,7 @@ export default function UnifiedExchangeCard({ exchange, onUpdateSuccess, onCalif
 
         {/* Info del usuario y acciones */}
         <div className="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-5 border-t border-slate-100">
-          <Link 
+          <Link
             to={`/profile/${otherUser?._id || otherUser?.id}`}
             className="flex items-center gap-3 group"
           >
@@ -128,12 +125,12 @@ export default function UnifiedExchangeCard({ exchange, onUpdateSuccess, onCalif
             {isPurchase ? (
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">PRECIO</p>
-                <p className="text-sm font-black text-emerald-600">${precio.toLocaleString('es-AR')}</p>
+                <p className="text-sm font-black text-emerald-600">{formatCurrency(precio)}</p>
               </div>
             ) : complementaryAmount > 0 ? (
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">$ ADICIONAL</p>
-                <p className="text-sm font-black text-emerald-600">${complementaryAmount.toLocaleString('es-AR')}</p>
+                <p className="text-sm font-black text-emerald-600">{formatCurrency(complementaryAmount)}</p>
               </div>
             ) : null}
           </div>
@@ -141,12 +138,8 @@ export default function UnifiedExchangeCard({ exchange, onUpdateSuccess, onCalif
           {/* Botones de acción */}
           <ExchangeActions
             exchange={exchange}
-            amIRequester={amIRequester}
-            isPurchase={isPurchase}
-            isCompleted={isCompleted}
             userName={userName}
             otherUser={otherUser}
-            user={user}
             onUpdateSuccess={onUpdateSuccess}
             onNavigate={navigate}
             onCalificar={onCalificar}
