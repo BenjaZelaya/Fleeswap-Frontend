@@ -1,24 +1,30 @@
 import { useState } from 'react'
-import { MessageSquare, Star } from 'lucide-react'
+import { MessageSquare } from 'lucide-react'
 import { toast } from 'sonner'
 import { aceptarSolicitud, rechazarSolicitud, confirmarIntercambio, cancelarIntercambio } from '../../services/solicitudService'
 import ConfirmModal from '../../../../shared/components/ui/ConfirmModal'
 import RatingModal from '../../../ratings/components/RatingModal'
+import useAuthStore from '../../../../store/authStore'
 
 export default function ExchangeActions({
   exchange,
-  amIRequester,
-  isPurchase,
-  isCompleted,
   userName,
   otherUser,
-  user,
   onUpdateSuccess,
   onNavigate,
   onCalificar
 }) {
   const { _id, id, status, confirmedByOwner, confirmedByRequester } = exchange
   const exchangeId = _id || id
+
+  // Derivar flags del propio objeto exchange
+  const user = useAuthStore((s) => s.user)
+  const amIRequester = exchange.source === 'sent'
+  const isPurchase = exchange.type === 'purchase'
+  const isCompleted = exchange.status === 'completed'
+
+  // Clave de localStorage para el registro local de calificaciones
+  const getRatedKey = (userId) => `rated_exchanges_${userId}`
 
   const [isUpdating, setIsUpdating] = useState(false)
   const [isConfirming, setIsConfirming] = useState(false)
@@ -28,7 +34,7 @@ export default function ExchangeActions({
 
   const [hasRatedLocally, setHasRatedLocally] = useState(() => {
     if (!user) return false
-    const rated = localStorage.getItem(`rated_exchanges_${user.id || user._id}`)
+    const rated = localStorage.getItem(getRatedKey(user.id || user._id))
     if (rated) {
       const parsed = JSON.parse(rated)
       return parsed.includes(exchangeId)
@@ -157,7 +163,7 @@ export default function ExchangeActions({
   const handleRatingSuccess = () => {
     setHasRatedLocally(true)
     if (user) {
-      const key = `rated_exchanges_${user.id || user._id}`
+      const key = getRatedKey(user.id || user._id)
       const rated = JSON.parse(localStorage.getItem(key) || '[]')
       rated.push(exchangeId)
       localStorage.setItem(key, JSON.stringify(rated))
