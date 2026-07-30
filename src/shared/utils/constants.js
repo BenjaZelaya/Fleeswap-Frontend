@@ -60,3 +60,6 @@ export const NAME_REGEX = /^[a-záéíóúüñA-ZÁÉÍÓÚÜÑ\s-]+$/
 export const PASSWORD_UPPERCASE_REGEX = /[A-Z]/
 export const PASSWORD_DIGIT_REGEX = /\d/
 export const PASSWORD_SPECIAL_REGEX = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/
+
+// Estados de publicacion que se consideran disponibles para intercambio o compra
+export const PUBLICATION_AVAILABLE_STATUSES = ['available', 'activo', 'disponible']
