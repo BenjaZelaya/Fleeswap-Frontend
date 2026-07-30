@@ -3,7 +3,8 @@ import { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { enviarSolicitud, getMisPublicaciones } from '../services/solicitudService'
-import { PUBLICATION_TYPES } from '../../../shared/utils/constants'
+import { PUBLICATION_TYPES, PUBLICATION_AVAILABLE_STATUSES } from '../../../shared/utils/constants'
+import { formatCurrency } from '../../../shared/utils/formatters'
 
 // ── Constantes de animación ────────────────────────────────────────────────
 const OVERLAY_VARIANTS = {
@@ -31,8 +32,8 @@ function SelectableCard({ pub, isSelected, onSelect }) {
     <div
       onClick={() => onSelect(pub._id || pub.id)}
       className={`relative cursor-pointer group rounded-xl border-2 transition-all duration-200 overflow-hidden ${isSelected
-          ? 'border-brand bg-brand/5 ring-4 ring-brand/10'
-          : 'border-slate-100 bg-white hover:border-brand/30'
+        ? 'border-brand bg-brand/5 ring-4 ring-brand/10'
+        : 'border-slate-100 bg-white hover:border-brand/30'
         }`}
     >
       <div className="aspect-square bg-slate-50 relative">
@@ -79,7 +80,7 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino, 
     if (!publicacionesDestino) return []
     return publicacionesDestino.filter(
       (p) =>
-        (!p.status || ['available', 'activo', 'disponible'].includes(p.status.toLowerCase())) &&
+        (!p.status || PUBLICATION_AVAILABLE_STATUSES.includes(p.status.toLowerCase())) &&
         ['trueque', 'ambos'].includes(p.type?.toLowerCase())
     )
   }, [publicacionesDestino])
@@ -109,7 +110,7 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino, 
         const data = await getMisPublicaciones()
         const activas = (data.publications ?? data).filter(
           (p) =>
-            (!p.status || ['available', 'activo', 'disponible'].includes(p.status.toLowerCase())) &&
+            (!p.status || PUBLICATION_AVAILABLE_STATUSES.includes(p.status.toLowerCase())) &&
             ['trueque', 'ambos'].includes(p.type?.toLowerCase())
         )
         setMisPublicaciones(activas)
@@ -271,7 +272,7 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino, 
           </div>
           <p className="text-[10px] font-bold text-slate-800 truncate">{activeDestinoPub?.title}</p>
           {(activeDestinoPub?.price || activeDestinoPub?.precio) > 0 && (
-            <p className="text-[11px] font-black text-emerald-600">${(activeDestinoPub.price || activeDestinoPub.precio).toLocaleString('es-AR')}</p>
+            <p className="text-[11px] font-black text-emerald-600">{formatCurrency(activeDestinoPub.price || activeDestinoPub.precio)}</p>
           )}
           <span className="text-[9px] text-slate-400 uppercase font-bold tracking-tighter">Recibís</span>
         </div>
@@ -288,7 +289,7 @@ export default function ModalIntercambio({ isOpen, onClose, publicacionDestino, 
           </div>
           <p className="text-[10px] font-bold text-slate-800 truncate">{selectedPub?.title}</p>
           {(selectedPub?.price || selectedPub?.precio) > 0 && (
-            <p className="text-[11px] font-black text-emerald-600">${(selectedPub.price || selectedPub.precio).toLocaleString('es-AR')}</p>
+            <p className="text-[11px] font-black text-emerald-600">{formatCurrency(selectedPub.price || selectedPub.precio)}</p>
           )}
           <span className="text-[9px] text-brand uppercase font-bold tracking-tighter">Entregás</span>
         </div>
